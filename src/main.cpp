@@ -2,32 +2,38 @@
 #include "Assets/ModelImporter.h"
 #include "Components/Rotator.h"
 #include "Assets/ResourceManager.h"
+#include "Core/Window.h"
+
+#include "Components/Camera.h"
 
 #include <chrono>
 #include <format>
 #include <unordered_map>
 #include <Components/Light.h>
 
-Material *material;
-Material* material2;
+static Window* window;
+
+Material* material;
 
 void CreateScene()
 {
-	Mesh *monkeyMesh = ResourceManager::GetMesh("Assets/models/ChunkEmpty.entm");
+	Mesh *monkeyMesh = ResourceManager::GetMesh("Assets/models/Monkey.entm");
 	material = new Material();
 	material->shader = ResourceManager::GetShader("Assets/shaders/unlitShader");
 	material->textures["tex0"] = ResourceManager::GetTexture("Assets/textures/floor.png", GL_RGBA).get();
 
-	Scene* scene = new Scene();
+	Scene *scene = new Scene();
 
 	GameObject *cam = new GameObject();
 
-	cam->AddComponent<Camera>();
+	cam->AddComponent<Camera>(window);
 	cam->name = "Camera";
 	cam->transform->SetPosition(glm::vec3(0, 0, -5));
+
+	cam->transform->SetRotation(glm::vec3(0,90.0f,0));
 	scene->AddGameObject(cam);
 
-	GameObject* pr = new GameObject();
+	GameObject *pr = new GameObject();
 	pr->name = "Papka";
 	scene->AddGameObject(pr);
 
@@ -35,15 +41,15 @@ void CreateScene()
 	{
 		for (int il = 0; il < 5; il++)
 		{
-			GameObject* monkey = new GameObject();
-			monkey->name = std::format("Object {} {}", i,il);
+			GameObject *monkey = new GameObject();
+			monkey->name = std::format("Object {} {}", i, il);
 			monkey->transform->SetScale(glm::vec3(12));
 			monkey->AddComponent<MeshRenderer>();
 			auto renderer = monkey->GetComponent<MeshRenderer>();
 			renderer->SetMesh(monkeyMesh);
 			renderer->material = material;
 
-			monkey->transform->SetPosition(glm::vec3(24 * i, 0 ,24 * il));
+			monkey->transform->SetPosition(glm::vec3(24 * i, 0, 24 * il));
 			monkey->transform->SetParent(pr->transform);
 
 			scene->AddGameObject(monkey);
@@ -54,11 +60,11 @@ void CreateScene()
 	{
 		for (int il = 0; il < 4; il++)
 		{
-			GameObject* light = new GameObject();
+			GameObject *light = new GameObject();
 			light->name = std::format("light {} {}", i, il);
 
 			light->AddComponent<Light>();
-			
+
 			light->transform->SetPosition(glm::vec3(24 * i, 1, 24 * il));
 			light->transform->SetParent(pr->transform);
 
@@ -74,11 +80,15 @@ int main(int argc, char *args[])
 	Engine engine;
 	engine = Engine();
 	engine.Initialize();
-	Screen::SetVerticalSync(false);
+
+	window = engine.CreateWindow();
+	window->Initialize(VoidCore::RHI::GraphicsAPI::OpenGL);
 
 	CreateScene();
+
+
+
 	engine.Run();
 	engine.ShutDown();
-	delete material;
 	return 0;
 }

@@ -9,6 +9,7 @@ class Scene {
 public:
 	std::string name = "Scene";
 	std::vector<GameObject*> gameObjects;
+
 	Scene();
 	~Scene()
 	{

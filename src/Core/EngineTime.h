@@ -1,5 +1,6 @@
 #pragma once
-#include <glfw3.h>
+#include <SDL3/SDL.h>
+
 class Time
 {
 public:
@@ -8,11 +9,15 @@ public:
 	inline static float timeScale = 1.0f;
 	inline static float unscaledDeltaTime = 0.0f;
 	inline static float unscaledTime = 0.0f;
+
 	static void Update()
 	{
-		time = glfwGetTime();
-		unscaledDeltaTime = time - unscaledTime;
-		unscaledTime = time;
+		float currentTime = (float)SDL_GetTicks() / 1000.0f;
+
+		unscaledDeltaTime = currentTime - unscaledTime;
+		unscaledTime = currentTime;
+		time = unscaledTime;
+
 		deltaTime = unscaledDeltaTime * timeScale;
 	}
 };

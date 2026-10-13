@@ -1,59 +1,83 @@
 #include "Engine.h"
-#include "DebugUI.h"
+#include <Device/RenderDeviceFactory.hpp>
 
 bool Engine::Initialize()
 {
 	PrintLogo();
-	Debug::Log("Initializing Entropy Engine (C++20)");
+	Debug::Log("Initializing VoidCore (C++20)");
 
-	if (Screen::Initialize() != 0) return false;
-	DebugUI::Initialize();
 	return true;
 }
 
 void Engine::Run()
 {
 	isRunning = true;
-	renderer = new Renderer();
-
 	while (isRunning)
 	{
-		Update();
-		Render();
-
-		if (Screen::isWindowShouldClose()) isRunning = false;
+		if(windows.size() > 0)
+		{
+			Update();
+		}
 	}
 }
 
 void Engine::Update()
 {
 	Time::Update();
-	SceneManager::Update();
-	DebugUI::Update();
-	Screen::Update();
+
+	for (size_t i = 0; i < windows.size(); i++)
+	{
+		windows[i]->Update();
+
+		if (windows[i]->ShouldClose())
+		{
+			windows.erase(windows.begin() + i);
+			i--;
+			continue;
+		}
+
+		windows[i]->MakeCurrent();
+
+		// Окно само управляет своим рендерером и отрисовкой!
+		Renderer *renderer = windows[i]->GetRenderer();
+		renderer->Clear();
+		renderer->Update();
+
+		SceneManager::Render(*renderer);
+
+		renderer->Flush();
+		windows[i]->EndFrame();
+	}
 }
 
 void Engine::PrintLogo()
 {
 	std::cout << R"(
-       _______  ____________  ____  ______  __
-      / ____/ | / /_  __/ __ \/ __ \/ __ \ \/ /
-     / __/ /  |/ / / / / /_/ / / / / /_/ /\  / 
-    / /___/ /|  / / / / _, _/ /_/ / ____/ / /  
-   /_____/_/ |_/ /_/ /_/ |_|\____/_/     /_/   
-    )" << std::endl;
++=============================================================+
+|                                                             |
+|                                                             |
+|      _    ______  ________     __________  ____  ______     |
+|     | |  / / __ \/  _/ __ \   / ____/ __ \/ __ \/ ____/     |
+|     | | / / / / // // / / /  / /   / / / / /_/ / __/        |
+|     | |/ / /_/ // // /_/ /  / /___/ /_/ / _, _/ /___        |
+|     |___/\____/___/_____/   \____/\____/_/ |_/_____/        |
+|                                                             |
+|                                                             |
++=============================================================+)" << std::endl;
 }
 
-void Engine::Render()
+Window *Engine::CreateWindow(int width, int height)
 {
-	renderer->Clear();
-	SceneManager::Render(*renderer);
+	auto window = std::make_unique<Window>(width, height);
+
+	Window *rawPtr = window.get();
+	windows.push_back(std::move(window));
+	return rawPtr;
 }
 
 void Engine::ShutDown()
 {
 	isRunning = false;
 	SceneManager::UnloadScene();
-	Screen::Destroy();
 	Debug::Log("GoodBye!");
 }

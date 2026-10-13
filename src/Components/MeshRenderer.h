@@ -1,8 +1,8 @@
 #pragma once
-#include "glad.h"
-#include "Graphics/VAO.h"
-#include "Graphics/VBO.h"
-#include "Graphics/EBO.h"
+#include "glad/glad.h"
+#include "Device/IVAO.hpp"
+#include "Device/IVBO.hpp"
+#include "Device/IEBO.hpp"
 #include <Graphics/RenderPipeline/Renderer.h>
 #include "Assets/Texture.h"
 #include "Components/Transform.h"

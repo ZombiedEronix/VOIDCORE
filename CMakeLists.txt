@@ -26,22 +26,34 @@ target_include_directories(Engine PRIVATE
     ${LIBS_DIR}/stb/include
     ${LIBS_DIR}/KHR/include
     ${LIBS_DIR}/objparser/obj
+    include
 )
 
 target_compile_definitions(Engine PRIVATE STB_IMAGE_IMPLEMENTATION)
 
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
+find_package(SDL3 REQUIRED)
+
 if(WIN32)
     target_link_libraries(Engine PRIVATE 
         opengl32.lib 
-        ${LIBS_DIR}/glfw/lib/Debug/glfw3.lib
+        SDL3::SDL3
+    )
+else()
+    target_link_libraries(Engine PRIVATE 
+        GL
+        SDL3::SDL3
+        pthread
+        dl
     )
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-
-set(CMAKE_CXX_COMPILER "clang-cl")
-set(CMAKE_C_COMPILER "clang-cl")
 
 set_target_properties(Engine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

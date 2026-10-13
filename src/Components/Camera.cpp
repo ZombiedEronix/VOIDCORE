@@ -1,10 +1,10 @@
 #include "Camera.h"
 
-Camera* Camera::main = nullptr;
-Camera::Camera()
-{
-	Camera::main = this;
+Window* window = nullptr;
 
+Camera::Camera(Window* wnd)
+{
+    window = wnd;
     glGenBuffers(1, &cameraUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, cameraUBO);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
@@ -30,7 +30,7 @@ void Camera::Update()
 
     view = rotationMat * translationMat;
 
-    float aspect = Screen::GetAspectRatio();
+    float aspect = window->GetAspectRatio();
     projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);
     cameraMatrix = projection * view;
 

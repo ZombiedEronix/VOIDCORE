@@ -12,7 +12,9 @@
 #include "Core/GameObject.h"
 #include "Components/Component.h"
 #include "Components/Transform.h"
-#include "Core/Screen.h"
+#include "Core/Window.h"
+
+class Window;
 
 
 class Camera : public Component
@@ -24,7 +26,6 @@ public:
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
-	static Camera* main;
 
 	unsigned int cameraUBO;
 
@@ -32,7 +33,7 @@ public:
 	float neardist = 0.01f;
 	float fardist = 1000;
 
-	Camera();
+	Camera(Window* window);
 
 	void Update() override;
 
