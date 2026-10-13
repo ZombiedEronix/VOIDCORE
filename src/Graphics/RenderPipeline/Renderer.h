@@ -35,7 +35,6 @@ private:
 	Camera *currentCamera = nullptr;
 
 	std::unique_ptr<VoidCore::RHI::IVBO> instanceVBO;
-	std::unique_ptr<VoidCOre::RHI::IUBO> uboCamera;
 	OpaquePass *opaquePass;
 
 	std::vector<RenderCommand> opaqueQueue;
