@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Device/IEBO.hpp"
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace VoidCore::RHI::OpenGL
 {

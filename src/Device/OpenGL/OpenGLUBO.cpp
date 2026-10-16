@@ -7,6 +7,16 @@ namespace VoidCore::RHI::OpenGL
         glGenBuffers(1, &m_id);
     }
 
+    OpenGLUBO::~OpenGLUBO()
+    {
+        glDeleteBuffers(1, &m_id);
+    }
+
+    unsigned int OpenGLUBO::GetID() const
+    {
+        return m_id;
+    }
+
     void OpenGLUBO::Bind()
     {
         glBindBuffer(GL_UNIFORM_BUFFER, m_id);

@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 out vec4 FragColor;
 in vec2 texCoord;
@@ -13,7 +13,7 @@ struct Light
     vec4 color;
 };
 
-layout (std140) uniform CameraBlock
+layout (std140, binding = 0) uniform CameraBlock
 {
     mat4 projection;
     mat4 view;

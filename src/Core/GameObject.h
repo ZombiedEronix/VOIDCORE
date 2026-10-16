@@ -2,10 +2,11 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <typeinfo>
 
 #include "Components/Component.h"
 #include "Components/Transform.h"
-
+#include "tracy/Tracy.hpp"
 
 class GameObject {
 public:

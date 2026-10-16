@@ -3,7 +3,7 @@
 #include "Device/IVAO.hpp"
 #include "Device/IVBO.hpp"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace VoidCore::RHI::OpenGL
 {

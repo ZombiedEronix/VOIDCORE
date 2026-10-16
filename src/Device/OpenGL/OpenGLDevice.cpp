@@ -1,3 +1,4 @@
+#define GLAD_GL_IMPLEMENTATION
 #include "OpenGLDevice.hpp"
 
 namespace VoidCore::RHI::OpenGL
@@ -15,10 +16,17 @@ namespace VoidCore::RHI::OpenGL
 
         context->MakeCurrent();
 
-        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+        int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+
+        if (version == 0)
         {
-            Debug::LogError("Failed to initialize Glad!");
-            return false;
+            std::cerr << "Пиздец, GLAD 2 не загрузился!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Успешно взлетел OpenGL "
+                      << GLAD_VERSION_MAJOR(version) << "."
+                      << GLAD_VERSION_MINOR(version) << std::endl;
         }
 
         Debug::Log("OpenGL Device Initialized. Version: ", (const char *)glGetString(GL_VERSION));

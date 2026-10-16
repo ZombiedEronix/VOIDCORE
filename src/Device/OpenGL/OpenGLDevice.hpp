@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Device/IRenderDevice.hpp"
+#include <glad/gl.h>
 #include <SDL3/SDL.h>
-#include <glad/glad.h>
 #include <Core/Debug.h>
 
 #include "OpenGLDevice.hpp"

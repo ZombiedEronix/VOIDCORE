@@ -5,13 +5,7 @@ Window* window = nullptr;
 Camera::Camera(Window* wnd)
 {
     window = wnd;
-    glGenBuffers(1, &cameraUBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, cameraUBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, cameraUBO);
+    // UBO камеры принадлежит Renderer (binding 0), здесь ничего не делаем.
 }
 
 glm::mat4 Camera::GetViewMatrix() const {

@@ -5,15 +5,12 @@ class GameObject;
 
 static bool s_JoltInitialized = false;
 
-
-
 Scene::Scene()
 {
 	if (!s_JoltInitialized)
 	{
 		s_JoltInitialized = true;
 	}
-
 }
 void Scene::AddGameObject(GameObject *gameObject)
 {
@@ -25,17 +22,21 @@ void Scene::AddGameObject(GameObject *gameObject)
 
 void Scene::Update()
 {
+	ZoneScopedN("Update Scene");
+
 	if (gameObjects.empty())
 		return;
 
 	for (auto &obj : gameObjects)
 	{
+		ZoneTransientN(___objectZone, obj->name.c_str(), true);
 		obj->Update();
 	}
 }
 
 void Scene::Render(Renderer &renderer)
 {
+	ZoneScoped;
 	for (GameObject *obj : gameObjects)
 	{
 		Camera *activeCamera = nullptr;
@@ -54,7 +55,7 @@ void Scene::Render(Renderer &renderer)
 			renderer.SetCamera(activeCamera);
 		}
 
-		if (activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+		if (activeCamera && !activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 			continue;
 
 		Light *light = obj->GetComponent<Light>();

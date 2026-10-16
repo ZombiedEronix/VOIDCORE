@@ -1,25 +1,21 @@
 #pragma once
 #include <string>
-#include <fstream>
-#include <glm.hpp>
-#include <glad/glad.h>
-#include <gtc/type_ptr.hpp>
-#include <iostream>
-#include <Core/Debug.h>
+#include <memory>
+#include "Device/IShader.hpp"
 
 std::string get_file_contents(const char *filename);
 
+// Тонкая обёртка над RHI-шейдером: движок не знает о конкретном API.
 class Shader
 {
 private:
-	private:
-	int GetUniformLocation(const std::string &name);
-	std::unordered_map<std::string, int> uniformCache;
+    std::unique_ptr<VoidCore::RHI::IShader> impl;
+
 public:
-	unsigned int ID;
-	Shader(const char *vertexfile, const char *fragmentFile);
-	void Load();
-	void SetInt(const std::string& name, int value);
-	void SetFloat(const std::string& name, float value);
-	void Delete();
+    Shader(const char *vertexFile, const char *fragmentFile);
+
+    void Load();
+    void SetInt(const std::string &name, int value);
+    void SetFloat(const std::string &name, float value);
+    unsigned int GetID() const;
 };

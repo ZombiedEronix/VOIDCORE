@@ -89,7 +89,7 @@ bool Window::Initialize(VoidCore::RHI::GraphicsAPI api)
         "VoidCore Engine",
         width,
         height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
 
     if (!windowPtr)
     {

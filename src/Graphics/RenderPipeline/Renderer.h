@@ -6,7 +6,9 @@
 #include "Graphics/RenderPipeline/RenderCommand.h"
 #include "Graphics/RenderPipeline/LightCommand.h"
 #include "Device/IVBO.hpp"
+#include "Device/IUBO.hpp"
 #include "Components/Camera.h"
+#include "tracy/Tracy.hpp"
 
 class Camera;
 class OpaquePass;
@@ -31,7 +33,7 @@ struct RenderStats
 class Renderer
 {
 private:
-	unsigned int uboCamera;
+	std::unique_ptr<VoidCore::RHI::IUBO> uboCamera;
 	Camera *currentCamera = nullptr;
 
 	std::unique_ptr<VoidCore::RHI::IVBO> instanceVBO;

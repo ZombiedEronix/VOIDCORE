@@ -2,6 +2,7 @@
 
 void SceneManager::LoadScene(Scene* obj)
 {
+	ZoneScopedN("SceneManager Load Scene");
 	if (currentScene != nullptr)
 	{
 		UnloadScene();
@@ -13,6 +14,7 @@ void SceneManager::LoadScene(Scene* obj)
 
 void SceneManager::Update()
 {
+	ZoneScopedN("SceneManager Update Scene");
 	if (currentScene != nullptr)
 	{
 		currentScene->Update();
@@ -21,6 +23,7 @@ void SceneManager::Update()
 
 void SceneManager::Render(Renderer& renderer)
 {
+	ZoneScopedN("SceneManager Render Scene");
 	if (currentScene != nullptr)
 	{
 		currentScene->Render(renderer);
@@ -29,6 +32,7 @@ void SceneManager::Render(Renderer& renderer)
 
 void SceneManager::UnloadScene()
 {
+	ZoneScopedN("SceneManager Unload Scene");
 	if (currentScene != nullptr)
 	{
 		Debug::Log("Unloading Scene : ", currentScene->name);

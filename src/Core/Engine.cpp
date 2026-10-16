@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <Device/RenderDeviceFactory.hpp>
+#include "tracy/Tracy.hpp"
 
 bool Engine::Initialize()
 {
@@ -14,40 +15,35 @@ void Engine::Run()
 	isRunning = true;
 	while (isRunning)
 	{
-		if(windows.size() > 0)
-		{
-			Update();
-		}
+		Update();
 	}
 }
 
 void Engine::Update()
 {
+	ZoneScopedN("Full Frame");
 	Time::Update();
+	SceneManager::Update();
 
-	for (size_t i = 0; i < windows.size(); i++)
+	if(window != nullptr)
 	{
-		windows[i]->Update();
-
-		if (windows[i]->ShouldClose())
+		window->Update();
+		
+		if (window->ShouldClose())
 		{
-			windows.erase(windows.begin() + i);
-			i--;
-			continue;
+			ShutDown();
 		}
-
-		windows[i]->MakeCurrent();
-
-		// Окно само управляет своим рендерером и отрисовкой!
-		Renderer *renderer = windows[i]->GetRenderer();
+		
+		Renderer *renderer = window->GetRenderer();
 		renderer->Clear();
 		renderer->Update();
-
+		
 		SceneManager::Render(*renderer);
-
+		
 		renderer->Flush();
-		windows[i]->EndFrame();
+		window->EndFrame();
 	}
+	FrameMark;
 }
 
 void Engine::PrintLogo()
@@ -63,16 +59,20 @@ void Engine::PrintLogo()
 |     |___/\____/___/_____/   \____/\____/_/ |_/_____/        |
 |                                                             |
 |                                                             |
-+=============================================================+)" << std::endl;
++=============================================================+)"
+			  << std::endl;
 }
 
-Window *Engine::CreateWindow(int width, int height)
+void Engine::CreateWindow(int width, int height)
 {
-	auto window = std::make_unique<Window>(width, height);
+	ZoneScoped;
+	window = new Window(width, height);
+	window->Initialize();
+}
 
-	Window *rawPtr = window.get();
-	windows.push_back(std::move(window));
-	return rawPtr;
+Window* Engine::GetWindow(int id)
+{
+	return window;
 }
 
 void Engine::ShutDown()

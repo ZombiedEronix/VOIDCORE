@@ -15,7 +15,9 @@ GameObject::~GameObject() {
 }
 
 void GameObject::Update() {
+    ZoneScoped;
     for (auto& comp : components) {
+        ZoneTransientN(___compZone, typeid(*comp).name(), true);
         comp->Update();
     }
 }

@@ -11,7 +11,8 @@
 class Engine {
 private:
 	bool isRunning;
-	std::vector<std::unique_ptr<Window>> windows;
+
+	Window* window;
 	void Update();
 	void PrintLogo();
 public:
@@ -19,6 +20,7 @@ public:
 	void Run();
 	void ShutDown();
 
-	Window *CreateWindow(int width = 1280, int height = 720);
+	Window* GetWindow(int id = 0);
+	void CreateWindow(int width = 1280, int height = 720);
 	void CloseWindow(Window *window);
 };

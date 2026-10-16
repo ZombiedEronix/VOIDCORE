@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Device/IUBO.hpp"
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace VoidCore::RHI::OpenGL
 {
@@ -15,6 +15,7 @@ namespace VoidCore::RHI::OpenGL
         ~OpenGLUBO();
         void Bind() override;
         void Unbind() override;
+        unsigned int GetID() const override;
         void SetData(const void *data, uint32_t size) override;
     };
 }

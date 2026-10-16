@@ -14,23 +14,28 @@ file(GLOB SHADER_FILES
 )
 source_group("Shader Files" FILES ${SHADER_FILES})
 
-add_executable(Engine ${SOURCES} ${HEADERS} ${SHADER_FILES})
-
 set(LIBS_DIR ${CMAKE_SOURCE_DIR}/libs)
+
+add_executable(Engine 
+    ${SOURCES} 
+    ${HEADERS} 
+    ${SHADER_FILES}
+    ${LIBS_DIR}/Tracy/TracyClient.cpp
+)
 
 target_include_directories(Engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${LIBS_DIR}/glfw/include
     ${LIBS_DIR}/glm/include
-    ${LIBS_DIR}/glad/include
+    ${LIBS_DIR}/glad
     ${LIBS_DIR}/stb/include
     ${LIBS_DIR}/KHR/include
+    ${LIBS_DIR}/Tracy
     ${LIBS_DIR}/objparser/obj
     include
 )
 
-target_compile_definitions(Engine PRIVATE STB_IMAGE_IMPLEMENTATION)
-
+target_compile_definitions(Engine PRIVATE STB_IMAGE_IMPLEMENTATION TRACY_ENABLE TRACY_MAX_FRAME_TIME=100)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)

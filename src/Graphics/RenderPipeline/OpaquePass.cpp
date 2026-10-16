@@ -12,7 +12,7 @@ void OpaquePass::Execute(Renderer* renderer, std::vector<RenderCommand>& renderQ
     std::sort(renderQueue.begin(), renderQueue.end(), [](const RenderCommand& a, const RenderCommand& b)
         {
             if (a.material->shader != b.material->shader)
-                return a.material->shader->ID < b.material->shader->ID;
+                return a.material->shader->GetID() < b.material->shader->GetID();
             return a.mesh < b.mesh;
         });
 

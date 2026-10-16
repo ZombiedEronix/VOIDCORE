@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
@@ -10,17 +10,17 @@
 #include "Graphics/RenderPipeline/OpaquePass.h"
 #include "Device/RenderFactory.hpp"
 
+
 Renderer::Renderer()
 {
     instanceVBO = VoidCore::RHI::RenderFactory::CreateVBO(NULL, currentBufferCapacity * sizeof(glm::mat4));
     block = ShaderBlock();
 
-    glGenBuffers(1, &uboCamera);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboCamera);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(ShaderBlock), NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    uboCamera = VoidCore::RHI::RenderFactory::CreateUBO();
+    uboCamera->SetData(NULL, sizeof(ShaderBlock));
+    uboCamera->Unbind();
 
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboCamera);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboCamera->GetID());
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -81,7 +81,8 @@ void Renderer::SubmitLight(const LightCommand &light)
 
 void Renderer::Update()
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, uboCamera);
+    ZoneScopedN("Renderer::Update");
+    uboCamera->Bind();
     if (currentCamera)
     {
         block.projection = currentCamera->projection;
@@ -96,12 +97,13 @@ void Renderer::Update()
     block.time = Time::time;
     block.deltaTime = Time::deltaTime;
 
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderBlock), &block);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    uboCamera->SetData(&block, sizeof(ShaderBlock));
+    uboCamera->Unbind();
 }
 
 void Renderer::Flush()
 {
+    ZoneScoped;
     stats.Reset();
     opaquePass->Execute(this, opaqueQueue);
     opaqueQueue.clear();
@@ -110,6 +112,7 @@ void Renderer::Flush()
 
 void Renderer::DrawBatch(const std::vector<RenderCommand> &queue)
 {
+    ZoneScoped;
     UpdateInstanceBuffer(queue.size());
 
     for (size_t i = 0; i < queue.size();)
@@ -135,6 +138,7 @@ void Renderer::DrawBatch(const std::vector<RenderCommand> &queue)
 
         stats.instanceCount += count;
 
+        instanceVBO->Bind();
         for (int k = 0; k < 4; k++)
         {
             glEnableVertexAttribArray(3 + k);

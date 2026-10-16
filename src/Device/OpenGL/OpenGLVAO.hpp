@@ -1,6 +1,6 @@
 #pragma once
 #include "Device/IVAO.hpp"
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace VoidCore::RHI::OpenGL
 {

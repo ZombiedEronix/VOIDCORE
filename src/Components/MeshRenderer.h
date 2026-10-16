@@ -1,5 +1,5 @@
 #pragma once
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "Device/IVAO.hpp"
 #include "Device/IVBO.hpp"
 #include "Device/IEBO.hpp"

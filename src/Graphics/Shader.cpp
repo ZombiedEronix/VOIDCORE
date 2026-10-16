@@ -1,87 +1,48 @@
 #include "Shader.h"
+#include <fstream>
+#include "Device/RenderFactory.hpp"
+#include "Core/Debug.h"
 
-Shader::Shader(const char *VertexFile, const char *FragmentChar)
+Shader::Shader(const char *vertexFile, const char *fragmentFile)
 {
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#if defined _DEBUG
-	Debug::Log("---------------------------------");
-	Debug::Log("Loading shader from files: ", VertexFile, " and ", FragmentChar);
-#endif
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-	std::string VertexCode = get_file_contents(VertexFile);
-	std::string FragmentCode = get_file_contents(FragmentChar);
-	const char *VertexSource = VertexCode.c_str();
-	const char *FragmentSource = FragmentCode.c_str();
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &VertexSource, NULL);
-	glCompileShader(vertexShader);
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-	GLint success;
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &FragmentSource, NULL);
-	glCompileShader(fragmentShader);
-
-	ID = glCreateProgram();
-	glAttachShader(ID, vertexShader);
-	glAttachShader(ID, fragmentShader);
-	glLinkProgram(ID);
-	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+    std::string vs = get_file_contents(vertexFile);
+    std::string fs = get_file_contents(fragmentFile);
+    impl = VoidCore::RHI::RenderFactory::CreateShader(vs, fs);
 }
 
 std::string get_file_contents(const char *filename)
 {
-	std::ifstream in(filename, std::ios::binary);
-	if (in)
-	{
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
-		in.close();
-		return (contents);
-	}
-#if defined _DEBUG
-	else
-	{
-		Debug::Log("Failed to load shader file: ", filename);
-	}
-#endif
-	return "";
-}
-
-int Shader::GetUniformLocation(const std::string& name)
-{
-	auto it = uniformCache.find(name);
-	if(it != uniformCache.end()) return it->second;
-
-	int loc = glGetUniformLocation(ID, name.c_str());
-	uniformCache[name] = loc;
-	return loc;
-}
-
-void Shader::SetInt(const std::string &name, int value)
-{
-	glUniform1i(GetUniformLocation(name), value);
-}
-
-void Shader::SetFloat(const std::string &name, float value)
-{
-	glUniform1f(GetUniformLocation(name), value);
-}
-
-
-void Shader::Delete()
-{
-	glDeleteProgram(ID);
+    std::ifstream in(filename, std::ios::binary);
+    if (in)
+    {
+        std::string contents;
+        in.seekg(0, std::ios::end);
+        contents.resize(in.tellg());
+        in.seekg(0, std::ios::beg);
+        in.read(&contents[0], contents.size());
+        in.close();
+        return contents;
+    }
+    Debug::LogError("Failed to load shader file: ", filename);
+    return "";
 }
 
 void Shader::Load()
 {
-	glUseProgram(ID);
+    if (impl) impl->Use();
+}
+
+void Shader::SetInt(const std::string &name, int value)
+{
+    if (impl) impl->SetInt(name, value);
+}
+
+void Shader::SetFloat(const std::string &name, float value)
+{
+    if (impl) impl->SetFloat(name, value);
+}
+
+unsigned int Shader::GetID() const
+{
+    return impl ? impl->GetID() : 0;
 }
