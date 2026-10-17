@@ -35,8 +35,9 @@ void Camera::Update()
     planes[1] = m[3] + m[0]; // Right
     planes[2] = m[3] - m[1]; // Bottom
     planes[3] = m[3] + m[1]; // Top
-    planes[4] = m[3] - m[2]; // Near
-    planes[5] = m[3] + m[2]; // Far
+    // Глубина NDC в [0,1] (GLM_FORCE_DEPTH_ZERO_TO_ONE): 0 <= z <= w.
+    planes[4] = m[3] - m[2]; // Far  (z <= w)
+    planes[5] = m[2];        // Near (z >= 0)  — в GL-конвенции [-1,1] было бы m[3] + m[2]
 
     for (int i = 0; i < 6; ++i) {
         float length = glm::length(glm::vec3(planes[i]));

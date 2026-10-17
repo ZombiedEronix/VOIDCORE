@@ -7,5 +7,6 @@ class Renderer;
 class OpaquePass : public IRenderPass
 {
 public:
+    void Sort(std::vector<RenderCommand>& renderQueue) override;
     void Execute(Renderer* renderer, std::vector<RenderCommand>& renderQueue) override;
 };

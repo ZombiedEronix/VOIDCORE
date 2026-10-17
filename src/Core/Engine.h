@@ -6,13 +6,13 @@
 #include "Core/EngineTime.h"
 #include "Core/Debug.h"
 #include "Graphics/RenderPipeline/Renderer.h"
-#include "Device/IRenderDevice.hpp"
+#include "Device/RHI.hpp"
 
 class Engine {
 private:
-	bool isRunning;
+	bool isRunning = false;
 
-	Window* window;
+	Window* window = nullptr;
 	void Update();
 	void PrintLogo();
 public:

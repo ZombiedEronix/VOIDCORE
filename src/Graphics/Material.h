@@ -1,7 +1,9 @@
 #pragma once
-#include <Graphics/Shader.h>
-#include <Assets/Texture.h>
-#include <map>
+#include "Device/RHI.hpp"
+#include "Graphics/Shader.h"
+#include "Graphics/VertexLayouts.h"
+#include "Assets/Texture.h"
+#include "Core/Debug.h"
 
 enum class RenderQueue {
 	Opaque,
@@ -12,37 +14,67 @@ enum class RenderQueue {
 class Material
 {
 public:
-	Shader* shader;
+	Shader *shader = nullptr;
 	RenderQueue queueType = RenderQueue::Opaque;
 
+	// Слот = layout(binding = N) sampler2D в шейдере.
+	void SetTexture(uint32_t slot, Texture *tex)
+	{
+		if (slot < VoidCore::RHI::kMaxTextureSlots)
+			textures[slot] = tex;
+	}
 
-    std::map<std::string, Texture*> textures;
-    std::map<std::string, float> floats;
+	// Привязывает pipeline и текстуры. false — материал невалиден, рисовать нельзя.
+	bool Apply(VoidCore::RHI::ICommandList *cmd)
+	{
+		if (!pipeline && !buildFailed)
+			Build();
+		if (!pipeline)
+			return false;
 
-    void ApplyStatic()
-    {
-        shader->Load();
+		cmd->SetPipeline(pipeline.get());
+		for (uint32_t slot = 0; slot < VoidCore::RHI::kMaxTextureSlots; ++slot)
+		{
+			if (textures[slot])
+				cmd->SetTexture(slot, textures[slot]->GetRHI(), textures[slot]->GetSampler());
+		}
+		return true;
+	}
 
-        if (queueType == RenderQueue::Transparent) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDepthMask(GL_FALSE);
-        }
-        else {
-            glDisable(GL_BLEND);
-            glDepthMask(GL_TRUE);
-        }
+private:
+	// Всё, что раньше делали glEnable/glBlendFunc/glDepthMask при каждой отрисовке,
+	// теперь запекается в pipeline один раз. queueType после первого Apply не менять.
+	void Build()
+	{
+		using namespace VoidCore::RHI;
+		if (!shader || !shader->IsValid())
+		{
+			Debug::LogError("Material: shader is missing or failed to compile");
+			buildFailed = true;
+			return;
+		}
 
-        int textureUnit = 0;
-        for (const auto& [name, tex] : textures) {
-            glActiveTexture(GL_TEXTURE0 + textureUnit);
-            tex->Bind();
-            shader->SetInt(name, textureUnit);
-            textureUnit++;
-        }
+		GraphicsPipelineDesc d;
+		d.vertexShader = shader->GetVS();
+		d.fragmentShader = shader->GetFS();
+		SetupMeshInputLayout(d);
 
-        for (const auto& [name, value] : floats) {
-            shader->SetFloat(name, value);
-        }
-    }
+		d.colorTargetCount = 1;
+		d.colorFormats[0] = Format::RGBA8_UNORM;
+		d.depthFormat = Format::D24_UNORM_S8_UINT;
+
+		if (queueType == RenderQueue::Transparent)
+		{
+			d.blend[0].enable = true; // SrcAlpha / OneMinusSrcAlpha — значения по умолчанию
+			d.depth.writeEnable = false;
+		}
+
+		d.debugName = "MaterialPipeline";
+		pipeline = GetDevice().CreatePipeline(d);
+		buildFailed = (pipeline == nullptr);
+	}
+
+	Texture *textures[VoidCore::RHI::kMaxTextureSlots] = {};
+	VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
+	bool buildFailed = false;
 };

@@ -5,8 +5,7 @@
 #include <memory>
 #include <SDL3/SDL.h>
 #include <Core/Debug.h>
-#include "Device/IRenderDevice.hpp"
-#include "Device/RenderDeviceFactory.hpp"
+#include "Device/RHI.hpp"
 #include "Core/Event.h"
 
 #include "Graphics/RenderPipeline/Renderer.h"
@@ -16,7 +15,7 @@ class Renderer;
 class Window
 {
 private:
-	Renderer *renderer;
+	Renderer *renderer = nullptr;
 	SDL_Window *windowPtr = nullptr;
 	std::unique_ptr<VoidCore::RHI::IRenderDevice> renderDevice;
 	int width = 1280;
@@ -36,7 +35,6 @@ public:
 	void Update();
 
 	void EndFrame();
-	void MakeCurrent();
 
 	void SetResolution(int w, int h);
 

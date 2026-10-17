@@ -71,6 +71,5 @@ void Scene::Render(Renderer &renderer)
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
 
-	renderer.Update();
-	renderer.Flush();
+	// Загрузка буферов и сам render pass делает Renderer::Flush(), его вызывает Engine.
 }

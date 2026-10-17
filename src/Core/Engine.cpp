@@ -1,5 +1,6 @@
 #include "Engine.h"
-#include <Device/RenderDeviceFactory.hpp>
+#include "Device/RHI.hpp"
+#include "Assets/ResourceManager.h"
 #include "tracy/Tracy.hpp"
 
 bool Engine::Initialize()
@@ -28,20 +29,20 @@ void Engine::Update()
 	if(window != nullptr)
 	{
 		window->Update();
-		
+
 		if (window->ShouldClose())
 		{
 			ShutDown();
+			return;
 		}
-		
+
+		auto *device = window->GetRenderDevice();
 		Renderer *renderer = window->GetRenderer();
-		renderer->Clear();
-		renderer->Update();
-		
-		SceneManager::Render(*renderer);
-		
-		renderer->Flush();
-		window->EndFrame();
+
+		renderer->BeginFrame(device->BeginFrame());
+		SceneManager::Render(*renderer); // Submit / SubmitLight
+		renderer->Flush();               // апдейт буферов + render pass + draw'ы
+		device->EndFrame();              // submit + present
 	}
 	FrameMark;
 }
@@ -79,5 +80,10 @@ void Engine::ShutDown()
 {
 	isRunning = false;
 	SceneManager::UnloadScene();
+
+	// GPU-ресурсы должны умереть раньше устройства (его владеет Window).
+	ResourceManager::Clear();
+	delete window;
+	window = nullptr;
 	Debug::Log("GoodBye!");
 }

@@ -1,21 +1,22 @@
 #pragma once
 #include <string>
-#include <memory>
-#include "Device/IShader.hpp"
+#include "Device/RHI.hpp"
 
 std::string get_file_contents(const char *filename);
 
-// Тонкая обёртка над RHI-шейдером: движок не знает о конкретном API.
+// Пара стадий (VS + FS). Сам по себе ничего не рисует: из него Material
+// собирает IPipeline. Никаких SetInt/SetFloat по имени — параметры идут через
+// uniform-буферы и текстурные слоты (binding задаётся в самом шейдере).
 class Shader
 {
 private:
-    std::unique_ptr<VoidCore::RHI::IShader> impl;
+    VoidCore::RHI::Ref<VoidCore::RHI::IShader> vs;
+    VoidCore::RHI::Ref<VoidCore::RHI::IShader> fs;
 
 public:
     Shader(const char *vertexFile, const char *fragmentFile);
 
-    void Load();
-    void SetInt(const std::string &name, int value);
-    void SetFloat(const std::string &name, float value);
-    unsigned int GetID() const;
+    VoidCore::RHI::IShader *GetVS() const { return vs.get(); }
+    VoidCore::RHI::IShader *GetFS() const { return fs.get(); }
+    bool IsValid() const { return vs && fs; }
 };

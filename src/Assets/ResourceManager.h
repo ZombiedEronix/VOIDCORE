@@ -5,19 +5,20 @@
 #include <vector>
 #include "Assets/Texture.h"
 #include "Assets/Mesh.h"
-#include "ModelImporter.h" 
+#include "Graphics/Shader.h"
+#include "ModelImporter.h"
 
 class ResourceManager {
 private:
-	static std::map<std::string, std::shared_ptr<Texture>> textures;
-	static std::map<std::string, std::shared_ptr<Mesh>> meshes;
-	static std::map<std::string, std::shared_ptr<Shader>> shaders;
+	inline static std::map<std::string, std::shared_ptr<Texture>> textures;
+	inline static std::map<std::string, std::shared_ptr<Mesh>> meshes;
+	inline static std::map<std::string, std::shared_ptr<Shader>> shaders;
 
 public:
 	template<typename T>
 	static std::shared_ptr<T> GetResource(const std::string& path) {
 		if constexpr (std::is_same_v<T, Texture>) {
-			return std::static_pointer_cast<T>(GetTexture(path, GL_RGB));
+			return std::static_pointer_cast<T>(GetTexture(path, false));
 		}
 		if constexpr (std::is_same_v<T, Mesh>) {
 			// Передаем путь в метод!
@@ -26,9 +27,9 @@ public:
 		return nullptr;
 	}
 
-	static std::shared_ptr<Texture> GetTexture(const std::string& path, GLint internalFormat) {
+	static std::shared_ptr<Texture> GetTexture(const std::string& path, bool srgb = false) {
 		if (textures.find(path) == textures.end()) {
-			textures[path] = std::make_shared<Texture>(path.c_str(), internalFormat);
+			textures[path] = std::make_shared<Texture>(path.c_str(), srgb);
 		}
 		return textures[path];
 	}
@@ -59,8 +60,12 @@ public:
 		}
 		return shaders[basePath].get();
 	}
-};
 
-std::map<std::string, std::shared_ptr<Texture>> ResourceManager::textures;
-std::map<std::string, std::shared_ptr<Mesh>> ResourceManager::meshes;
-std::map<std::string, std::shared_ptr<Shader>> ResourceManager::shaders;
+	// Освободить все GPU-ресурсы. Вызывать ДО уничтожения render device.
+	static void Clear() {
+		textures.clear();
+		meshes.clear();
+		shaders.clear();
+		Texture::ReleaseSharedResources();
+	}
+};

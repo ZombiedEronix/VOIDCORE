@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "glad/gl.h"
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
@@ -8,22 +7,21 @@
 #include "Components/Camera.h"
 #include "Core/EngineTime.h"
 #include "Graphics/RenderPipeline/OpaquePass.h"
-#include "Device/RenderFactory.hpp"
 
+using namespace VoidCore::RHI;
 
 Renderer::Renderer()
 {
-    instanceVBO = VoidCore::RHI::RenderFactory::CreateVBO(NULL, currentBufferCapacity * sizeof(glm::mat4));
     block = ShaderBlock();
 
-    uboCamera = VoidCore::RHI::RenderFactory::CreateUBO();
-    uboCamera->SetData(NULL, sizeof(ShaderBlock));
-    uboCamera->Unbind();
+    BufferDesc cb;
+    cb.size = sizeof(ShaderBlock);
+    cb.usage = BufferUsage::Uniform;
+    cb.memory = MemoryType::Dynamic;
+    cb.debugName = "FrameUBO";
+    cameraBuffer = GetDevice().CreateBuffer(cb);
 
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboCamera->GetID());
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    CreateInstanceBuffer(currentBufferCapacity);
 
     opaquePass = new OpaquePass();
 }
@@ -31,6 +29,17 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
     delete opaquePass;
+}
+
+void Renderer::CreateInstanceBuffer(size_t capacity)
+{
+    BufferDesc ib;
+    ib.size = capacity * sizeof(glm::mat4);
+    ib.usage = BufferUsage::Vertex;
+    ib.memory = MemoryType::Dynamic;
+    ib.debugName = "InstanceBuffer";
+    instanceBuffer = GetDevice().CreateBuffer(ib);
+    currentBufferCapacity = capacity;
 }
 
 void Renderer::SetCamera(Camera *camera)
@@ -43,15 +52,9 @@ const RenderStats &Renderer::GetStats() const
     return stats;
 }
 
-void Renderer::UpdateInstanceBuffer(size_t totalObjects)
+void Renderer::BeginFrame(ICommandList *commandList)
 {
-    if (totalObjects > currentBufferCapacity)
-    {
-        currentBufferCapacity = totalObjects * 2;
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO->GetID());
-        glBufferData(GL_ARRAY_BUFFER, currentBufferCapacity * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+    cmd = commandList;
 }
 
 void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
@@ -61,13 +64,9 @@ void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
     case RenderQueue::Opaque:
         opaqueQueue.push_back({mesh, mat, model});
         break;
+    default:
+        break;
     }
-}
-
-void Renderer::Clear()
-{
-    glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
 void Renderer::SubmitLight(const LightCommand &light)
@@ -79,10 +78,8 @@ void Renderer::SubmitLight(const LightCommand &light)
     }
 }
 
-void Renderer::Update()
+void Renderer::UploadFrameData()
 {
-    ZoneScopedN("Renderer::Update");
-    uboCamera->Bind();
     if (currentCamera)
     {
         block.projection = currentCamera->projection;
@@ -97,57 +94,83 @@ void Renderer::Update()
     block.time = Time::time;
     block.deltaTime = Time::deltaTime;
 
-    uboCamera->SetData(&block, sizeof(ShaderBlock));
-    uboCamera->Unbind();
+    cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
+}
+
+// Все матрицы кадра — одним куском. Каждый батч потом рисуется со своим
+// firstInstance. Так работает и в Vulkan/Metal: GPU не читает данные,
+// которые мы перезаписываем посреди кадра.
+void Renderer::UploadInstances(const std::vector<RenderCommand> &queue)
+{
+    matrices.clear();
+    matrices.reserve(queue.size());
+    for (const RenderCommand &c : queue)
+        matrices.push_back(c.modelMatrix);
+
+    if (matrices.size() > currentBufferCapacity)
+        CreateInstanceBuffer(matrices.size() * 2);
+
+    if (!matrices.empty())
+        cmd->UpdateBuffer(instanceBuffer.get(), matrices.data(), matrices.size() * sizeof(glm::mat4));
 }
 
 void Renderer::Flush()
 {
     ZoneScoped;
+    if (!cmd)
+        return;
     stats.Reset();
+
+    // 1) CPU → GPU. Вне render pass, после того как сцена сделала все Submit*.
+    UploadFrameData();
+    opaquePass->Sort(opaqueQueue);
+    UploadInstances(opaqueQueue);
+
+    // 2) Проход.
+    RenderPassDesc pass;
+    pass.debugName = "Main";
+    pass.colorCount = 1;
+    pass.colors[0].loadOp = LoadOp::Clear;
+    for (int i = 0; i < 4; ++i)
+        pass.colors[0].clearColor[i] = clearColor[i];
+    pass.hasDepth = true;
+    pass.depth.loadOp = LoadOp::Clear;
+    pass.depth.clearDepth = 1.0f;
+
+    cmd->BeginRenderPass(pass);
+    cmd->SetUniformBuffer(0, cameraBuffer.get());
+    cmd->SetVertexBuffer(1, instanceBuffer.get());
     opaquePass->Execute(this, opaqueQueue);
+    cmd->EndRenderPass();
+
     opaqueQueue.clear();
     block.lightCount = 0;
+    cmd = nullptr;
 }
 
 void Renderer::DrawBatch(const std::vector<RenderCommand> &queue)
 {
     ZoneScoped;
-    UpdateInstanceBuffer(queue.size());
 
     for (size_t i = 0; i < queue.size();)
     {
-        size_t start = i;
+        const size_t start = i;
         while (i < queue.size() && queue[i].material == queue[start].material && queue[i].mesh == queue[start].mesh)
-        {
             i++;
-            stats.verticesCount += queue[start].mesh->GetVertexCount();
-        }
 
-        size_t count = i - start;
-        matrices.clear();
+        const uint32_t count = static_cast<uint32_t>(i - start);
+        Mesh *mesh = queue[start].mesh;
 
-        for (size_t j = start; j < i; j++)
-            matrices.push_back(queue[j].modelMatrix);
+        if (!queue[start].material->Apply(cmd))
+            continue;
 
-        instanceVBO->Bind();
-        instanceVBO->SetData(matrices.data(), count * sizeof(glm::mat4));
-
-        queue[start].material->ApplyStatic();
-        queue[start].mesh->vao->Bind();
-
-        stats.instanceCount += count;
-
-        instanceVBO->Bind();
-        for (int k = 0; k < 4; k++)
-        {
-            glEnableVertexAttribArray(3 + k);
-            glVertexAttribPointer(3 + k, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4) * k));
-            glVertexAttribDivisor(3 + k, 1);
-        }
+        cmd->SetVertexBuffer(0, mesh->vertexBuffer.get());
+        cmd->SetIndexBuffer(mesh->indexBuffer.get(), IndexType::UInt32);
 
         stats.drawCalls++;
+        stats.instanceCount += count;
+        stats.verticesCount += static_cast<uint32_t>(mesh->GetVertexCount()) * count;
 
-        glDrawElementsInstanced(GL_TRIANGLES, queue[start].mesh->GetIndexCount(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+        cmd->DrawIndexed(static_cast<uint32_t>(mesh->GetIndexCount()), count, 0, 0, static_cast<uint32_t>(start));
     }
 }

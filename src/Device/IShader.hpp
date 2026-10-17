@@ -1,16 +1,25 @@
 #pragma once
-#include <string>
+#include <cstddef>
+#include "Device/IResource.hpp"
+#include "Device/RHITypes.hpp"
 
 namespace VoidCore::RHI
 {
-    class IShader
+    struct ShaderDesc
+    {
+        ShaderStage stage = ShaderStage::Vertex;
+        ShaderFormat format = ShaderFormat::GLSL;
+        const void *code = nullptr; // текст (GLSL/MSL) или бинарник (SPIRV/DXBC)
+        size_t codeSize = 0;
+        const char *entryPoint = "main";
+        const char *debugName = nullptr;
+    };
+
+    // Одна стадия (VS или FS). Никаких Use()/SetInt()/SetFloat() по имени:
+    // параметры идут через uniform-буферы и текстурные слоты (см. RHI.hpp).
+    class IShader : public IResource
     {
     public:
-        virtual ~IShader() = default;
-
-        virtual void Use() = 0;
-        virtual void SetInt(const std::string &name, int value) = 0;
-        virtual void SetFloat(const std::string &name, float value) = 0;
-        virtual unsigned int GetID() const = 0;
+        virtual ShaderStage GetStage() const = 0;
     };
 }

@@ -16,6 +16,11 @@ void Window::Destroy()
     if (windowPtr)
     {
         Debug::Log("Shutting down Window & Renderer...");
+        if (renderDevice)
+            renderDevice->WaitIdle();
+        delete renderer; // его GPU-ресурсы должны умереть до устройства
+        renderer = nullptr;
+        VoidCore::RHI::SetDevice(nullptr);
         renderDevice.reset();
         SDL_DestroyWindow(windowPtr);
         windowPtr = nullptr;
@@ -42,17 +47,12 @@ void Window::Update()
 
 void Window::EndFrame()
 {
-    renderDevice->GetContext()->SwapBuffers();
+    renderDevice->EndFrame();
 }
 
 Renderer* Window::GetRenderer() const
 {
     return renderer;
-}
-
-void Window::MakeCurrent()
-{
-    renderDevice->GetContext()->MakeCurrent();
 }
 
 void Window::SetResolution(int w, int h)
@@ -89,7 +89,7 @@ bool Window::Initialize(VoidCore::RHI::GraphicsAPI api)
         "VoidCore Engine",
         width,
         height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+        VoidCore::RHI::GetWindowFlags(api) | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
 
     if (!windowPtr)
     {
@@ -97,21 +97,28 @@ bool Window::Initialize(VoidCore::RHI::GraphicsAPI api)
         return false;
     }
 
-    try
+    renderDevice = VoidCore::RHI::CreateRenderDevice(api);
+    if (!renderDevice)
     {
-        renderDevice = VoidCore::RHI::RenderDeviceFactory::CreateDevice(api);
-    }
-    catch (const std::exception &e)
-    {
-        Debug::LogError("Failed to create render device: ", e.what());
+        Debug::LogError("Failed to create render device for ", VoidCore::RHI::ToString(api));
         return false;
     }
 
-    if (!renderDevice->Initialize(windowPtr))
+    VoidCore::RHI::DeviceDesc deviceDesc;
+#ifdef NDEBUG
+    deviceDesc.enableValidation = false;
+#else
+    deviceDesc.enableValidation = true;
+#endif
+    deviceDesc.vsync = true;
+
+    if (!renderDevice->Initialize(windowPtr, deviceDesc))
     {
         Debug::LogError("Failed to initialize Render Device for window!");
         return false;
     }
+    VoidCore::RHI::SetDevice(renderDevice.get());
+
     renderer = new Renderer();
     Debug::Log("Showing Window");
     return true;
@@ -195,6 +202,8 @@ void Window::Restore()
 void Window::SetVerticalSync(bool enabled)
 {
     Debug::Log("Setting V-Sync to ", enabled ? "Enabled" : "Disabled");
+    if (renderDevice)
+        renderDevice->SetVerticalSync(enabled);
 }
 
 bool Window::ShouldClose() const

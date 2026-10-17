@@ -1,3 +1,6 @@
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
+
 #include "Core/Engine.h"
 #include "Assets/ModelImporter.h"
 #include "Components/Rotator.h"
@@ -35,7 +38,7 @@ void CreateScene()
 		ZoneScopedN("Creating Material");
 		material = new Material();
 		material->shader = ResourceManager::GetShader("Assets/shaders/unlitShader");
-		material->textures["tex0"] = ResourceManager::GetTexture("Assets/textures/test02.jpg", GL_RGBA).get();
+		material->SetTexture(0, ResourceManager::GetTexture("Assets/textures/test02.jpg", false).get());
 		// FrameMark УБРАЛИ
 	}
 

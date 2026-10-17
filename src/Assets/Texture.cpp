@@ -1,48 +1,61 @@
 #include "Assets/Texture.h"
 #include "stb_image.h"
 #include "Core/Debug.h"
-Texture::Texture(const char* filename, GLint internalFormat)
+
+using namespace VoidCore::RHI;
+
+static Ref<ISampler> s_defaultSampler;
+
+static ISampler *DefaultSampler()
 {
+	if (!s_defaultSampler)
+	{
+		SamplerDesc sd; // linear + repeat
+		sd.debugName = "DefaultLinearRepeat";
+		s_defaultSampler = GetDevice().CreateSampler(sd);
+	}
+	return s_defaultSampler.get();
+}
+
+void Texture::ReleaseSharedResources()
+{
+	s_defaultSampler.reset();
+}
+
+ISampler *Texture::GetSampler() const
+{
+	return sampler ? sampler.get() : DefaultSampler();
+}
+
+Texture::Texture(const char *filename, bool srgb)
+{
+	// Флип — про порядок строк в данных, от графического API не зависит.
 	stbi_set_flip_vertically_on_load(true);
-	widthTexture = 0;
-	heightTexture = 0;
-	colorch = 0;
-	unsigned char* pixels = stbi_load(filename, &widthTexture, &heightTexture, &colorch, 0);
-	unsigned char whitePixel[4] = { 255, 255, 255, 255 };
-	GLenum dataFormat = GL_RGBA;
+
+	int channels = 0;
+	// Всегда 4 канала: RGB8 нет в D3D11/Metal.
+	unsigned char *pixels = stbi_load(filename, &widthTexture, &heightTexture, &channels, 4);
+
+	unsigned char whitePixel[4] = {255, 255, 255, 255};
+	const void *data = pixels;
 	if (!pixels)
 	{
 		Debug::LogError("Texture not found, using 1x1 white: ", filename);
 		widthTexture = 1;
 		heightTexture = 1;
-		pixels = whitePixel;
-	}
-	else
-	{
-		dataFormat = (colorch == 3) ? GL_RGB : GL_RGBA;
+		data = whitePixel;
 	}
 
-	glGenTextures(1, &texID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texID);
+	TextureDesc d;
+	d.width = static_cast<uint32_t>(widthTexture);
+	d.height = static_cast<uint32_t>(heightTexture);
+	d.mipLevels = 0; // полная цепочка, генерирует бэкенд
+	d.format = srgb ? Format::RGBA8_SRGB : Format::RGBA8_UNORM;
+	d.usage = TextureUsage::Sampled;
+	d.initialData = data;
+	d.debugName = filename;
+	texture = GetDevice().CreateTexture(d);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, widthTexture, heightTexture, 0, dataFormat, GL_UNSIGNED_BYTE, pixels);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	if (pixels != whitePixel)
+	if (pixels)
 		stbi_image_free(pixels);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-
-void Texture::Bind()
-{
-	glBindTexture(GL_TEXTURE_2D, texID);
-}
-
-void Texture::Unbind()
-{
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
