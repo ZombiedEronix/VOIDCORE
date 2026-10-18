@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <Core/Scene.h>
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 class SceneManager
 {

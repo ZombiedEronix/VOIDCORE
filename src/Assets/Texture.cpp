@@ -1,5 +1,5 @@
 #include "Assets/Texture.h"
-#include "stb_image.h"
+#include <stb/stb_image.h>
 #include "Core/Debug.h"
 
 using namespace VoidCore::RHI;

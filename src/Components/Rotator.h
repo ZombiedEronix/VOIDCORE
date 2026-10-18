@@ -9,6 +9,6 @@ class Rotator : public Component
 {
 	void Update() override
 	{
-		gameObject->transform->SetRotation(glm::vec3(0, Time::deltaTime * 45, 0)); // Rotate by 1 degree per frame
+		gameObject->transform->SetRotation(gameObject->transform->GetRotation() + glm::vec3(0, Time::deltaTime * 45, 0)); // Rotate by 1 degree per frame
 	}
 };

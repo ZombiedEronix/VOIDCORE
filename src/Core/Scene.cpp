@@ -58,18 +58,11 @@ void Scene::Render(Renderer &renderer)
 		if (activeCamera && !activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 			continue;
 
-		Light *light = obj->GetComponent<Light>();
-		if (light != nullptr)
-		{
-			renderer.SubmitLight(light->GetData());
-		}
-
 		MeshRenderer *mr = obj->GetComponent<MeshRenderer>();
 		if (!mr || !mr->mesh || !mr->material)
 			continue;
 
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
-
 	// Загрузка буферов и сам render pass делает Renderer::Flush(), его вызывает Engine.
 }

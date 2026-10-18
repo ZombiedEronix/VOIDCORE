@@ -6,7 +6,7 @@
 
 #include "Components/Component.h"
 #include "Components/Transform.h"
-#include "tracy/Tracy.hpp"
+#include "Tracy/tracy/Tracy.hpp"
 
 class GameObject {
 public:

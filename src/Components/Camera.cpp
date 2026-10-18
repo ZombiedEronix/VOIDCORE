@@ -16,13 +16,21 @@ void Camera::Update()
 {
     if (!gameObject || !gameObject->transform) return;
 
-    glm::vec3 position = gameObject->transform->GetPosition();
-    glm::quat rot = glm::radians(gameObject->transform->GetRotation());
+    glm::vec3 pos = gameObject->transform->GetPosition();
+    glm::vec3 rot = gameObject->transform->GetRotation(); // (Pitch, Yaw, Roll)
 
-    glm::mat4 rotationMat = glm::mat4_cast(rot);
-    glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), -position);
+    // Вычисляем направление взгляда (Forward) на основе углов
+    float pitch = glm::radians(rot.x);
+    float yaw = glm::radians(rot.y);
 
-    view = rotationMat * translationMat;
+    glm::vec3 forward;
+    forward.x = cos(yaw) * cos(pitch);
+    forward.y = sin(pitch);
+    forward.z = sin(yaw) * cos(pitch);
+    forward = glm::normalize(forward);
+
+    // Строим View матрицу
+    view = glm::lookAt(pos, pos + forward, glm::vec3(0, 1, 0));
 
     float aspect = window->GetAspectRatio();
     projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);

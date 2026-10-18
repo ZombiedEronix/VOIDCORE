@@ -174,11 +174,6 @@ void Window::Maximize()
     SDL_MaximizeWindow(windowPtr);
 }
 
-void Window::Minimize()
-{
-    SDL_MinimizeWindow(windowPtr);
-}
-
 void Window::Hide()
 {
     SDL_HideWindow(windowPtr);
@@ -187,7 +182,12 @@ void Window::Hide()
 void Window::Show()
 {
     SDL_ShowWindow(windowPtr);
+}void Window::Minimize()
+{
+    SDL_MinimizeWindow(windowPtr);
 }
+
+
 
 void Window::Raise()
 {

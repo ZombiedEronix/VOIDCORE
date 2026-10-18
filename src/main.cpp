@@ -16,7 +16,8 @@
 
 #include <SDL3/SDL.h>
 
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
+
 #include <chrono>
 #include <thread>
 
@@ -31,28 +32,31 @@ void CreateScene()
 	{
 		ZoneScopedN("Mesh");
 		monkeyMesh = ResourceManager::GetMesh("Assets/models/Monkey.entm");
-		// FrameMark УБРАЛИ
 	}
 
 	{
 		ZoneScopedN("Creating Material");
 		material = new Material();
 		material->shader = ResourceManager::GetShader("Assets/shaders/unlitShader");
-		material->SetTexture(0, ResourceManager::GetTexture("Assets/textures/test02.jpg", false).get());
-		// FrameMark УБРАЛИ
+
+		material->SetTexture(0, ResourceManager::GetTexture("Assets/textures/test02_albedo.png", false).get());
+		material->SetTexture(1, ResourceManager::GetTexture("Assets/textures/test02_normal.png", false).get());
+		material->SetTexture(2, ResourceManager::GetTexture("Assets/textures/test02_ambient.png", false).get());
+		material->SetTexture(3, ResourceManager::GetTexture("Assets/textures/test02_specular.png", false).get());
 	}
 
 	{
-		ZoneScopedN("CreatingScene"); // <-- ТУТ ПОСТАВИЛИ ЗАБЫТУЮ ТОЧКУ С ЗАПЯТОЙ
+		ZoneScopedN("CreatingScene");
 		scene = new Scene();
 
 		GameObject *cam = new GameObject();
 
 		cam->AddComponent<Camera>(engine.GetWindow());
 		cam->name = "Camera";
-		cam->transform->SetPosition(glm::vec3(0, 0, -5));
+		cam->transform->SetPosition(glm::vec3(-10, 15, -10));
 
-		cam->transform->SetRotation(glm::vec3(0, 90.0f, 0));
+		cam->transform->SetRotation(glm::vec3(-20, 45, 0));
+
 		scene->AddGameObject(cam);
 
 		GameObject *pr = new GameObject();
@@ -65,7 +69,7 @@ void CreateScene()
 			{
 				GameObject *monkey = new GameObject();
 				monkey->name = std::format("Object {} {}", i, il);
-				monkey->transform->SetScale(glm::vec3(12));
+				monkey->transform->SetScale(glm::vec3(7));
 				monkey->AddComponent<MeshRenderer>();
 				auto renderer = monkey->GetComponent<MeshRenderer>();
 				renderer->SetMesh(monkeyMesh);
@@ -74,6 +78,7 @@ void CreateScene()
 				monkey->transform->SetPosition(glm::vec3(24 * i, 0, 24 * il));
 				monkey->transform->SetParent(pr->transform);
 
+				monkey->AddComponent<Rotator>();
 				scene->AddGameObject(monkey);
 			}
 		}

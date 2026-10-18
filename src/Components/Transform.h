@@ -1,10 +1,16 @@
 #pragma once
 
-#include "Components/Component.h"
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
 #include <vector>
 #include <algorithm>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+
+#include "Components/Component.h"
 
 class Transform : public Component
 {

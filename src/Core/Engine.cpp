@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include "Device/RHI.hpp"
 #include "Assets/ResourceManager.h"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 bool Engine::Initialize()
 {
@@ -38,10 +38,13 @@ void Engine::Update()
 
 		auto *device = window->GetRenderDevice();
 		Renderer *renderer = window->GetRenderer();
-
+		
 		renderer->BeginFrame(device->BeginFrame());
 		SceneManager::Render(*renderer); // Submit / SubmitLight
+
+
 		renderer->Flush();               // апдейт буферов + render pass + draw'ы
+
 		device->EndFrame();              // submit + present
 	}
 	FrameMark;

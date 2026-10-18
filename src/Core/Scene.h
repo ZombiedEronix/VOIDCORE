@@ -1,10 +1,12 @@
 #pragma once
 
 #include <vector>
-#include <Core/GameObject.h>
-#include <Components/Camera.h>
-#include <Components/MeshRenderer.h>
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
+
+
+#include "Core/GameObject.h"
+#include "Components/Camera.h"
+#include "Components/MeshRenderer.h"
 
 class Scene {
 public:

@@ -1,10 +1,10 @@
 #pragma once
-#include "glm.hpp"
+#include <glm/glm.hpp>
 
 class Mesh;
 class Material;
 
-struct RenderCommand
+struct GeometryRenderCommand
 {
     Mesh *mesh;
     Material *material;

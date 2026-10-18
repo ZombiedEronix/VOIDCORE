@@ -1,7 +1,9 @@
+#pragma once
+
+#include <glm/glm.hpp>
+
 #include "Components/Component.h"
-#include "Graphics/RenderPipeline/LightCommand.h"
 #include "Core/GameObject.h"
-#include "glm.hpp"
 
 class Light : public Component
 {
@@ -10,6 +12,5 @@ public:
     float radius = 16;
     float intensity = 1;
 
-    LightCommand GetData();
     void Update() override;
 };

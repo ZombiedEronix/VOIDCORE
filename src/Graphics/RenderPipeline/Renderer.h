@@ -1,18 +1,25 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #include "Graphics/RenderPipeline/RenderCommand.h"
-#include "Graphics/RenderPipeline/LightCommand.h"
 #include "Device/RHI.hpp"
 #include "Components/Camera.h"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
+
+#include "UI/UIRenderer.hpp"
+#include "Graphics/RenderPipeline/IRenderPipeline.hpp"
 
 class Camera;
 class OpaquePass;
 class Mesh;
 class Material;
+class UIRenderer;
+
+/**
+ * @brief Структура характеристика рендера текущего кадра.
+ */
 
 struct RenderStats
 {
@@ -32,20 +39,21 @@ struct RenderStats
 class Renderer
 {
 private:
-	VoidCore::RHI::ICommandList *cmd = nullptr; // действителен между BeginFrame и Flush
+	VoidCore::RHI::ICommandList *cmd = nullptr;
 
-	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;   // UBO, binding 0
-	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer; // mat4 на инстанс, vertex slot 1
-	size_t currentBufferCapacity = 1024;                       // в матрицах
+	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
+	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
+
+	size_t currentBufferCapacity = 1024;
 
 	Camera *currentCamera = nullptr;
-	OpaquePass *opaquePass;
 
-	std::vector<RenderCommand> opaqueQueue;
+
+	IRenderPipeline* renderPipeline;
+	OpaquePass *opaquePass;
+	std::vector<GeometryRenderCommand> opaqueQueue;
 	std::vector<glm::mat4> matrices;
 	RenderStats stats;
-
-	float clearColor[4] = {0.35f, 0.35f, 0.35f, 1.0f};
 
 	struct ShaderBlock
 	{
@@ -53,33 +61,32 @@ private:
 		glm::mat4 view;
 		float time;
 		float deltaTime;
-		int lightCount;
-		float padding_final_field;
-		LightCommand lights[16];
 	};
 
 	ShaderBlock block;
 
 	void CreateInstanceBuffer(size_t capacity);
 	void UploadFrameData();
-	void UploadInstances(const std::vector<RenderCommand> &queue);
+	void UploadInstances(const std::vector<GeometryRenderCommand> &queue);
 
-public:
+	
+	public:
+	std::vector<GeometryRenderCommand>& GetOpaqueQueue();
+	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
+	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
+	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
+
 	Renderer();
 	~Renderer();
 
+	void SubmitTestRect(float x, float y, float w, float h, glm::vec4 color);
 	void SetCamera(Camera *camera);
 	const RenderStats &GetStats() const;
-
-	// Начало кадра: сюда приходит command list от device->BeginFrame().
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
 
 	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
-	void SubmitLight(const LightCommand &light);
 
-	// Залить данные в буферы → render pass → draw'ы. После него можно device->EndFrame().
 	void Flush();
 
-	// Только draw'ы; вызывается из пассов внутри render pass.
-	void DrawBatch(const std::vector<RenderCommand> &queue);
+	void DrawBatch(const std::vector<GeometryRenderCommand> &queue);
 };

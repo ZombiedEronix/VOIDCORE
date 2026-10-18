@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
-#include <glm.hpp>
+#include <glm/glm.hpp>
+
 #include "Device/RHI.hpp"
 #include "Assets/Vertex.h"
 
@@ -8,6 +9,7 @@
 // Должно совпадать с layout(location = N) в шейдерах:
 //   0 pos | 1 uv | 2 normal   — слот 0 (на вершину)
 //   3..6  mat4 model          — слот 1 (на инстанс)
+
 inline void SetupMeshInputLayout(VoidCore::RHI::GraphicsPipelineDesc &d)
 {
 	using namespace VoidCore::RHI;

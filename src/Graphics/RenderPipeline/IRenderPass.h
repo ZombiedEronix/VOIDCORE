@@ -11,8 +11,8 @@ public:
 
 	// Вызывается ДО render pass: упорядочить очередь. Данные для GPU
 	// (матрицы инстансов) собираются уже по отсортированной очереди.
-	virtual void Sort(std::vector<RenderCommand>& renderQueue) {}
+	virtual void Sort(std::vector<GeometryRenderCommand>& renderQueue) {}
 
 	// Вызывается ВНУТРИ render pass: только draw'ы.
-	virtual void Execute(Renderer* renderer, std::vector<RenderCommand>& renderQueue) = 0;
+	virtual void Execute(Renderer* renderer, std::vector<GeometryRenderCommand>& renderQueue) = 0;
 };

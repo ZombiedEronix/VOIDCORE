@@ -1,12 +1,13 @@
 #include "Renderer.h"
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Assets/Mesh.h"
 #include "Graphics/Material.h"
 #include "Components/Camera.h"
 #include "Core/EngineTime.h"
 #include "Graphics/RenderPipeline/OpaquePass.h"
+#include "Graphics/RenderPipeline/Deffered/DefferedRenderPipeline.hpp"
 
 using namespace VoidCore::RHI;
 
@@ -22,13 +23,8 @@ Renderer::Renderer()
     cameraBuffer = GetDevice().CreateBuffer(cb);
 
     CreateInstanceBuffer(currentBufferCapacity);
-
     opaquePass = new OpaquePass();
-}
-
-Renderer::~Renderer()
-{
-    delete opaquePass;
+    renderPipeline = new DeferredRenderPipeline();
 }
 
 void Renderer::CreateInstanceBuffer(size_t capacity)
@@ -41,6 +37,12 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
     instanceBuffer = GetDevice().CreateBuffer(ib);
     currentBufferCapacity = capacity;
 }
+
+Renderer::~Renderer()
+{
+    delete opaquePass;
+}
+
 
 void Renderer::SetCamera(Camera *camera)
 {
@@ -69,15 +71,6 @@ void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
     }
 }
 
-void Renderer::SubmitLight(const LightCommand &light)
-{
-    if (block.lightCount < 16)
-    {
-        block.lights[block.lightCount] = light;
-        block.lightCount++;
-    }
-}
-
 void Renderer::UploadFrameData()
 {
     if (currentCamera)
@@ -97,14 +90,11 @@ void Renderer::UploadFrameData()
     cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
 }
 
-// Все матрицы кадра — одним куском. Каждый батч потом рисуется со своим
-// firstInstance. Так работает и в Vulkan/Metal: GPU не читает данные,
-// которые мы перезаписываем посреди кадра.
-void Renderer::UploadInstances(const std::vector<RenderCommand> &queue)
+void Renderer::UploadInstances(const std::vector<GeometryRenderCommand> &queue)
 {
     matrices.clear();
     matrices.reserve(queue.size());
-    for (const RenderCommand &c : queue)
+    for (const GeometryRenderCommand &c : queue)
         matrices.push_back(c.modelMatrix);
 
     if (matrices.size() > currentBufferCapacity)
@@ -114,6 +104,11 @@ void Renderer::UploadInstances(const std::vector<RenderCommand> &queue)
         cmd->UpdateBuffer(instanceBuffer.get(), matrices.data(), matrices.size() * sizeof(glm::mat4));
 }
 
+std::vector<GeometryRenderCommand>& Renderer::GetOpaqueQueue()
+{
+    return opaqueQueue;
+}
+
 void Renderer::Flush()
 {
     ZoneScoped;
@@ -121,34 +116,19 @@ void Renderer::Flush()
         return;
     stats.Reset();
 
-    // 1) CPU → GPU. Вне render pass, после того как сцена сделала все Submit*.
     UploadFrameData();
-    opaquePass->Sort(opaqueQueue);
     UploadInstances(opaqueQueue);
 
-    // 2) Проход.
-    RenderPassDesc pass;
-    pass.debugName = "Main";
-    pass.colorCount = 1;
-    pass.colors[0].loadOp = LoadOp::Clear;
-    for (int i = 0; i < 4; ++i)
-        pass.colors[0].clearColor[i] = clearColor[i];
-    pass.hasDepth = true;
-    pass.depth.loadOp = LoadOp::Clear;
-    pass.depth.clearDepth = 1.0f;
-
-    cmd->BeginRenderPass(pass);
-    cmd->SetUniformBuffer(0, cameraBuffer.get());
-    cmd->SetVertexBuffer(1, instanceBuffer.get());
-    opaquePass->Execute(this, opaqueQueue);
-    cmd->EndRenderPass();
+    if (renderPipeline)
+    {
+        renderPipeline->Execute(this);
+    }
 
     opaqueQueue.clear();
-    block.lightCount = 0;
     cmd = nullptr;
 }
 
-void Renderer::DrawBatch(const std::vector<RenderCommand> &queue)
+void Renderer::DrawBatch(const std::vector<GeometryRenderCommand> &queue)
 {
     ZoneScoped;
 
