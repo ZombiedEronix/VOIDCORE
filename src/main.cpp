@@ -31,13 +31,13 @@ void CreateScene()
 
 	{
 		ZoneScopedN("Mesh");
-		monkeyMesh = ResourceManager::GetMesh("Assets/models/Monkey.entm");
+		monkeyMesh = ResourceManager::GetMesh("Assets/models/monkey.obj");
 	}
 
 	{
 		ZoneScopedN("Creating Material");
 		material = new Material();
-		material->shader = ResourceManager::GetShader("Assets/shaders/unlitShader");
+		material->shader = ResourceManager::GetShader("Assets/shaders/Deferred/Lit");
 
 		material->SetTexture(0, ResourceManager::GetTexture("Assets/textures/test02_albedo.png", false).get());
 		material->SetTexture(1, ResourceManager::GetTexture("Assets/textures/test02_normal.png", false).get());
@@ -53,52 +53,37 @@ void CreateScene()
 
 		cam->AddComponent<Camera>(engine.GetWindow());
 		cam->name = "Camera";
-		cam->transform->SetPosition(glm::vec3(-10, 15, -10));
 
+		cam->transform->SetPosition(glm::vec3(-5, 5, -5));
 		cam->transform->SetRotation(glm::vec3(-20, 45, 0));
 
+		GameObject *directionalLight = new GameObject();
+		directionalLight->name = "Directional Light";
+		directionalLight->AddComponent<Light>();
+
+		directionalLight->transform->SetPosition(glm::vec3(glm::vec3(-5, 15, -5)));
+
 		scene->AddGameObject(cam);
+
+		scene->AddGameObject(directionalLight);
 
 		GameObject *pr = new GameObject();
 		pr->name = "Papka";
 		scene->AddGameObject(pr);
 
-		for (int i = 0; i < 5; i++)
-		{
-			for (int il = 0; il < 5; il++)
-			{
-				GameObject *monkey = new GameObject();
-				monkey->name = std::format("Object {} {}", i, il);
-				monkey->transform->SetScale(glm::vec3(7));
-				monkey->AddComponent<MeshRenderer>();
-				auto renderer = monkey->GetComponent<MeshRenderer>();
-				renderer->SetMesh(monkeyMesh);
-				renderer->material = material;
+		GameObject *monkey = new GameObject();
+		monkey->name = std::format("Обезьяна");
+		monkey->transform->SetScale(glm::vec3(3));
+		monkey->AddComponent<MeshRenderer>();
+		auto renderer = monkey->GetComponent<MeshRenderer>();
+		renderer->SetMesh(monkeyMesh);
+		renderer->material = material;
 
-				monkey->transform->SetPosition(glm::vec3(24 * i, 0, 24 * il));
-				monkey->transform->SetParent(pr->transform);
+		monkey->transform->SetPosition(glm::vec3(0, 0, 0));
+		monkey->transform->SetParent(pr->transform);
 
-				monkey->AddComponent<Rotator>();
-				scene->AddGameObject(monkey);
-			}
-		}
-
-		for (int i = 0; i < 4; i++)
-		{
-			for (int il = 0; il < 4; il++)
-			{
-				GameObject *light = new GameObject();
-				light->name = std::format("light {} {}", i, il);
-
-				light->AddComponent<Light>();
-
-				light->transform->SetPosition(glm::vec3(24 * i, 1, 24 * il));
-				light->transform->SetParent(pr->transform);
-
-				scene->AddGameObject(light);
-			}
-		}
-		// FrameMark УБРАЛИ
+		monkey->AddComponent<Rotator>();
+		scene->AddGameObject(monkey);
 	}
 
 	{
@@ -119,10 +104,36 @@ int main(int argc, char *args[])
 	{
 		ZoneScopedN("CreatingWindow and context");
 		engine.CreateWindow();
-		engine.GetWindow()->GetRenderDevice()->SetVerticalSync(true);
+		// engine.GetWindow()->GetRenderDevice()->SetVerticalSync(true);
 		engine.GetWindow()->Show();
 	}
 	CreateScene();
 	engine.Run();
 	return 0;
+}
+
+void *operator new(std::size_t count)
+{
+	auto ptr = malloc(count);
+	TracyAlloc(ptr, count);
+	return ptr;
+}
+
+void operator delete(void *ptr) noexcept
+{
+	TracyFree(ptr);
+	free(ptr);
+}
+
+void *operator new[](std::size_t count)
+{
+	auto ptr = malloc(count);
+	TracyAlloc(ptr, count);
+	return ptr;
+}
+
+void operator delete[](void *ptr) noexcept
+{
+	TracyFree(ptr);
+	free(ptr);
 }

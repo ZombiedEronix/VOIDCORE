@@ -2,7 +2,6 @@
 out vec2 TexCoords;
 
 void main() {
-    //IDK, I think, this is two triangles for screen
 
     float x = -1.0 + float((gl_VertexID & 1) << 2);
     

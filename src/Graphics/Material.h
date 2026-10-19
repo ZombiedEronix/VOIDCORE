@@ -17,7 +17,6 @@ public:
 	Shader *shader = nullptr;
 	RenderQueue queueType = RenderQueue::Opaque;
 
-	// Слот = layout(binding = N) sampler2D в шейдере.
 	void SetTexture(uint32_t slot, Texture *tex)
 	{
 		if (slot < VoidCore::RHI::kMaxTextureSlots)
@@ -42,6 +41,7 @@ public:
 	}
 
 private:
+
 	// Всё, что раньше делали glEnable/glBlendFunc/glDepthMask при каждой отрисовке,
 	// теперь запекается в pipeline один раз. queueType после первого Apply не менять.
 	void Build()
@@ -65,13 +65,19 @@ private:
 
 		if (queueType == RenderQueue::Transparent)
 		{
-			d.blend[0].enable = true; // SrcAlpha / OneMinusSrcAlpha — значения по умолчанию
+			d.blend[0].enable = true;
 			d.depth.writeEnable = false;
 		}
-
+		d.depthFormat = Format::D24_UNORM_S8_UINT;
+		d.depth.testEnable = true;
+		d.depth.writeEnable = true;
+		d.depth.compareOp = CompareOp::Less;
+		
 		d.debugName = "MaterialPipeline";
+
 		pipeline = GetDevice().CreatePipeline(d);
 		buildFailed = (pipeline == nullptr);
+		if (buildFailed) Debug::LogError("FAILED TO BUILD PIPELINE!");
 	}
 
 	Texture *textures[VoidCore::RHI::kMaxTextureSlots] = {};

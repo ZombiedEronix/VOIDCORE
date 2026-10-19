@@ -5,12 +5,19 @@
 #include "Components/Component.h"
 #include "Core/GameObject.h"
 
+enum LightType : uint32_t
+{
+    POINT,
+    DIRECTIONAL,
+    SPOT,
+};
+
 class Light : public Component
 {
 public:
-    glm::vec3 color = glm::vec3(1,1,1);
-    float radius = 16;
-    float intensity = 1;
+    LightType type = LightType::POINT;
+    float intensive = 1;
+    glm::vec3 color = glm::vec3(1);
+    float radius = 10;
 
-    void Update() override;
 };

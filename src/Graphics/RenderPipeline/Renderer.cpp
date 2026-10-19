@@ -6,10 +6,13 @@
 #include "Graphics/Material.h"
 #include "Components/Camera.h"
 #include "Core/EngineTime.h"
-#include "Graphics/RenderPipeline/OpaquePass.h"
-#include "Graphics/RenderPipeline/Deffered/DefferedRenderPipeline.hpp"
+
+#include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
+
+#include "Graphics/RenderPipeline/Deferred/DefferedRenderPipeline.hpp"
 
 using namespace VoidCore::RHI;
+using namespace VoidCore::Rendering::Deferred;
 
 Renderer::Renderer()
 {
@@ -23,7 +26,9 @@ Renderer::Renderer()
     cameraBuffer = GetDevice().CreateBuffer(cb);
 
     CreateInstanceBuffer(currentBufferCapacity);
-    opaquePass = new OpaquePass();
+    opaqueQueue = new GeometryRenderQueue();
+    lightQueue = new LightRenderQueue();
+
     renderPipeline = new DeferredRenderPipeline();
 }
 
@@ -40,18 +45,14 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
 
 Renderer::~Renderer()
 {
-    delete opaquePass;
+    // delete renderPipeline //crash
+    delete lightQueue;
+    delete opaqueQueue;
 }
-
 
 void Renderer::SetCamera(Camera *camera)
 {
     currentCamera = camera;
-}
-
-const RenderStats &Renderer::GetStats() const
-{
-    return stats;
 }
 
 void Renderer::BeginFrame(ICommandList *commandList)
@@ -64,7 +65,7 @@ void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
     switch (mat->queueType)
     {
     case RenderQueue::Opaque:
-        opaqueQueue.push_back({mesh, mat, model});
+        opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
         break;
     default:
         break;
@@ -75,26 +76,30 @@ void Renderer::UploadFrameData()
 {
     if (currentCamera)
     {
-        block.projection = currentCamera->projection;
-        block.view = currentCamera->view;
+        block.Projection = currentCamera->projection;
+        block.View = currentCamera->view;
+        block.InvProj = glm::inverse(currentCamera->projection);
+        block.InvView = glm::inverse(currentCamera->view);
     }
     else
     {
-        block.view = glm::mat4(1);
-        block.projection = glm::mat4(1);
+        block.InvProj = glm::mat4(1);
+        block.InvView = glm::mat4(1);
+        block.View = glm::mat4(1);
+        block.Projection = glm::mat4(1);
     }
 
-    block.time = Time::time;
-    block.deltaTime = Time::deltaTime;
+    block.Time = Time::time;
+    block.DeltaTime = Time::deltaTime;
 
     cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
 }
 
-void Renderer::UploadInstances(const std::vector<GeometryRenderCommand> &queue)
+void Renderer::UploadInstances(const GeometryRenderQueue &queue)
 {
     matrices.clear();
-    matrices.reserve(queue.size());
-    for (const GeometryRenderCommand &c : queue)
+    matrices.reserve(queue.GetCount());
+    for (const GeometryRenderCommand &c : queue.GetData())
         matrices.push_back(c.modelMatrix);
 
     if (matrices.size() > currentBufferCapacity)
@@ -104,9 +109,14 @@ void Renderer::UploadInstances(const std::vector<GeometryRenderCommand> &queue)
         cmd->UpdateBuffer(instanceBuffer.get(), matrices.data(), matrices.size() * sizeof(glm::mat4));
 }
 
-std::vector<GeometryRenderCommand>& Renderer::GetOpaqueQueue()
+GeometryRenderQueue *Renderer::GetOpaqueQueue()
 {
     return opaqueQueue;
+}
+
+void Renderer::SubmitLight(LightInfo& info)
+{
+    lightQueue->AddLight(info);
 }
 
 void Renderer::Flush()
@@ -114,17 +124,16 @@ void Renderer::Flush()
     ZoneScoped;
     if (!cmd)
         return;
-    stats.Reset();
 
     UploadFrameData();
-    UploadInstances(opaqueQueue);
+    UploadInstances(*opaqueQueue);
 
     if (renderPipeline)
     {
         renderPipeline->Execute(this);
     }
 
-    opaqueQueue.clear();
+    opaqueQueue->Clear();
     cmd = nullptr;
 }
 
@@ -146,10 +155,6 @@ void Renderer::DrawBatch(const std::vector<GeometryRenderCommand> &queue)
 
         cmd->SetVertexBuffer(0, mesh->vertexBuffer.get());
         cmd->SetIndexBuffer(mesh->indexBuffer.get(), IndexType::UInt32);
-
-        stats.drawCalls++;
-        stats.instanceCount += count;
-        stats.verticesCount += static_cast<uint32_t>(mesh->GetVertexCount()) * count;
 
         cmd->DrawIndexed(static_cast<uint32_t>(mesh->GetIndexCount()), count, 0, 0, static_cast<uint32_t>(start));
     }

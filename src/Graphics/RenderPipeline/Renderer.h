@@ -3,7 +3,9 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "Graphics/RenderPipeline/RenderCommand.h"
+#include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
+#include "Graphics/RenderPipeline/LightRenderQueue.hpp"
+
 #include "Device/RHI.hpp"
 #include "Components/Camera.h"
 #include <Tracy/tracy/Tracy.hpp>
@@ -12,29 +14,10 @@
 #include "Graphics/RenderPipeline/IRenderPipeline.hpp"
 
 class Camera;
-class OpaquePass;
+class GeometryRenderQueue;
 class Mesh;
 class Material;
 class UIRenderer;
-
-/**
- * @brief Структура характеристика рендера текущего кадра.
- */
-
-struct RenderStats
-{
-	uint32_t drawCalls = 0;
-	uint32_t instanceCount = 0;
-	uint32_t verticesCount = 0;
-	float frameTimeMs = 0.0f;
-
-	void Reset()
-	{
-		drawCalls = 0;
-		instanceCount = 0;
-		verticesCount = 0;
-	}
-};
 
 class Renderer
 {
@@ -48,30 +31,32 @@ private:
 
 	Camera *currentCamera = nullptr;
 
+	IRenderPipeline *renderPipeline;
+	GeometryRenderQueue *opaqueQueue;
 
-	IRenderPipeline* renderPipeline;
-	OpaquePass *opaquePass;
-	std::vector<GeometryRenderCommand> opaqueQueue;
+	LightRenderQueue *lightQueue;
 	std::vector<glm::mat4> matrices;
-	RenderStats stats;
 
 	struct ShaderBlock
 	{
-		glm::mat4 projection;
-		glm::mat4 view;
-		float time;
-		float deltaTime;
+		glm::mat4 Projection;
+		glm::mat4 View;
+		glm::mat4 InvProj;
+		glm::mat4 InvView;
+		float Time;
+		float DeltaTime;
+		float padding0;
+		float padding1;
 	};
 
 	ShaderBlock block;
 
 	void CreateInstanceBuffer(size_t capacity);
 	void UploadFrameData();
-	void UploadInstances(const std::vector<GeometryRenderCommand> &queue);
+	void UploadInstances(const GeometryRenderQueue &queue);
 
-	
-	public:
-	std::vector<GeometryRenderCommand>& GetOpaqueQueue();
+public:
+	GeometryRenderQueue * GetOpaqueQueue();
 	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
 	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
@@ -81,10 +66,11 @@ private:
 
 	void SubmitTestRect(float x, float y, float w, float h, glm::vec4 color);
 	void SetCamera(Camera *camera);
-	const RenderStats &GetStats() const;
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
 
 	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
+
+	void SubmitLight(LightInfo& info);
 
 	void Flush();
 

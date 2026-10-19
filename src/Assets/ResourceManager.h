@@ -3,10 +3,12 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "Assets/Texture.h"
 #include "Assets/Mesh.h"
 #include "Graphics/Shader.h"
 #include "ModelImporter.h"
+
 
 class ResourceManager {
 private:
@@ -51,6 +53,8 @@ public:
 		return meshes[path].get();
 	}
 
+
+
 	static Shader* GetShader(const std::string& basePath) {
 		if (shaders.find(basePath) == shaders.end()) {
 			std::string vertPath = basePath + ".vert";
@@ -61,7 +65,6 @@ public:
 		return shaders[basePath].get();
 	}
 
-	// Освободить все GPU-ресурсы. Вызывать ДО уничтожения render device.
 	static void Clear() {
 		textures.clear();
 		meshes.clear();

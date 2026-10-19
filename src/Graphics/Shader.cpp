@@ -1,8 +1,52 @@
-#include "Shader.h"
 #include <fstream>
+#include <unordered_set>
+
+#include "Shader.h"
 #include "Core/Debug.h"
 
 using namespace VoidCore::RHI;
+
+std::string PreprocessShaderSource(const std::string &filepath, std::unordered_set<std::string> &includedFiles)
+{
+    if (includedFiles.count(filepath) > 0)
+        return "";
+    includedFiles.insert(filepath);
+
+    std::ifstream file(filepath);
+    if (!file.is_open())
+    {
+        Debug::LogError("Shader preprocessor error: " + filepath);
+        return "";
+    }
+
+    std::stringstream result;
+    std::string line;
+
+    while (std::getline(file, line))
+    {
+        if (line.rfind("#include ", 0) == 0)
+        {
+            size_t startQuote = line.find('"');
+            size_t endQuote = line.rfind('"');
+
+            if (startQuote != std::string::npos && endQuote != std::string::npos && startQuote < endQuote)
+            {
+                std::string includeFileName = line.substr(startQuote + 1, endQuote - startQuote - 1);
+
+                size_t lastSlash = filepath.find_last_of("/\\");
+                std::string directory = (lastSlash != std::string::npos) ? filepath.substr(0, lastSlash + 1) : "";
+                std::string includeFullPath = directory + includeFileName;
+
+                result << PreprocessShaderSource(includeFullPath, includedFiles) << "\n";
+            }
+        }
+        else
+        {
+            result << line << "\n";
+        }
+    }
+    return result.str();
+}
 
 Shader::Shader(const char *vertexFile, const char *fragmentFile)
 {
@@ -17,8 +61,12 @@ Shader::Shader(const char *vertexFile, const char *fragmentFile)
         return;
     }
 
-    const std::string vsSrc = get_file_contents(vertexFile);
-    const std::string fsSrc = get_file_contents(fragmentFile);
+    std::unordered_set<std::string> vsIncludes;
+    std::unordered_set<std::string> fsIncludes;
+
+    const std::string vsSrc = PreprocessShaderSource(vertexFile, vsIncludes);
+    const std::string fsSrc = PreprocessShaderSource(fragmentFile, fsIncludes);
+
 
     ShaderDesc d;
     d.format = format;
