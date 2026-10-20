@@ -18,13 +18,22 @@ namespace VoidCore::Rendering::Deferred
         delete geometryPass;
     }
 
+    void DeferredRenderPipeline::OnResize(int width, int height)
+    {
+
+    //     if (geometryPass)
+    //         geometryPass->Resize(width, height);
+    //     if (lightingPass)
+    //         lightingPass->Resize(width, height);
+    }
+
     void DeferredRenderPipeline::Execute(Renderer *renderer)
     {
         auto cmd = renderer->GetCommandList();
         if (!cmd)
             return;
-            geometryPass->Execute(renderer);
-            lightingPass->Execute(cmd, renderer, geometryPass);
-            presentPass->Execute(cmd, lightingPass->GetResult());
+        geometryPass->Execute(renderer);
+        lightingPass->Execute(cmd, renderer, geometryPass);
+        presentPass->Execute(cmd, lightingPass->GetResult());
     }
 }

@@ -6,7 +6,6 @@ namespace VoidCore::Rendering::Deferred
     using namespace VoidCore::RHI;
     GeometryPass::GeometryPass()
     {
-
         const uint32_t width = 1920;
         const uint32_t height = 1080;
 
@@ -35,7 +34,6 @@ namespace VoidCore::Rendering::Deferred
         normalDesc.debugName = "G_Normal_Texture";
         gNormalTexture = GetDevice().CreateTexture(normalDesc);
     }
-
 
     VoidCore::RHI::ITexture *GeometryPass::GetAlbedo()
     {

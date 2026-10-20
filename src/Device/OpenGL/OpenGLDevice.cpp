@@ -152,11 +152,6 @@ namespace VoidCore::RHI::OpenGL
         SDL_GL_SwapWindow(m_window);
     }
 
-    void OpenGLDevice::Resize(uint32_t, uint32_t)
-    {
-        // Default framebuffer следует за окном сам.
-    }
-
     void OpenGLDevice::GetBackBufferSize(uint32_t &width, uint32_t &height) const
     {
         int w = 0, h = 0;

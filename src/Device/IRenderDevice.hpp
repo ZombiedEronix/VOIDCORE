@@ -54,7 +54,6 @@ namespace VoidCore::RHI
         virtual ICommandList *BeginFrame() = 0;
         virtual void EndFrame() = 0;
 
-        virtual void Resize(uint32_t width, uint32_t height) = 0;
         virtual void GetBackBufferSize(uint32_t &width, uint32_t &height) const = 0;
         virtual void SetVerticalSync(bool enabled) = 0;
 

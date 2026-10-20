@@ -17,7 +17,7 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::ITexture* GetAlbedo();
         VoidCore::RHI::ITexture* GetDepth();
         VoidCore::RHI::ITexture* GetNormal();
-
+        
         void Execute(Renderer *commandList);
     };
 }

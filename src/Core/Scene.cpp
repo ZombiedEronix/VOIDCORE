@@ -37,24 +37,34 @@ void Scene::Update()
 void Scene::Render(Renderer &renderer)
 {
 	ZoneScoped;
+
+	// Шаг 1: Ищем активную камеру на сцене (ОДИН РАЗ ЗА КАДР)
+	Camera *activeCamera = nullptr;
 	for (GameObject *obj : gameObjects)
 	{
-		Camera *activeCamera = nullptr;
-		for (auto obj : gameObjects) // или как у тебя хранится список объектов в Scene
+		auto cam = obj->GetComponent<Camera>();
+		if (cam)
 		{
-			auto cam = obj->GetComponent<Camera>();
-			if (cam)
-			{
-				activeCamera = cam;
-				break;
-			}
+			activeCamera = cam;
+			break;
 		}
+	}
+	if (activeCamera)
+	{
+		renderer.SetCamera(activeCamera);
+	}
 
-		if (activeCamera)
+	for (GameObject *obj : gameObjects)
+	{
+		auto light = obj->GetComponent<Light>();
+		if (light)
 		{
-			renderer.SetCamera(activeCamera);
+			renderer.SubmitLight(light->info);
 		}
+	}
 
+	for (GameObject *obj : gameObjects)
+	{
 		if (activeCamera && !activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 			continue;
 
@@ -64,5 +74,4 @@ void Scene::Render(Renderer &renderer)
 
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
-	// Загрузка буферов и сам render pass делает Renderer::Flush(), его вызывает Engine.
 }

@@ -106,3 +106,29 @@ glm::mat4 Transform::LocalMatrix() const
 
 	return model;
 }
+glm::vec3 Transform::GetForward() const
+{
+	//Fix!
+	float pitch = glm::radians(Rotation.x);
+	float yaw   = glm::radians(Rotation.y);
+
+	glm::vec3 forward;
+	forward.x = cos(yaw) * cos(pitch);
+	forward.y = sin(pitch);
+	forward.z = sin(yaw) * cos(pitch);
+
+	return glm::normalize(forward);
+}
+
+glm::vec3 Transform::GetRight() const
+{
+	glm::vec3 forward = GetForward();
+	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	
+	return glm::normalize(glm::cross(forward, worldUp));
+}
+
+glm::vec3 Transform::GetUp() const
+{
+	return glm::normalize(glm::cross(GetRight(), GetForward()));
+}

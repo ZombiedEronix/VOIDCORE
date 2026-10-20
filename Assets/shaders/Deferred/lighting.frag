@@ -75,10 +75,29 @@ void main() {
                 attenuation = 1.0;
                 break;
 
-            case 2:
-            //SPOT
-                lightDir = normalize(lightPos - fragPos);
-                attenuation = 0.0;
+            case 2: // SPOT
+                lightDir = lightPos - fragPos;
+                float spotDist = length(lightDir);
+
+                if(spotDist > lightRadius)
+                    continue;
+
+                lightDir = normalize(lightDir);
+
+                attenuation = clamp(1.0 - (spotDist / lightRadius), 0.0, 1.0);
+                attenuation *= attenuation;
+
+                vec3 lightForward = normalize(U_Lights[i].rotationAndType.xyz);
+
+                float theta = dot(-lightDir, lightForward);
+
+                float innerCutoff = 0.965;
+                float outerCutoff = 0.906;
+
+                float epsilon = innerCutoff - outerCutoff;
+                float intensitySpot = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+
+                attenuation *= intensitySpot;
                 break;
         }
 

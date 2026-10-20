@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include <thread>
+#include "Components/FreeCam.hpp"
 
 Engine engine;
 Material *material;
@@ -53,7 +54,7 @@ void CreateScene()
 
 		cam->AddComponent<Camera>(engine.GetWindow());
 		cam->name = "Camera";
-
+		cam->AddComponent<FreeCam>();
 		cam->transform->SetPosition(glm::vec3(-5, 5, -5));
 		cam->transform->SetRotation(glm::vec3(-20, 45, 0));
 
@@ -79,10 +80,22 @@ void CreateScene()
 		renderer->SetMesh(monkeyMesh);
 		renderer->material = material;
 
+		GameObject* light = new GameObject();
+		light->name = "Directional Light";
+		light->transform->SetRotation(glm::vec3(-80,0,0));
+		light->AddComponent<Light>();
+
+		GameObject *light2 = new GameObject();
+		light2->name = "Directional Light2";
+		light2->transform->SetRotation(glm::vec3(80, 90, 0));
+		light2->AddComponent<Light>()->color= glm::vec3(1,0,0);
+
 		monkey->transform->SetPosition(glm::vec3(0, 0, 0));
 		monkey->transform->SetParent(pr->transform);
 
 		monkey->AddComponent<Rotator>();
+		scene->AddGameObject(light);
+		scene->AddGameObject(light2);
 		scene->AddGameObject(monkey);
 	}
 

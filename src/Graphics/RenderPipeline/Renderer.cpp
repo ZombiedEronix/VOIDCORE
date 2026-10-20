@@ -24,11 +24,18 @@ Renderer::Renderer()
     cb.memory = MemoryType::Dynamic;
     cb.debugName = "FrameUBO";
     cameraBuffer = GetDevice().CreateBuffer(cb);
+    ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    BufferDesc lightB;
+    lightB.size = sizeof(LightsBlock);
+    lightB.usage = BufferUsage::Uniform;
+    lightB.memory = MemoryType::Dynamic;
+    lightB.debugName = "GlobalLightUBO";
+    lightBuffer = GetDevice().CreateBuffer(lightB);
+    ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     CreateInstanceBuffer(currentBufferCapacity);
     opaqueQueue = new GeometryRenderQueue();
-    lightQueue = new LightRenderQueue();
-
+    lightBlock = new LightsBlock();
     renderPipeline = new DeferredRenderPipeline();
 }
 
@@ -42,11 +49,9 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
     instanceBuffer = GetDevice().CreateBuffer(ib);
     currentBufferCapacity = capacity;
 }
-
 Renderer::~Renderer()
 {
     // delete renderPipeline //crash
-    delete lightQueue;
     delete opaqueQueue;
 }
 
@@ -114,9 +119,14 @@ GeometryRenderQueue *Renderer::GetOpaqueQueue()
     return opaqueQueue;
 }
 
-void Renderer::SubmitLight(LightInfo& info)
+void Renderer::UploadLightData()
 {
-    lightQueue->AddLight(info);
+    cmd->UpdateBuffer(lightBuffer.get(), lightBlock, sizeof(LightsBlock));
+}
+
+void Renderer::SubmitLight(LightCommand &info)
+{
+    lightBlock->AddLight(info);
 }
 
 void Renderer::Flush()
@@ -127,13 +137,14 @@ void Renderer::Flush()
 
     UploadFrameData();
     UploadInstances(*opaqueQueue);
-
+    UploadLightData();
     if (renderPipeline)
     {
         renderPipeline->Execute(this);
     }
 
     opaqueQueue->Clear();
+    lightBlock->Clear();
     cmd = nullptr;
 }
 

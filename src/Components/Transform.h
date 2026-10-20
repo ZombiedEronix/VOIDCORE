@@ -27,6 +27,10 @@ protected:
 public:
     Transform();
 
+    glm::vec3 GetForward() const;
+    glm::vec3 GetRight() const;
+    glm::vec3 GetUp() const;
+    
     void SetPosition(const glm::vec3& pos);
     void SetRotation(const glm::vec3& rot);
     void SetScale(const glm::vec3& scl);

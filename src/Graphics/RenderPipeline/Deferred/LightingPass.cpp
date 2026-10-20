@@ -11,15 +11,6 @@ namespace VoidCore::Rendering::Deferred
         const uint32_t width = 1920;
         const uint32_t height = 1080;
 
-        lightBlock = new LightsBlock();
-
-        BufferDesc cb;
-        cb.size = sizeof(LightsBlock);
-        cb.usage = BufferUsage::Uniform;
-        cb.memory = MemoryType::Dynamic;
-        cb.debugName = "FrameUBO";
-        lightBuffer = GetDevice().CreateBuffer(cb);
-
         TextureDesc litDesc;
         litDesc.width = width;
         litDesc.height = height;
@@ -74,14 +65,7 @@ namespace VoidCore::Rendering::Deferred
         passDesc.colors[0].clearColor[3] = 1.0f;
         passDesc.hasDepth = false;
 
-        
-        
-        cmd->SetUniformBuffer(1, lightBuffer.get());
-
-        lightBlock->lights[0].Rotation = glm::vec4(-80,0,0,1);
-        lightBlock->currentLights = 1;
-
-        cmd->UpdateBuffer(lightBuffer.get(), lightBlock, sizeof(LightsBlock));
+        cmd->SetUniformBuffer(1, renderer->GetLightBuffer());
 
         cmd->BeginRenderPass(passDesc);
 

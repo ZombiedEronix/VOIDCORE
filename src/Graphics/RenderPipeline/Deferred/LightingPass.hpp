@@ -5,15 +5,6 @@
 #include "Graphics/RenderPipeline/Renderer.h"
 #include "Graphics/RenderPipeline/LightCommand.hpp"
 
-struct LightsBlock
-{
-    LightInfo lights[64];
-    int currentLights;
-    float padding1;
-    float padding2;
-    float padding3;
-};
-
 namespace VoidCore::Rendering::Deferred
 {
     class LightingPass
@@ -24,8 +15,6 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> lightingPipeline;
         Shader *lightingShader = nullptr;
         
-        LightsBlock *lightBlock;
-
         VoidCore::RHI::Ref<VoidCore::RHI::IBuffer>
             lightBuffer;
 

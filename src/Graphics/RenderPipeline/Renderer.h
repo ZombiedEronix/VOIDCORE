@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
-#include "Graphics/RenderPipeline/LightRenderQueue.hpp"
 
 #include "Device/RHI.hpp"
 #include "Components/Camera.h"
@@ -12,12 +11,30 @@
 
 #include "UI/UIRenderer.hpp"
 #include "Graphics/RenderPipeline/IRenderPipeline.hpp"
+#include "Graphics/RenderPipeline/LightCommand.hpp"
 
 class Camera;
 class GeometryRenderQueue;
 class Mesh;
 class Material;
 class UIRenderer;
+
+struct LightsBlock
+{
+	LightCommand lights[64];
+	int currentLights = 0;
+	float padding[3];
+
+	void AddLight(const LightCommand &info)
+	{
+		if (currentLights < 64)
+		{
+			lights[currentLights] = info;
+			currentLights++;
+		}
+	}
+	void Clear() { currentLights = 0; }
+};
 
 class Renderer
 {
@@ -27,14 +44,15 @@ private:
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
 
-	size_t currentBufferCapacity = 1024;
+	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
 
+	size_t currentBufferCapacity = 1024;
+	LightsBlock *lightBlock;
 	Camera *currentCamera = nullptr;
 
 	IRenderPipeline *renderPipeline;
 	GeometryRenderQueue *opaqueQueue;
 
-	LightRenderQueue *lightQueue;
 	std::vector<glm::mat4> matrices;
 
 	struct ShaderBlock
@@ -56,21 +74,21 @@ private:
 	void UploadInstances(const GeometryRenderQueue &queue);
 
 public:
-	GeometryRenderQueue * GetOpaqueQueue();
+	GeometryRenderQueue *GetOpaqueQueue();
 	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
 	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
-
+	VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
+	void UploadLightData();
 	Renderer();
 	~Renderer();
 
-	void SubmitTestRect(float x, float y, float w, float h, glm::vec4 color);
 	void SetCamera(Camera *camera);
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
 
 	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
 
-	void SubmitLight(LightInfo& info);
+	void SubmitLight(LightCommand &info);
 
 	void Flush();
 

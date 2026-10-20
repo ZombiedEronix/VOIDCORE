@@ -32,7 +32,6 @@ namespace VoidCore::RHI::OpenGL
         ICommandList *BeginFrame() override;
         void EndFrame() override;
 
-        void Resize(uint32_t width, uint32_t height) override;
         void GetBackBufferSize(uint32_t &width, uint32_t &height) const override;
         void SetVerticalSync(bool enabled) override;
         void WaitIdle() override;

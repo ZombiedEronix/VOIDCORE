@@ -1,5 +1,5 @@
 #include "Window.h"
-
+#include "Input.hpp"
 Window::Window(int w, int h)
 {
     width = w;
@@ -18,7 +18,7 @@ void Window::Destroy()
         Debug::Log("Shutting down Window & Renderer...");
         if (renderDevice)
             renderDevice->WaitIdle();
-        delete renderer; // его GPU-ресурсы должны умереть до устройства
+        delete renderer;
         renderer = nullptr;
         VoidCore::RHI::SetDevice(nullptr);
         renderDevice.reset();
@@ -29,9 +29,13 @@ void Window::Destroy()
 
 void Window::Update()
 {
+    Input::NewFrame();
+
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+        Input::ProcessEvent(event);
+
         if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
         {
             shouldClose = true;
@@ -50,7 +54,7 @@ void Window::EndFrame()
     renderDevice->EndFrame();
 }
 
-Renderer* Window::GetRenderer() const
+Renderer *Window::GetRenderer() const
 {
     return renderer;
 }
@@ -182,12 +186,11 @@ void Window::Hide()
 void Window::Show()
 {
     SDL_ShowWindow(windowPtr);
-}void Window::Minimize()
+}
+void Window::Minimize()
 {
     SDL_MinimizeWindow(windowPtr);
 }
-
-
 
 void Window::Raise()
 {
@@ -216,12 +219,12 @@ float Window::GetAspectRatio() const
     return ((float)width / (float)height);
 }
 
-SDL_Window* Window::GetNativeWindow() const
+SDL_Window *Window::GetNativeWindow() const
 {
     return windowPtr;
 }
 
-VoidCore::RHI::IRenderDevice* Window::GetRenderDevice() const 
+VoidCore::RHI::IRenderDevice *Window::GetRenderDevice() const
 {
     return renderDevice.get();
 }

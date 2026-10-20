@@ -52,7 +52,7 @@ namespace VoidCore::Rendering::Deferred
         delete screenShader;
     }
 
-    void PresentPass::Execute(ICommandList* cmd, ITexture* texture)
+    void PresentPass::Execute(ICommandList *cmd, ITexture *texture)
     {
 
         RenderPassDesc presentPass;
@@ -65,8 +65,6 @@ namespace VoidCore::Rendering::Deferred
         presentPass.colors[0].clearColor[2] = 0.0f;
         presentPass.colors[0].clearColor[3] = 1.0f;
 
-
-        
         presentPass.hasDepth = false;
 
         cmd->BeginRenderPass(presentPass);

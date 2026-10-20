@@ -12,17 +12,16 @@ namespace VoidCore::Rendering::Deferred
     class DeferredRenderPipeline : public IRenderPipeline
     {
     private:
-
-        GeometryPass* geometryPass;
-        LightingPass* lightingPass;
-        PresentPass* presentPass;
+        GeometryPass *geometryPass;
+        LightingPass *lightingPass;
+        PresentPass *presentPass;
 
         void CreateScreenPipeline();
 
     public:
         DeferredRenderPipeline();
         ~DeferredRenderPipeline() override;
-
+        void OnResize(int width, int height);
         void Execute(Renderer *renderer) override;
     };
 }
