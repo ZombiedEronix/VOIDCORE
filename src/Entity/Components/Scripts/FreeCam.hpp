@@ -40,7 +40,7 @@ public:
 
         if (glm::length(moveDir) > 0.0f)
         {
-            glm::vec3 newPos = transform->GetPosition() + glm::normalize(moveDir) * currentSpeed * Time::deltaTime;
+            glm::vec3 newPos = transform->GetPosition() + glm::normalize(moveDir) * currentSpeed * Time::GetUnscaledDeltaTime();
             transform->SetPosition(newPos);
         }
 

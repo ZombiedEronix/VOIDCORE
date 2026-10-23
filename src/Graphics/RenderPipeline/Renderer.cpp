@@ -94,8 +94,8 @@ void Renderer::UploadFrameData()
         block.U_Projection = glm::mat4(1);
     }
 
-    block.U_Time = Time::time;
-    block.U_DeltaTime = Time::deltaTime;
+    block.U_Time = Time::GetTime();
+    block.U_DeltaTime = Time::GetDeltaTime();
     block.U_ScreenWidth = Window::GetWidth();
     block.U_ScreenHeight = Window::GetHeight();
     cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));

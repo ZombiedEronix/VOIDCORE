@@ -3,21 +3,43 @@
 
 class Time
 {
+private:
+	inline static float m_deltaTime = 0.0f;
+	inline static float m_time = 0.0f;
+	inline static float m_timeScale = 1.0f;
+	inline static float m_unscaledDeltaTime = 0.0f;
+	inline static float m_unscaledTime = 0.0f;
+
+	inline static float m_lastFrameTime = 0.0f;
+	inline static bool m_isFirstFrame = true;
+
 public:
-	inline static float deltaTime = 0.0f;
-	inline static float time = 0.0f;
-	inline static float timeScale = 1.0f;
-	inline static float unscaledDeltaTime = 0.0f;
-	inline static float unscaledTime = 0.0f;
+	inline static float GetDeltaTime() { return m_deltaTime; }
+	inline static float GetTime() { return m_time; }
+	inline static float GetUnscaledDeltaTime() { return m_unscaledDeltaTime; }
+	inline static float GetUnscaledTime() { return m_unscaledTime; }
+
+	inline static float GetTimeScale() { return m_timeScale; }
+	inline static void SetTimeScale(float scale) { m_timeScale = scale; }
 
 	static void Update()
 	{
-		float currentTime = (float)SDL_GetTicks() / 1000.0f;
+		float currentTime = static_cast<float>(SDL_GetTicks()) / 1000.0f;
 
-		unscaledDeltaTime = currentTime - unscaledTime;
-		unscaledTime = currentTime;
-		time = unscaledTime;
+		if (m_isFirstFrame)
+		{
+			m_lastFrameTime = currentTime;
+			m_isFirstFrame = false;
+		}
 
-		deltaTime = unscaledDeltaTime * timeScale;
+		m_unscaledDeltaTime = currentTime - m_lastFrameTime;
+		m_lastFrameTime = currentTime;
+
+		if (m_unscaledDeltaTime > 0.1f)
+			m_unscaledDeltaTime = 0.1f;
+
+		m_unscaledTime += m_unscaledDeltaTime;
+		m_deltaTime = m_unscaledDeltaTime * m_timeScale;
+		m_time += m_deltaTime;
 	}
 };

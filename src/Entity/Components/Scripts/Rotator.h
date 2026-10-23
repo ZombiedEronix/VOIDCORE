@@ -12,6 +12,6 @@ class Rotator : public Behaviour
 
 	void Update() override
 	{
-		gameObject->transform->SetRotation(gameObject->transform->GetRotation() + glm::vec3(0, Time::deltaTime * speed, 0)); // Rotate by 1 degree per frame
+		gameObject->transform->SetRotation(gameObject->transform->GetRotation() + glm::vec3(0, Time::GetDeltaTime() * speed, 0)); // Rotate by 1 degree per frame
 	}
 };
