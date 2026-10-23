@@ -8,19 +8,15 @@
 #include "Graphics/RenderPipeline/Renderer.h"
 #include "Device/RHI.hpp"
 
-class Engine {
+class Engine
+{
 private:
-	bool isRunning = false;
+	static inline bool isRunning = false;
+	static void Update();
+	static void PrintLogo();
 
-	Window* window = nullptr;
-	void Update();
-	void PrintLogo();
 public:
-	bool Initialize();
-	void Run();
-	void ShutDown();
-
-	Window* GetWindow(int id = 0);
-	void CreateWindow(int width = 1280, int height = 720);
-	void CloseWindow(Window *window);
+	static bool Initialize();
+	static void Run();
+	static void ShutDown();
 };

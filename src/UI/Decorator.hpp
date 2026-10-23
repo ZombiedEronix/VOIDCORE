@@ -18,7 +18,7 @@ public:
             child->Measure(childAvailW, childAvailH);
 
             desiredSize.Width = child->desiredSize.Width + Padding.Left + Padding.Right;
-            desiredSize.Width = child->desiredSize.Width + Padding.Top + Padding.Bottom;
+            desiredSize.Height = child->desiredSize.Height + Padding.Top + Padding.Bottom;
         }
     }
 

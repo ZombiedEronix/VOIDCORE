@@ -1,13 +1,5 @@
 #include "Camera.h"
 
-Window* window = nullptr;
-
-Camera::Camera(Window* wnd)
-{
-    window = wnd;
-    // UBO камеры принадлежит Renderer (binding 0), здесь ничего не делаем.
-}
-
 glm::mat4 Camera::GetViewMatrix() const {
     return view;
 }
@@ -19,7 +11,6 @@ void Camera::Update()
     glm::vec3 pos = gameObject->transform->GetPosition();
     glm::vec3 rot = gameObject->transform->GetRotation(); // (Pitch, Yaw, Roll)
 
-    // Вычисляем направление взгляда (Forward) на основе углов
     float pitch = glm::radians(rot.x);
     float yaw = glm::radians(rot.y);
 
@@ -29,10 +20,9 @@ void Camera::Update()
     forward.z = sin(yaw) * cos(pitch);
     forward = glm::normalize(forward);
 
-    // Строим View матрицу
     view = glm::lookAt(pos, pos + forward, glm::vec3(0, 1, 0));
 
-    float aspect = window->GetAspectRatio();
+    float aspect = Window::GetAspectRatio();
     projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);
     cameraMatrix = projection * view;
 

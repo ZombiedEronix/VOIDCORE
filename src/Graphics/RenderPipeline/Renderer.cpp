@@ -14,8 +14,9 @@
 using namespace VoidCore::RHI;
 using namespace VoidCore::Rendering::Deferred;
 
-Renderer::Renderer()
+Renderer::Renderer(Window* window)
 {
+    windowPtr = window;
     block = ShaderBlock();
 
     BufferDesc cb;
@@ -102,16 +103,16 @@ void Renderer::UploadFrameData()
 
 void Renderer::UploadInstances(const GeometryRenderQueue &queue)
 {
-    matrices.clear();
-    matrices.reserve(queue.GetCount());
+    instanceMatrices.clear();
+    instanceMatrices.reserve(queue.GetCount());
     for (const GeometryRenderCommand &c : queue.GetData())
-        matrices.push_back(c.modelMatrix);
+        instanceMatrices.push_back(c.modelMatrix);
 
-    if (matrices.size() > currentBufferCapacity)
-        CreateInstanceBuffer(matrices.size() * 2);
+    if (instanceMatrices.size() > currentBufferCapacity)
+        CreateInstanceBuffer(instanceMatrices.size() * 2);
 
-    if (!matrices.empty())
-        cmd->UpdateBuffer(instanceBuffer.get(), matrices.data(), matrices.size() * sizeof(glm::mat4));
+    if (!instanceMatrices.empty())
+        cmd->UpdateBuffer(instanceBuffer.get(), instanceMatrices.data(), instanceMatrices.size() * sizeof(glm::mat4));
 }
 
 GeometryRenderQueue *Renderer::GetOpaqueQueue()

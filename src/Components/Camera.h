@@ -30,8 +30,6 @@ public:
 	float neardist = 0.01f;
 	float fardist = 1000;
 
-	Camera(Window* window);
-
 	void Update() override;
 
 	glm::mat4 GetViewMatrix() const;

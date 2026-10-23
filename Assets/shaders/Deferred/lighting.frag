@@ -32,7 +32,7 @@ void main() {
     }
 
     vec3 normal = normalize(packedNormal * 2.0 - 1.0);
-    vec3 camPos = U_InvProjection[3].xyz;
+    vec3 camPos = U_InvView[3].xyz; 
 
     vec4 clipPos = vec4(TexCoords * 2.0 - 1.0, rawDepth * 2.0 - 1.0, 1.0);
     vec4 viewPos = U_InvProjection * clipPos;

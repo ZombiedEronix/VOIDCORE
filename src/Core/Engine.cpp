@@ -3,16 +3,12 @@
 #include "Assets/ResourceManager.h"
 #include <Tracy/tracy/Tracy.hpp>
 
-bool Engine::Initialize()
-{
-	PrintLogo();
-	Debug::Log("Initializing VoidCore (C++20)");
 
-	return true;
-}
 
 void Engine::Run()
 {
+	PrintLogo();
+	Debug::Log("Initializing VoidCore (C++20)");
 	isRunning = true;
 	while (isRunning)
 	{
@@ -26,26 +22,26 @@ void Engine::Update()
 	Time::Update();
 	SceneManager::Update();
 
-	if(window != nullptr)
+	if (Window::IsShowed() == true && Window::IsCreated())
 	{
-		window->Update();
+		Window::Update();
 
-		if (window->ShouldClose())
+		if (Window::ShouldClose())
 		{
+			Window::Close();
 			ShutDown();
 			return;
 		}
 
-		auto *device = window->GetRenderDevice();
-		Renderer *renderer = window->GetRenderer();
-		
+		auto *device = Window::GetRenderDevice();
+		Renderer *renderer = Window::GetRenderer();
+
 		renderer->BeginFrame(device->BeginFrame());
 		SceneManager::Render(*renderer); // Submit / SubmitLight
 
+		renderer->Flush(); // апдейт буферов + render pass + draw'ы
 
-		renderer->Flush();               // апдейт буферов + render pass + draw'ы
-
-		device->EndFrame();              // submit + present
+		device->EndFrame(); // submit + present
 	}
 	FrameMark;
 }
@@ -67,26 +63,11 @@ void Engine::PrintLogo()
 			  << std::endl;
 }
 
-void Engine::CreateWindow(int width, int height)
-{
-	ZoneScoped;
-	window = new Window(width, height);
-	window->Initialize();
-}
-
-Window* Engine::GetWindow(int id)
-{
-	return window;
-}
-
 void Engine::ShutDown()
 {
+	Debug::Log("Engine is shutting down.");
 	isRunning = false;
 	SceneManager::UnloadScene();
-
-	// GPU-ресурсы должны умереть раньше устройства (его владеет Window).
 	ResourceManager::Clear();
-	delete window;
-	window = nullptr;
 	Debug::Log("GoodBye!");
 }

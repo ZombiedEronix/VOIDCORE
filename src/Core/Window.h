@@ -7,7 +7,8 @@
 #include <Core/Debug.h>
 #include "Device/RHI.hpp"
 #include "Core/Event.h"
-
+#include "Input/Cursor.hpp"
+#include "Input/Input.hpp"
 #include "Graphics/RenderPipeline/Renderer.h"
 
 class Renderer;
@@ -15,55 +16,66 @@ class Renderer;
 class Window
 {
 private:
-	Renderer *renderer = nullptr;
-	SDL_Window *windowPtr = nullptr;
-	std::unique_ptr<VoidCore::RHI::IRenderDevice> renderDevice;
-	int width = 1280;
-	int height = 720;
-	bool isFullScreen = false;
-	bool shouldClose = false;
+	static inline Cursor cursor;
+	static inline Renderer *renderer = nullptr;
+	static inline SDL_Window *windowPtr = nullptr;
+	static inline std::unique_ptr<VoidCore::RHI::IRenderDevice> renderDevice = nullptr;
+	static inline bool isFullScreen = false;
+	static inline bool shouldClose = false;
+	static inline int width = 1;
+	static inline int height = 1;
+
+	static inline bool isShowed = false;
+	static inline bool isCreated = false;
+
+	Window() = delete;
+	~Window() = delete;
+	Window(const Window &) = delete;
+	Window &operator=(const Window &) = delete;
 
 public:
-	Window(int w = 1280, int h = 720);
-	~Window();
+	static bool Create(VoidCore::RHI::GraphicsAPI API = VoidCore::RHI::GraphicsAPI::OpenGL, int w = 1280, int h = 720);
+	static void Destroy();
 
-	bool Initialize(VoidCore::RHI::GraphicsAPI API = VoidCore::RHI::GraphicsAPI::OpenGL);
+	static Renderer *GetRenderer();
+	static Cursor &GetCursor();
 
-	Renderer* GetRenderer() const;
+	static void Update();
+	static void EndFrame();
 
-	void Destroy();
-	void Update();
+	static void SetResolution(int w, int h);
+	static void SetFullScreen(bool fullscreen);
+	static void SetResizable(bool enabled);
+	static void SetBordered(bool enabled);
+	static void SetTitle(const char *name);
 
-	void EndFrame();
+	static void SetMinimumSize(int sizeX, int sizeY);
+	static void SetMaximumSize(int sizeX, int sizeY);
+	static void SetSize(int sizeX, int sizeY);
+	static void SetPosition(int sizeX, int sizeY);
 
-	void SetResolution(int w, int h);
+	static float GetWidth();
+	static float GetHeight();
 
-	void SetFullScreen(bool fullscreen);
+	static void SetOpacity(float opacity);
+	static void SetAlwaysOnTop(bool enabled);
 
-	void SetResizable(bool enabled);
-	void SetBordered(bool enabled);
-	void SetTitle(const char *name);
+	static bool IsCreated();
+	static bool IsShowed();
 
-	void SetMinimumSize(int sizeX, int sizeY);
-	void SetMaximumSize(int sizeX, int sizeY);
-	void SetSize(int sizeX, int sizeY);
-	void SetPosition(int sizeX, int sizeY);
+	static void Close();
+	static void Minimize();
+	static void Maximize();
+	static void Hide();
+	static void Show();
+	static void Raise();
+	static void Restore();
 
-	void SetOpacity(float opacity);
-	void SetAlwaysOnTop(bool enabled);
+	static void SetVerticalSync(bool enabled);
 
-	void Minimize();
-	void Maximize();
-	void Hide();
-	void Show();
-	void Raise();
-	void Restore();
+	static bool ShouldClose();
+	static float GetAspectRatio();
 
-	void SetVerticalSync(bool enabled);
-
-	bool ShouldClose() const;
-	float GetAspectRatio() const;
-
-	SDL_Window *GetNativeWindow() const;
-	VoidCore::RHI::IRenderDevice *GetRenderDevice() const;
+	static SDL_Window *GetNativeWindow();
+	static VoidCore::RHI::IRenderDevice *GetRenderDevice();
 };

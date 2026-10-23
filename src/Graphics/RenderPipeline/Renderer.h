@@ -18,6 +18,7 @@ class GeometryRenderQueue;
 class Mesh;
 class Material;
 class UIRenderer;
+class Window;
 
 struct LightsBlock
 {
@@ -36,38 +37,38 @@ struct LightsBlock
 	void Clear() { currentLights = 0; }
 };
 
+// Переместить в другой файл...
+struct ShaderBlock
+{
+	glm::mat4 Projection;
+	glm::mat4 View;
+	glm::mat4 InvProj;
+	glm::mat4 InvView;
+	float Time;
+	float DeltaTime;
+	float padding0;
+	float padding1;
+};
+// Переместить в другой файл...
+
 class Renderer
 {
 private:
 	VoidCore::RHI::ICommandList *cmd = nullptr;
-
+	Window* windowPtr;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
-
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
-
 	size_t currentBufferCapacity = 1024;
-	LightsBlock *lightBlock;
+
 	Camera *currentCamera = nullptr;
 
 	IRenderPipeline *renderPipeline;
 	GeometryRenderQueue *opaqueQueue;
-
-	std::vector<glm::mat4> matrices;
-
-	struct ShaderBlock
-	{
-		glm::mat4 Projection;
-		glm::mat4 View;
-		glm::mat4 InvProj;
-		glm::mat4 InvView;
-		float Time;
-		float DeltaTime;
-		float padding0;
-		float padding1;
-	};
+	std::vector<glm::mat4> instanceMatrices;
 
 	ShaderBlock block;
+	LightsBlock *lightBlock;
 
 	void CreateInstanceBuffer(size_t capacity);
 	void UploadFrameData();
@@ -80,12 +81,12 @@ public:
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
 	void UploadLightData();
-	Renderer();
+	Renderer(Window* window);
 	~Renderer();
 
 	void SetCamera(Camera *camera);
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
-
+	Window *GetWindow() {return windowPtr;}
 	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
 
 	void SubmitLight(LightCommand &info);

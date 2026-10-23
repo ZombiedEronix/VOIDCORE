@@ -52,7 +52,7 @@ void CreateScene()
 
 		GameObject *cam = new GameObject();
 
-		cam->AddComponent<Camera>(engine.GetWindow());
+		cam->AddComponent<Camera>();
 		cam->name = "Camera";
 		cam->AddComponent<FreeCam>();
 		cam->transform->SetPosition(glm::vec3(-5, 5, -5));
@@ -80,15 +80,15 @@ void CreateScene()
 		renderer->SetMesh(monkeyMesh);
 		renderer->material = material;
 
-		GameObject* light = new GameObject();
+		GameObject *light = new GameObject();
 		light->name = "Directional Light";
-		light->transform->SetRotation(glm::vec3(-80,0,0));
+		light->transform->SetRotation(glm::vec3(-80, 0, 0));
 		light->AddComponent<Light>();
 
 		GameObject *light2 = new GameObject();
 		light2->name = "Directional Light2";
 		light2->transform->SetRotation(glm::vec3(80, 90, 0));
-		light2->AddComponent<Light>()->color= glm::vec3(1,0,0);
+		light2->AddComponent<Light>()->color = glm::vec3(1, 0, 0);
 
 		monkey->transform->SetPosition(glm::vec3(0, 0, 0));
 		monkey->transform->SetParent(pr->transform);
@@ -109,16 +109,10 @@ void CreateScene()
 int main(int argc, char *args[])
 {
 	{
-		ZoneScopedN("Initializing Engine");
-		engine = Engine();
-		engine.Initialize();
-	}
-
-	{
 		ZoneScopedN("CreatingWindow and context");
-		engine.CreateWindow();
-		// engine.GetWindow()->GetRenderDevice()->SetVerticalSync(true);
-		engine.GetWindow()->Show();
+		Window::Create();
+		// Window::GetRenderDevice()->SetVerticalSync(true);
+		Window::Show();
 	}
 	CreateScene();
 	engine.Run();

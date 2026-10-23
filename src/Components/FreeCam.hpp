@@ -4,7 +4,7 @@
 #include "Core/GameObject.h"
 #include "Components/Transform.h"
 #include "Core/EngineTime.h"
-#include "Core/Input.hpp"
+#include "Input/Input.hpp"
 
 class FreeCam : public Component
 {
