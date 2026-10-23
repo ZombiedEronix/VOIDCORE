@@ -1,14 +1,14 @@
 #pragma once
 #include "Graphics/RenderPipeline/Renderer.h"
 #include "Assets/Texture.h"
-#include "Components/Transform.h"
+#include "Entity/Components/System/Transform.hpp"
 #include "Graphics/Material.h"
 #include "Assets/Vertex.h"
 #include "Assets/Mesh.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-class MeshRenderer : public Component
+class MeshRenderer : public Behaviour
 {
 public:
 	Mesh* mesh;

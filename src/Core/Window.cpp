@@ -1,5 +1,4 @@
 #include "Window.h"
-#include "EngineEvents.hpp"
 
 bool Window::Create(VoidCore::RHI::GraphicsAPI api, int w, int h)
 {
@@ -118,10 +117,25 @@ void Window::Update()
         }
         else if (event.type == SDL_EVENT_WINDOW_RESIZED)
         {
-            width = event.window.data1;
-            height = event.window.data2;
-            // Передаем nullptr вместо `this`, так как экземпляра класса больше нет
-            WindowEvents::onResize.Invoke(nullptr, width, height);
+            pendingWidth = event.window.data1;
+            pendingHeight = event.window.data2;
+            lastResizeTime = SDL_GetTicks();
+            isResizing = true;
+        }
+    }
+
+    if (isResizing)
+    {
+        uint64_t currentTime = SDL_GetTicks();
+        if (currentTime - lastResizeTime > 150)
+        {
+            width = pendingWidth;
+            height = pendingHeight;
+
+            Debug::Log("Поток ресайза утих. Вызываем тяжелый пересоздание буферов ОДИН раз.");
+            OnResize.Call(width, height);
+
+            isResizing = false;
         }
     }
 }

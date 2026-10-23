@@ -6,15 +6,17 @@
 #include <glm/gtx/vector_angle.hpp>
 
 #include "Graphics/Shader.h"
-#include "Core/GameObject.h"
-#include "Components/Component.h"
-#include "Components/Transform.h"
+#include "Entity/GameObject.hpp"
+#include "Entity/Components/Base/Component.hpp"
+#include "Entity/Components/System/Transform.hpp"
 #include "Core/Window.h"
+
+#include "Entity/Components/Base/Behaviour.hpp"
 
 class Window;
 
 
-class Camera : public Component
+class Camera : public Behaviour
 {
 private:
 	glm::vec4 planes[6];

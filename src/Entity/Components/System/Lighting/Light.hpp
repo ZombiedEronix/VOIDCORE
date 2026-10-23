@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "Components/Component.h"
-#include "Core/GameObject.h"
+#include "Entity/Components/Base/Component.hpp"
+#include "Entity/GameObject.hpp"
 
 enum LightType : uint32_t
 {
@@ -12,7 +12,7 @@ enum LightType : uint32_t
     SPOT,
 };
 
-class Light : public Component
+class Light : public Behaviour
 {
 public:
     LightCommand info;

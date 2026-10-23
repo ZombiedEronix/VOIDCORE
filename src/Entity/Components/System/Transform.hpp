@@ -10,7 +10,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 
-#include "Components/Component.h"
+#include "Entity/Components/Base/Component.hpp"
 
 class Transform : public Component
 {

@@ -16,6 +16,11 @@ class Renderer;
 class Window
 {
 private:
+	static inline bool isResizing = false;
+	static inline uint64_t lastResizeTime = 0;
+	static inline int pendingWidth = 0;
+	static inline int pendingHeight = 0;
+
 	static inline Cursor cursor;
 	static inline Renderer *renderer = nullptr;
 	static inline SDL_Window *windowPtr = nullptr;
@@ -34,6 +39,8 @@ private:
 	Window &operator=(const Window &) = delete;
 
 public:
+	static inline Event<int, int> OnResize;
+
 	static bool Create(VoidCore::RHI::GraphicsAPI API = VoidCore::RHI::GraphicsAPI::OpenGL, int w = 1280, int h = 720);
 	static void Destroy();
 

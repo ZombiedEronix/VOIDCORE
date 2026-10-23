@@ -6,6 +6,8 @@ layout (std140, binding = 0) uniform CameraBlock
     mat4 U_InvView;
     float U_Time;
     float U_DeltaTime;
+    float U_ScreenWidth;
+    float U_ScreenHeight;
 };
 
 //IN UNIFORM

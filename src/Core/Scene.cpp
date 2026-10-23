@@ -1,17 +1,13 @@
 #include "Core/Scene.h"
-#include <Components/Light.h>
+#include "Entity/Components/System/Lighting/Light.hpp"
 
 class GameObject;
 
-static bool s_JoltInitialized = false;
-
 Scene::Scene()
 {
-	if (!s_JoltInitialized)
-	{
-		s_JoltInitialized = true;
-	}
+
 }
+
 void Scene::AddGameObject(GameObject *gameObject)
 {
 	if (gameObject != nullptr)
@@ -38,7 +34,6 @@ void Scene::Render(Renderer &renderer)
 {
 	ZoneScoped;
 
-	// Шаг 1: Ищем активную камеру на сцене (ОДИН РАЗ ЗА КАДР)
 	Camera *activeCamera = nullptr;
 	for (GameObject *obj : gameObjects)
 	{

@@ -4,7 +4,7 @@
 
 #include "Assets/Mesh.h"
 #include "Graphics/Material.h"
-#include "Components/Camera.h"
+#include "Entity/Components/System/Camera.hpp"
 #include "Core/EngineTime.h"
 
 #include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
@@ -52,7 +52,6 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
 }
 Renderer::~Renderer()
 {
-    // delete renderPipeline //crash
     delete opaqueQueue;
 }
 
@@ -82,22 +81,23 @@ void Renderer::UploadFrameData()
 {
     if (currentCamera)
     {
-        block.Projection = currentCamera->projection;
-        block.View = currentCamera->view;
-        block.InvProj = glm::inverse(currentCamera->projection);
-        block.InvView = glm::inverse(currentCamera->view);
+        block.U_Projection = currentCamera->projection;
+        block.U_View = currentCamera->view;
+        block.U_InvProj = glm::inverse(currentCamera->projection);
+        block.U_InvView = glm::inverse(currentCamera->view);
     }
     else
     {
-        block.InvProj = glm::mat4(1);
-        block.InvView = glm::mat4(1);
-        block.View = glm::mat4(1);
-        block.Projection = glm::mat4(1);
+        block.U_InvProj = glm::mat4(1);
+        block.U_InvView = glm::mat4(1);
+        block.U_View = glm::mat4(1);
+        block.U_Projection = glm::mat4(1);
     }
 
-    block.Time = Time::time;
-    block.DeltaTime = Time::deltaTime;
-
+    block.U_Time = Time::time;
+    block.U_DeltaTime = Time::deltaTime;
+    block.U_ScreenWidth = Window::GetWidth();
+    block.U_ScreenHeight = Window::GetHeight();
     cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
 }
 

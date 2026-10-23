@@ -21,10 +21,10 @@ namespace VoidCore::Rendering::Deferred
     void DeferredRenderPipeline::OnResize(int width, int height)
     {
 
-    //     if (geometryPass)
-    //         geometryPass->Resize(width, height);
-    //     if (lightingPass)
-    //         lightingPass->Resize(width, height);
+        // if (geometryPass)
+        //     geometryPass->Resize(width, height);
+        // if (lightingPass)
+        //     lightingPass->Resize(width, height);
     }
 
     void DeferredRenderPipeline::Execute(Renderer *renderer)

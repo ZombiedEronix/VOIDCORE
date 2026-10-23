@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Components/Component.h"
-#include "Core/GameObject.h"
-#include "Components/Transform.h"
+#include "Entity/Components/Base/Component.hpp"
+#include "Entity/GameObject.hpp"
+#include "Entity/Components/System/Transform.hpp"
 #include "Core/EngineTime.h"
 #include "Input/Input.hpp"
 
-class FreeCam : public Component
+class FreeCam : public Behaviour
 {
 public:
     float moveSpeed = 5.0f;

@@ -8,9 +8,13 @@ namespace VoidCore::Rendering::Deferred
 
     LightingPass::LightingPass()
     {
-        const uint32_t width = 1920;
-        const uint32_t height = 1080;
+        CreateBuffers(Window::GetWidth(), Window::GetHeight());
+        Window::OnResize.Add([this](int width, int height)
+                             { this->CreateBuffers(width, height); });
+    }
 
+    void LightingPass::CreateBuffers(int width, int height)
+    {
         TextureDesc litDesc;
         litDesc.width = width;
         litDesc.height = height;

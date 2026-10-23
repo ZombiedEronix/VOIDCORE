@@ -4,8 +4,8 @@
 #include <string>
 #include <typeinfo>
 
-#include "Components/Component.h"
-#include "Components/Transform.h"
+#include "Entity/Components/Base/Component.hpp"
+#include "Entity/Components/System/Transform.hpp"
 #include "Tracy/tracy/Tracy.hpp"
 
 class GameObject {

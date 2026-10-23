@@ -4,9 +4,9 @@
 #include <Tracy/tracy/Tracy.hpp>
 
 
-#include "Core/GameObject.h"
-#include "Components/Camera.h"
-#include "Components/MeshRenderer.h"
+#include "Entity/GameObject.hpp"
+#include "Entity/Components/System/Camera.hpp"
+#include "Entity/Components/System/MeshRenderer.hpp"
 
 class Scene {
 public:

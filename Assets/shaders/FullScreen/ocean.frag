@@ -5,18 +5,10 @@
 in vec2 TexCoords;
 out vec4 FragColor;
 
-layout(std140, binding = 0) uniform CameraBlock {
-    mat4 U_Projection;
-    mat4 U_View;
-    mat4 U_InvProjection;
-    mat4 U_InvView;
-    float U_Time;
-    float U_DeltaTime;
-};
+#include "../Common.glsl"
 
 uniform sampler2D U_NormalTexture;
 uniform sampler2D U_LightPassTexture;
-uniform vec2 U_ScreenResolution;
 
 const int NUM_STEPS = 8;
 const float PI = 3.1415926535;
@@ -179,7 +171,6 @@ vec3 getCameraRay(vec2 ndc) {
 }
 
 void main() {
-    // Проверка глубины по твоему альфа-каналу нормалей для Сюзанны
     float depth = texture(U_NormalTexture, TexCoords).a;
     vec4 sceneColor = texture(U_LightPassTexture, TexCoords);
 
@@ -194,8 +185,8 @@ void main() {
 
     vec3 ori = vec3(U_InvView[3][0], U_InvView[3][1] + 3.0, U_InvView[3][2]);
 
-    float aspect = (U_ScreenResolution.x > 0.0) ? (U_ScreenResolution.x / U_ScreenResolution.y) : (16.0 / 9.0);
-    float epsilon_nrm = 0.1 / ((U_ScreenResolution.x > 0.0) ? U_ScreenResolution.x : 1920.0);
+    float aspect = (U_ScreenWidth) / (U_ScreenHeight);
+    float epsilon_nrm = 0.1 / (U_ScreenWidth);
 
 
     vec3 p;

@@ -6,10 +6,10 @@
 #include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
 
 #include "Device/RHI.hpp"
-#include "Components/Camera.h"
 #include <Tracy/tracy/Tracy.hpp>
 
-#include "UI/UIRenderer.hpp"
+#include "Entity/Components/System/Camera.hpp"
+
 #include "Graphics/RenderPipeline/IRenderPipeline.hpp"
 #include "Graphics/RenderPipeline/LightCommand.hpp"
 
@@ -40,14 +40,14 @@ struct LightsBlock
 // Переместить в другой файл...
 struct ShaderBlock
 {
-	glm::mat4 Projection;
-	glm::mat4 View;
-	glm::mat4 InvProj;
-	glm::mat4 InvView;
-	float Time;
-	float DeltaTime;
-	float padding0;
-	float padding1;
+	glm::mat4 U_Projection;
+	glm::mat4 U_View;
+	glm::mat4 U_InvProj;
+	glm::mat4 U_InvView;
+	float U_Time;
+	float U_DeltaTime;
+	float U_ScreenWidth;
+	float U_ScreenHeight;
 };
 // Переместить в другой файл...
 
@@ -55,7 +55,7 @@ class Renderer
 {
 private:
 	VoidCore::RHI::ICommandList *cmd = nullptr;
-	Window* windowPtr;
+	Window *windowPtr;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
@@ -81,12 +81,12 @@ public:
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
 	void UploadLightData();
-	Renderer(Window* window);
+	Renderer(Window *window);
 	~Renderer();
 
 	void SetCamera(Camera *camera);
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
-	Window *GetWindow() {return windowPtr;}
+	Window *GetWindow() { return windowPtr; }
 	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
 
 	void SubmitLight(LightCommand &info);

@@ -1,6 +1,7 @@
-#include "MeshRenderer.h"
-#include "Core/GameObject.h"
 #include <iostream>
+
+#include "MeshRenderer.hpp"
+#include "Entity/GameObject.hpp"
 
 MeshRenderer::MeshRenderer() {}
 

@@ -1,4 +1,4 @@
-#include "Transform.h"
+#include "Transform.hpp"
 
 Transform::Transform()
 	: Position(0.0f), Rotation(0.0f), Scale(1.0f) {

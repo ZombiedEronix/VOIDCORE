@@ -3,16 +3,13 @@
 
 #include "Core/Engine.h"
 #include "Assets/ModelImporter.h"
-#include "Components/Rotator.h"
 #include "Assets/ResourceManager.h"
 #include "Core/Window.h"
 
-#include "Components/Camera.h"
 
 #include <chrono>
 #include <format>
 #include <unordered_map>
-#include <Components/Light.h>
 
 #include <SDL3/SDL.h>
 
@@ -20,8 +17,13 @@
 
 #include <chrono>
 #include <thread>
-#include "Components/FreeCam.hpp"
 
+#include "Entity/Components/System/Camera.hpp"
+#include "Entity/Components/System/Lighting/Light.hpp"
+
+
+#include "Entity/Components/Scripts/Rotator.h"
+#include "Entity/Components/Scripts/FreeCam.hpp"
 Engine engine;
 Material *material;
 

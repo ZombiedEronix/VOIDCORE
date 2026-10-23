@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Components/Component.h"
-#include "Core/GameObject.h"
-#include "Components/Transform.h"
+#include "Entity/Components/Base/Component.hpp"
+#include "Entity/GameObject.hpp"
+#include "Entity/Components/System/Transform.hpp"
 #include "Core/EngineTime.h"
 
-class Rotator : public Component
+class Rotator : public Behaviour
 {
 	public:
 	float speed = 22.5f;

@@ -10,6 +10,7 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gAlbedoTexture;
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gDepthTexture;
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gNormalTexture;
+        void CreateBuffers(int width, int height);
 
         public:
         GeometryPass();
@@ -18,6 +19,7 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::ITexture* GetDepth();
         VoidCore::RHI::ITexture* GetNormal();
         
+
         void Execute(Renderer *commandList);
     };
 }

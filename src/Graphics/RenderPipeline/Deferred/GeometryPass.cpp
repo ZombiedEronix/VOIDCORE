@@ -4,11 +4,9 @@
 namespace VoidCore::Rendering::Deferred
 {
     using namespace VoidCore::RHI;
-    GeometryPass::GeometryPass()
-    {
-        const uint32_t width = 1920;
-        const uint32_t height = 1080;
 
+    void GeometryPass::CreateBuffers(int width, int height)
+    {
         TextureDesc albedoDesc;
         albedoDesc.width = width;
         albedoDesc.height = height;
@@ -33,6 +31,13 @@ namespace VoidCore::Rendering::Deferred
         normalDesc.usage = TextureUsage::RenderTarget | TextureUsage::Sampled;
         normalDesc.debugName = "G_Normal_Texture";
         gNormalTexture = GetDevice().CreateTexture(normalDesc);
+    }
+
+    GeometryPass::GeometryPass()
+    {
+        CreateBuffers(Window::GetWidth(), Window::GetHeight());
+        Window::OnResize.Add([this](int width, int height)
+                             { this->CreateBuffers(width, height); });
     }
 
     VoidCore::RHI::ITexture *GeometryPass::GetAlbedo()

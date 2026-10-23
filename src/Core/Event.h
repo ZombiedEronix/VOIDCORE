@@ -5,19 +5,28 @@
 template <typename... Args>
 class Event
 {
-    std::vector<std::function<void(Args...)>> listeners;
-
 public:
-    void operator+=(std::function<void(Args...)> callback)
+    using CallbackType = std::function<void(Args...)>;
+
+    void Add(CallbackType callback)
     {
-        listeners.push_back(callback);
+        if (callback)
+            listeners.push_back(callback);
     }
 
-    void Invoke(Args... args)
+    void Clear()
     {
-        for (auto &listener : listeners)
+        listeners.clear();
+    }
+
+    void Call(Args... args) const
+    {
+        for (const auto &callback : listeners)
         {
-            listener(args...);
+            callback(args...);
         }
     }
+
+private:
+    std::vector<CallbackType> listeners;
 };
