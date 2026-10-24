@@ -4,6 +4,8 @@ layout (std140, binding = 0) uniform CameraBlock
     mat4 U_View;
     mat4 U_InvProjection;
     mat4 U_InvView;
+    mat4 U_OrthoProjection;
+
     float U_Time;
     float U_DeltaTime;
     float U_ScreenWidth;

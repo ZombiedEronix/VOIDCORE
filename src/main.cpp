@@ -21,9 +21,14 @@
 #include "Entity/Components/System/Camera.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
 
-
 #include "Entity/Components/Scripts/Rotator.h"
 #include "Entity/Components/Scripts/FreeCam.hpp"
+
+#include "Entity/Components/System/UI/UICanvas.hpp"
+#include "Entity/Components/System/UI/UIDocument.hpp"
+
+#include "UI/UI.hpp"
+
 Engine engine;
 Material *material;
 
@@ -99,6 +104,17 @@ void CreateScene()
 		scene->AddGameObject(light);
 		scene->AddGameObject(light2);
 		scene->AddGameObject(monkey);
+
+		std::unique_ptr<UIControl> control = std::make_unique<Decorator>();
+		control.get()->Margin = Thickness(24);
+
+		GameObject *uiObject = new GameObject();
+		uiObject->name = "UI";
+		uiObject->AddComponent<UICanvas>();
+		uiObject->AddComponent<UIDocument>();
+		uiObject->GetComponent<UICanvas>()->SetDocument(uiObject->GetComponent<UIDocument>());
+
+		scene->AddGameObject(uiObject);
 	}
 
 	{

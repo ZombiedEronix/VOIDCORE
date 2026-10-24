@@ -44,6 +44,7 @@ struct ShaderBlock
 	glm::mat4 U_View;
 	glm::mat4 U_InvProj;
 	glm::mat4 U_InvView;
+	glm::mat4 U_OrthoProjection;
 	float U_Time;
 	float U_DeltaTime;
 	float U_ScreenWidth;

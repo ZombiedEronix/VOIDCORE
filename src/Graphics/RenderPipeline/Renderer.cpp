@@ -85,11 +85,12 @@ void Renderer::UploadFrameData()
         block.U_View = currentCamera->view;
         block.U_InvProj = glm::inverse(currentCamera->projection);
         block.U_InvView = glm::inverse(currentCamera->view);
-    }
+        block.U_OrthoProjection = glm::mat4(currentCamera->orthoProjection);    }
     else
     {
         block.U_InvProj = glm::mat4(1);
         block.U_InvView = glm::mat4(1);
+        block.U_OrthoProjection = glm::mat4(1);
         block.U_View = glm::mat4(1);
         block.U_Projection = glm::mat4(1);
     }

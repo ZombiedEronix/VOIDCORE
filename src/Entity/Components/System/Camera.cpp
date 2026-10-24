@@ -1,12 +1,14 @@
 #include "Camera.hpp"
 
-glm::mat4 Camera::GetViewMatrix() const {
+glm::mat4 Camera::GetViewMatrix() const
+{
     return view;
 }
 
 void Camera::Update()
 {
-    if (!gameObject || !gameObject->transform) return;
+    if (!gameObject || !gameObject->transform)
+        return;
 
     glm::vec3 pos = gameObject->transform->GetPosition();
     glm::vec3 rot = gameObject->transform->GetRotation(); // (Pitch, Yaw, Roll)
@@ -24,8 +26,8 @@ void Camera::Update()
 
     float aspect = Window::GetAspectRatio();
     projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);
+    orthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
     cameraMatrix = projection * view;
-
 
     glm::mat4 m = glm::transpose(cameraMatrix);
 
@@ -37,15 +39,19 @@ void Camera::Update()
     planes[4] = m[3] - m[2]; // Far  (z <= w)
     planes[5] = m[2];        // Near (z >= 0)  — в GL-конвенции [-1,1] было бы m[3] + m[2]
 
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i)
+    {
         float length = glm::length(glm::vec3(planes[i]));
         planes[i] /= length;
     }
 }
 
-bool Camera::IsPointInFrustum(const glm::vec3& point) {
-    for (int i = 0; i < 6; ++i) {
-        if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17) {
+bool Camera::IsPointInFrustum(const glm::vec3 &point)
+{
+    for (int i = 0; i < 6; ++i)
+    {
+        if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
+        {
             return false;
         }
     }

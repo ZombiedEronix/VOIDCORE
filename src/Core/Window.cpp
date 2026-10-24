@@ -132,7 +132,7 @@ void Window::Update()
             width = pendingWidth;
             height = pendingHeight;
 
-            Debug::Log("Поток ресайза утих. Вызываем тяжелый пересоздание буферов ОДИН раз.");
+            Debug::Log("Resizing window end.");
             OnResize.Call(width, height);
 
             isResizing = false;
