@@ -2,7 +2,7 @@
 #include <memory>
 #include <iostream>
 #include "Core/Window.h"
-#include "Core/SceneManager.h"
+#include "Core/SceneManagement/SceneManager.hpp"
 #include "Core/EngineTime.h"
 #include "Core/Debug.h"
 #include "Graphics/RenderPipeline/Renderer.h"

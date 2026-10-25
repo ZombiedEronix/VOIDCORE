@@ -119,7 +119,7 @@ void CreateScene()
 
 	{
 		ZoneScopedN("Load Scene");
-		SceneManager::LoadScene(scene);
+		SceneManager::LoadScene(scene, LoadSceneMode::Single);
 		// FrameMark УБРАЛИ
 	}
 }

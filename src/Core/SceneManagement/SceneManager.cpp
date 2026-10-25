@@ -1,14 +1,21 @@
-#include "Core/SceneManager.h"
+#include "SceneManager.hpp"
 
-void SceneManager::LoadScene(Scene* obj)
+void SceneManager::LoadScene(Scene *obj, LoadSceneMode loadMode = LoadSceneMode::Single)
 {
 	ZoneScopedN("SceneManager Load Scene");
+	Debug::Log("Loading Scene : ", obj->name);
+
+	if(loadMode == LoadSceneMode::Additive)
+	{
+		Debug::LogError("Loading scene in additing mode is not implemented");
+		return;
+	}
+
 	if (currentScene != nullptr)
 	{
 		UnloadScene();
 	}
-
-	Debug::Log("Loading Scene : ", obj->name);
+	
 	currentScene = obj;
 }
 

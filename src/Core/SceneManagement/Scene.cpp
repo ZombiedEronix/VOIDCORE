@@ -1,4 +1,4 @@
-#include "Core/Scene.h"
+#include "Scene.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
 
 class GameObject;

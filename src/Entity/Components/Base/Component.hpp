@@ -1,8 +1,9 @@
 #pragma once
+#include "Entity/Object.hpp"
 
 class GameObject;
 
-class Component
+class Component : Object
 {
 public:
     GameObject *gameObject = nullptr;
