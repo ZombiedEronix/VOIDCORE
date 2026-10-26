@@ -1,11 +1,12 @@
 #pragma once
-#include "Graphics/RenderPipeline/IRenderPipeline.hpp"
+#include "IRenderPipeline.hpp"
 #include "Device/RHI.hpp"
 #include <memory>
-#include "Graphics/Shader.h"
-#include "PresentPass.hpp"
-#include "LightingPass.hpp"
-#include "GeometryPass.hpp"
+
+#include "../Resources/Shader.hpp"
+#include "../Pass/GeometryPass.hpp"
+#include "../Pass/LightingPass.hpp"
+#include "../Pass/PresentPass.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {

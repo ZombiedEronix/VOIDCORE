@@ -1,15 +1,15 @@
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Assets/Mesh.h"
-#include "Graphics/Material.h"
+#include "Graphics/Resources/Material.h"
 #include "Entity/Components/System/Camera.hpp"
 #include "Core/EngineTime.h"
 
-#include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
+#include "Graphics/Queue/GeometryRenderQueue.hpp"
 
-#include "Graphics/RenderPipeline/Deferred/DefferedRenderPipeline.hpp"
+#include "Graphics/Pipeline/DefferedRenderPipeline.hpp"
 
 using namespace VoidCore::RHI;
 using namespace VoidCore::Rendering::Deferred;

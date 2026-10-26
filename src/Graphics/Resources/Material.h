@@ -1,7 +1,7 @@
 #pragma once
 #include "Device/RHI.hpp"
-#include "Graphics/Shader.h"
-#include "Graphics/VertexLayouts.h"
+#include "Shader.hpp"
+#include "VertexLayouts.hpp"
 #include "Assets/Texture.h"
 #include "Core/Debug.h"
 

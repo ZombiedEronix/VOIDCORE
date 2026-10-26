@@ -1,5 +1,5 @@
+#include "Graphics/Queue/GeometryRenderQueue.hpp"
 #include "GeometryPass.hpp"
-#include "Graphics/RenderPipeline/GeometryRenderQueue.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {

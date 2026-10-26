@@ -1,7 +1,7 @@
 #include <fstream>
 #include <unordered_set>
 
-#include "Shader.h"
+#include "Shader.hpp"
 #include "Core/Debug.h"
 
 using namespace VoidCore::RHI;

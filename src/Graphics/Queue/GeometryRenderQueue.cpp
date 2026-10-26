@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <tuple>
 
-#include "Graphics/RenderPipeline/Renderer.h"
-#include "Graphics/Material.h"
+#include "Graphics/Renderer.hpp"
+#include "Graphics/Resources/Material.h"
 #include "Assets/Mesh.h"
 
 void GeometryRenderQueue::AddCommand(const GeometryRenderCommand &command)

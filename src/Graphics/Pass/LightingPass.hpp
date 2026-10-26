@@ -1,9 +1,9 @@
 #pragma once
 #include "Device/RHI.hpp"
-#include "Graphics/Shader.h"
+#include "Graphics/Resources/Shader.hpp"
 #include "Device/IBuffer.hpp"
-#include "Graphics/RenderPipeline/Renderer.h"
-#include "Graphics/RenderPipeline/LightCommand.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Graphics/Queue/LightCommand.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {

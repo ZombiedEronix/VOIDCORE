@@ -6,7 +6,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/Mesh.h"
-#include "Graphics/Shader.h"
+#include "Graphics/Resources/Shader.hpp"
 #include "ModelImporter.h"
 
 

@@ -1,5 +1,4 @@
 #include "DefferedRenderPipeline.hpp"
-#include "Graphics/RenderPipeline/Renderer.h"
 #include "Core/Debug.h"
 
 namespace VoidCore::Rendering::Deferred

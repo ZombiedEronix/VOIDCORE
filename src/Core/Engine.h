@@ -5,7 +5,7 @@
 #include "Core/SceneManagement/SceneManager.hpp"
 #include "Core/EngineTime.h"
 #include "Core/Debug.h"
-#include "Graphics/RenderPipeline/Renderer.h"
+#include "Graphics/Renderer.hpp"
 #include "Device/RHI.hpp"
 
 class Engine

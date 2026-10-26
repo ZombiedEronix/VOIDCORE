@@ -1,4 +1,5 @@
-#include "Graphics/RenderPipeline/Renderer.h"
+#pragma once
+#include "Graphics/Renderer.hpp"
 
 #include "Device/RHI.hpp"
 

@@ -9,7 +9,7 @@
 #include "Core/Event.h"
 #include "Input/Cursor.hpp"
 #include "Input/Input.hpp"
-#include "Graphics/RenderPipeline/Renderer.h"
+#include "Graphics/Renderer.hpp"
 
 class Renderer;
 

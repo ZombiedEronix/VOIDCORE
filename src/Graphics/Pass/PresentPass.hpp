@@ -1,4 +1,5 @@
-#include "Graphics/RenderPipeline/Renderer.h"
+#pragma once
+#include "Graphics/Renderer.hpp"
 #include "Assets/ResourceManager.h"
 #include "Device/ICommandList.hpp"
 

@@ -1,8 +1,8 @@
 #pragma once
-#include "Graphics/RenderPipeline/Renderer.h"
+#include "Graphics/Renderer.hpp"
 #include "Assets/Texture.h"
 #include "Entity/Components/System/Transform.hpp"
-#include "Graphics/Material.h"
+#include "Graphics/Resources/Material.h"
 #include "Assets/Vertex.h"
 #include "Assets/Mesh.h"
 
