@@ -3,10 +3,9 @@
 #include <vector>
 #include "Device/RHI.hpp"
 #include "Vertex.h"
-#include "Assets/Asset.h"
 #include "Core/Debug.h"
 
-class Mesh : public Asset
+class Mesh
 {
 private:
 	int vertexCount = 0;

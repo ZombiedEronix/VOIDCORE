@@ -7,9 +7,15 @@ struct Thickness
     float Bottom = 0.0f;
     float Left = 0.0f;
 
+    static const Thickness &Zero()
+    {
+        static const Thickness instance(0.0f);
+        return instance;
+    }
+
     Thickness() = default;
 
-    explicit Thickness(float all)
+    Thickness(float all)
         : Top(all), Right(all), Bottom(all), Left(all) {}
 
     Thickness(float vertical, float horizontal)
@@ -17,4 +23,7 @@ struct Thickness
 
     Thickness(float t, float r, float b, float l)
         : Top(t), Right(r), Bottom(b), Left(l) {}
+
+    float Horizontal() const { return Left + Right; }
+    float Vertical() const { return Top + Bottom; }
 };

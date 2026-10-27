@@ -23,7 +23,6 @@ public:
 			textures[slot] = tex;
 	}
 
-	// Привязывает pipeline и текстуры. false — материал невалиден, рисовать нельзя.
 	bool Apply(VoidCore::RHI::ICommandList *cmd)
 	{
 		if (!pipeline && !buildFailed)
@@ -42,8 +41,6 @@ public:
 
 private:
 
-	// Всё, что раньше делали glEnable/glBlendFunc/glDepthMask при каждой отрисовке,
-	// теперь запекается в pipeline один раз. queueType после первого Apply не менять.
 	void Build()
 	{
 		using namespace VoidCore::RHI;

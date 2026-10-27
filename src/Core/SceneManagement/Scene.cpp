@@ -1,11 +1,13 @@
 #include "Scene.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
+#include "Entity/Components/System/UI/UICanvas.hpp"
+
+#include <algorithm>
 
 class GameObject;
 
 Scene::Scene()
 {
-
 }
 
 void Scene::AddGameObject(GameObject *gameObject)
@@ -60,13 +62,31 @@ void Scene::Render(Renderer &renderer)
 
 	for (GameObject *obj : gameObjects)
 	{
-		if (activeCamera && !activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+		if (activeCamera == nullptr)
 			continue;
-
+		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+		{
+			Debug::Log("Скип");
+			continue;
+		}
 		MeshRenderer *mr = obj->GetComponent<MeshRenderer>();
 		if (!mr || !mr->mesh || !mr->material)
 			continue;
 
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
+
+	// ---- UI: рисуется после всей 3D-сцены, канвасы по sortingOrder ----
+	std::vector<UICanvas *> canvases;
+	for (GameObject *obj : gameObjects)
+	{
+		if (auto *canvas = obj->GetComponent<UICanvas>())
+			canvases.push_back(canvas);
+	}
+	std::stable_sort(canvases.begin(), canvases.end(),
+					 [](const UICanvas *a, const UICanvas *b)
+					 { return a->sortingOrder < b->sortingOrder; });
+
+	for (UICanvas *canvas : canvases)
+		canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
 }

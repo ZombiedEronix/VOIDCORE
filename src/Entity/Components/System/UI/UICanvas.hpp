@@ -1,22 +1,30 @@
+#pragma once
 #include "Entity/Components/Base/Behaviour.hpp"
-#include "UIDocument.hpp"
-#include "UI/UI.hpp"
+#include "Entity/Components/System/UI/UIDocument.hpp"
+#include "UI/Elements.hpp"
 
+// Куда и в каком порядке рисовать документ. Сейчас — только Screen Space.
 class UICanvas : public Behaviour
 {
 public:
-    int sortingOrder = 0;
+    int sortingOrder = 0; // больше = рисуется позже = поверх
 
-    UIDocument* document = nullptr;
+    UIDocument *document = nullptr;
 
-    void SetDocument(UIDocument* document)
+    void SetDocument(UIDocument *doc) { document = doc; }
+
+    Rect GetTargetRect(float screenW, float screenH) const
     {
-        this->document = document;
+        // Screen Space implemented only
+        return Rect{0, 0, screenW, screenH};
     }
 
-    Rect GetTargetRect(float screenW, float screenH)
+    // Лейаут + запись команд рисования в ctx. Вызывается из Scene::Render.
+    void Render(UIContext &ctx, float screenW, float screenH)
     {
-        //Screen Space implemented only
-        return Rect{0, 0, screenW, screenH};
+        if (!document || !IsEnabled())
+            return;
+        document->UpdateLayout(GetTargetRect(screenW, screenH));
+        document->Render(ctx);
     }
 };

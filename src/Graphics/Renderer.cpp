@@ -10,6 +10,7 @@
 #include "Graphics/Queue/GeometryRenderQueue.hpp"
 
 #include "Graphics/Pipeline/DefferedRenderPipeline.hpp"
+#include "Graphics/Pass/UIPass.hpp"
 
 using namespace VoidCore::RHI;
 using namespace VoidCore::Rendering::Deferred;
@@ -38,6 +39,7 @@ Renderer::Renderer(Window* window)
     opaqueQueue = new GeometryRenderQueue();
     lightBlock = new LightsBlock();
     renderPipeline = new DeferredRenderPipeline();
+    uiPass = new VoidCore::Rendering::UIPass();
 }
 
 void Renderer::CreateInstanceBuffer(size_t capacity)
@@ -52,6 +54,7 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
 }
 Renderer::~Renderer()
 {
+    delete uiPass;
     delete opaqueQueue;
 }
 
@@ -94,6 +97,8 @@ void Renderer::UploadFrameData()
         block.U_View = glm::mat4(1);
         block.U_Projection = glm::mat4(1);
     }
+
+    block.U_OrthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
 
     block.U_Time = Time::GetTime();
     block.U_DeltaTime = Time::GetDeltaTime();
@@ -144,6 +149,10 @@ void Renderer::Flush()
     {
         renderPipeline->Execute(this);
     }
+
+    if (uiPass)
+        uiPass->Execute(cmd, this, uiContext);
+    uiContext.Clear();
 
     opaqueQueue->Clear();
     lightBlock->Clear();

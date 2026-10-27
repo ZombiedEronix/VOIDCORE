@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#include "UI/Rect.hpp"
+#include "Rect.hpp"
 
 class Texture;
 

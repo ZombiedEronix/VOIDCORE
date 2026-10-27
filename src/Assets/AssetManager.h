@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "Assets/Mesh.h"
+#include "Mesh.h"
 #include "Assets/ModelImporter.h"
 
 class AssetManager {

@@ -15,11 +15,16 @@
 
 #include "Graphics/Uniforms.hpp"
 
+#include "UI/UIContext.hpp"
+
 class Camera;
 class GeometryRenderQueue;
 class Mesh;
 class Material;
-class UIRenderer;
+namespace VoidCore::Rendering
+{
+	class UIPass;
+}
 class Window;
 
 class Renderer
@@ -35,6 +40,8 @@ private:
 	Camera *currentCamera = nullptr;
 
 	IRenderPipeline *renderPipeline;
+	VoidCore::Rendering::UIPass *uiPass = nullptr;
+	UIContext uiContext;
 	GeometryRenderQueue *opaqueQueue;
 	std::vector<glm::mat4> instanceMatrices;
 
@@ -47,6 +54,7 @@ private:
 
 public:
 	GeometryRenderQueue *GetOpaqueQueue();
+	UIContext &GetUIContext() { return uiContext; }
 	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
 	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
