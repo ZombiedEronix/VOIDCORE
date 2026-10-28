@@ -41,8 +41,13 @@ private:
 
     Size MeasureOverride(Size available) override
     {
-        if (columns.empty() || rows.empty())
-            return {};
+        if (columns.empty())
+            const_cast<Grid*>(this)->AddColumn(1.0f, true);
+        if (rows.empty())
+            const_cast<Grid*>(this)->AddRow(1.0f, true);
+
+        float availW = std::max(0.0f, available.Width - Padding.Horizontal());
+        float availH = std::max(0.0f, available.Height - Padding.Vertical());
 
         std::vector<float> colWidths(columns.size());
         std::vector<float> rowHeights(rows.size());
@@ -72,8 +77,8 @@ private:
             }
         }
 
-        float starW = starColsCount > 0 ? (available.Width - fixedW) / starColsCount : 0;
-        float starH = starRowsCount > 0 ? (available.Height - fixedH) / starRowsCount : 0;
+        float starW = starColsCount > 0 ? (availW - fixedW) / starColsCount : 0;
+        float starH = starRowsCount > 0 ? (availH - fixedH) / starRowsCount : 0;
 
         for (size_t i = 0; i < columns.size(); ++i)
             if (columns[i].isStar)
@@ -91,13 +96,18 @@ private:
             children[i]->Measure(colWidths[c], rowHeights[r]);
         }
 
-        return {available.Width, available.Height};
+        return {availW + Padding.Horizontal(), availH + Padding.Vertical()};
     }
 
     void ArrangeOverride(const Rect &content) override
     {
         if (columns.empty() || rows.empty())
             return;
+
+        float innerX = content.x + Padding.Left;
+        float innerY = content.y + Padding.Top;
+        float innerW = std::max(0.0f, content.w - Padding.Horizontal());
+        float innerH = std::max(0.0f, content.h - Padding.Vertical());
 
         std::vector<float> colWidths(columns.size());
         float fixedW = 0;
@@ -109,16 +119,14 @@ private:
             else
                 fixedW += columns[i].size;
         }
-        float starW = starColsCount > 0 ? (content.w - fixedW) / starColsCount : 0;
+        float starW = starColsCount > 0 ? (innerW - fixedW) / starColsCount : 0;
 
-        float x = content.x;
         for (size_t i = 0; i < columns.size(); ++i)
         {
             if (columns[i].isStar)
                 colWidths[i] = columns[i].size * starW;
             else
                 colWidths[i] = columns[i].size;
-            x += colWidths[i];
         }
 
         std::vector<float> rowHeights(rows.size());
@@ -131,25 +139,23 @@ private:
             else
                 fixedH += rows[i].size;
         }
-        float starH = starRowsCount > 0 ? (content.h - fixedH) / starRowsCount : 0;
+        float starH = starRowsCount > 0 ? (innerH - fixedH) / starRowsCount : 0;
 
-        float y = content.y;
         for (size_t i = 0; i < rows.size(); ++i)
         {
             if (rows[i].isStar)
                 rowHeights[i] = rows[i].size * starH;
             else
                 rowHeights[i] = rows[i].size;
-            y += rowHeights[i];
         }
 
         std::vector<float> colX(columns.size() + 1);
-        colX[0] = content.x;
+        colX[0] = innerX;
         for (size_t i = 0; i < columns.size(); ++i)
             colX[i + 1] = colX[i] + colWidths[i];
 
         std::vector<float> rowY(rows.size() + 1);
-        rowY[0] = content.y;
+        rowY[0] = innerY;
         for (size_t i = 0; i < rows.size(); ++i)
             rowY[i + 1] = rowY[i] + rowHeights[i];
 

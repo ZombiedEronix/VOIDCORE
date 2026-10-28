@@ -3,13 +3,12 @@
 
 #include "UI/Elements/UIControl.hpp"
 
-// Текст (UTF-8, '\n' — перенос). Автоматических переносов по ширине пока нет.
 class TextBlock : public UIControl
 {
 public:
     std::string Text;
     Color Foreground = Color::White();
-    Font *font = nullptr; // nullptr => Font::GetDefault()
+    Font *font = nullptr;
 
     TextBlock() = default;
     explicit TextBlock(std::string text, Color color = Color::White())

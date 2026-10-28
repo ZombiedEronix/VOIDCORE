@@ -1,0 +1,21 @@
+<Decorator Background="#FFFFFF00">
+    <Grid Margin="24" Padding="12">
+        <Decorator Background="#2D3748FF" CornerRadius="24">
+            <StackPanel Spacing="12">
+                <TextBlock Text="VoidCore UI from XML!" Foreground="#FFD952" />
+                <TextBlock Text="Test XML 01" />
+                <TextBlock Text="Test XML 02" />
+                <ProgressBar Value="0.75" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Decorator Background="#404B80FF" CornerRadius="8">
+                        <TextBlock Text="Button 1" />
+                    </Decorator>
+                    <Decorator Background="#404B80FF" CornerRadius="8">
+                        <TextBlock Text="Button 2" />
+                    </Decorator>
+                </StackPanel>
+            </StackPanel>
+        </Decorator>
+    </Grid>
+</Decorator>
+

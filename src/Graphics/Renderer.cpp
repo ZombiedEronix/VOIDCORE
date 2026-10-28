@@ -151,7 +151,12 @@ void Renderer::Flush()
     }
 
     if (uiPass)
+    {
+        uiContext.defaultMaterial = uiPass->GetDefaultMaterial();
+        uiContext.defaultFont = uiPass->GetDefaultFont();
+        uiContext.getFontMaterial = [this](const Font *font) { return uiPass->GetFontMaterial(font); };
         uiPass->Execute(cmd, this, uiContext);
+    }
     uiContext.Clear();
 
     opaqueQueue->Clear();

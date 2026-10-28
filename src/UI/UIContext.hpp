@@ -4,16 +4,18 @@
 #include <cstdint>
 #include <string_view>
 #include <vector>
+#include <functional>
 
 #include "Structures/Color.hpp"
 #include "Structures/Font.hpp"
 #include "Structures/Rect.hpp"
 #include "Structures/UIVertex.hpp"
 #include "Structures/Thickness.hpp"
+#include "UIMaterial.hpp"
 
 struct UIBatch
 {
-    const Font *font;
+    const UIMaterial *material;
     uint32_t indexOffset;
     uint32_t indexCount;
 };
@@ -25,6 +27,10 @@ public:
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
 
+    const UIMaterial *defaultMaterial = nullptr;
+    const Font *defaultFont = nullptr;
+    std::function<const UIMaterial*(const Font*)> getFontMaterial;
+
     void Clear()
     {
         vertices.clear();
@@ -34,23 +40,30 @@ public:
 
     void AddRect(const Rect &r, const Color &c = Color::White(), const Thickness cornerSize = Thickness::Zero())
     {
-        const Font *f = Font::GetDefault();
-        if (!f || r.w <= 0 || r.h <= 0)
+        if (!defaultMaterial || r.w <= 0 || r.h <= 0 || !c.IsVisible())
             return;
-        AddQuad(f, r.x, r.y, r.Right(), r.Bottom(),
-                f->WhiteU(), f->WhiteV(), f->WhiteU(), f->WhiteV(), c, cornerSize);
+        
+        const Font *f = Font::GetDefault();
+        float u0 = f ? f->WhiteU() : 0.0f;
+        float v0 = f ? f->WhiteV() : 0.0f;
+        AddQuad(defaultMaterial, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0, c, cornerSize);
     }
 
     void AddText(const Font *font, std::string_view text, float x, float y, const Color &c)
     {
-        if (!font || !font->IsValid() || !c.IsVisible())
+        const Font *f = font ? font : (defaultFont ? defaultFont : Font::GetDefault());
+        if (!f || !f->IsValid() || !c.IsVisible())
+            return;
+
+        const UIMaterial *mat = getFontMaterial ? getFontMaterial(f) : defaultMaterial;
+        if (!mat)
             return;
 
         const float startX = std::round(x);
         float penX = startX;
-        float baseY = std::round(y + font->Ascent());
-        const float invW = 1.0f / font->AtlasWidth();
-        const float invH = 1.0f / font->AtlasHeight();
+        float baseY = std::round(y + f->Ascent());
+        const float invW = 1.0f / f->AtlasWidth();
+        const float invH = 1.0f / f->AtlasHeight();
 
         const char *p = text.data();
         const char *end = p + text.size();
@@ -60,18 +73,18 @@ public:
             if (cp == '\n')
             {
                 penX = startX;
-                baseY += font->LineHeight();
+                baseY += f->LineHeight();
                 continue;
             }
             if (cp == '\r')
                 continue;
             if (cp == '\t')
             {
-                penX += font->SpaceAdvance() * 4.0f;
+                penX += f->SpaceAdvance() * 4.0f;
                 continue;
             }
 
-            const Glyph *g = font->GetGlyph(cp);
+            const Glyph *g = f->GetGlyph(cp);
             if (!g)
                 continue;
 
@@ -79,18 +92,18 @@ public:
             {
                 const float qx = std::round(penX + g->xoff);
                 const float qy = std::round(baseY + g->yoff);
-                AddQuad(font, qx, qy, qx + (g->xoff2 - g->xoff), qy + (g->yoff2 - g->yoff),
+                AddQuad(mat, qx, qy, qx + (g->xoff2 - g->xoff), qy + (g->yoff2 - g->yoff),
                         g->x0 * invW, g->y0 * invH, g->x1 * invW, g->y1 * invH, c);
             }
             penX += g->xadvance;
         }
     }
 
-    void AddQuad(const Font *font, float x0, float y0, float x1, float y1,
+    void AddQuad(const UIMaterial *material, float x0, float y0, float x1, float y1,
                  float u0, float v0, float u1, float v1, const Color &c,
                  const Thickness cornerRadius = Thickness::Zero())
     {
-        if (!font || !this || !c.IsVisible())
+        if (!material || !c.IsVisible())
             return;
 
         float width = std::abs(x1 - x0);
@@ -98,8 +111,8 @@ public:
         if (width <= 0.0f || height <= 0.0f)
             return;
 
-        if (batches.empty() || batches.back().font != font)
-            batches.push_back({font, static_cast<uint32_t>(indices.size()), 0});
+        if (batches.empty() || batches.back().material != material)
+            batches.push_back({material, static_cast<uint32_t>(indices.size()), 0});
 
         const uint32_t base = static_cast<uint32_t>(vertices.size());
 

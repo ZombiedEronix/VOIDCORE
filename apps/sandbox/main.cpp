@@ -14,9 +14,6 @@
 
 #include <Tracy/tracy/Tracy.hpp>
 
-#include <chrono>
-#include <thread>
-
 #include "Entity/Components/System/Camera.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
 
@@ -27,50 +24,14 @@
 #include "Entity/Components/System/UI/UIDocument.hpp"
 
 #include "UI/Elements.hpp"
+#include "UI/UIFactory.hpp"
 
 Engine engine;
 Material *material;
 
 static std::shared_ptr<UIControl> BuildDemoUI()
 {
-	auto root = std::make_shared<Decorator>();
-	auto grid = std::make_shared<Grid>();
-
-	root->Name = "root";
-	root->Margin = Thickness(24);
-	root->Padding = Thickness(16);
-	root->HorizontalAlignment = HAlign::Stretch;
-	root->VerticalAlignment = VAlign::Stretch;
-	root->Background = Color(.11, .22, .15, 0.85f);
-	root->BorderColor = Color(0.40f, 0.60f, 1.00f);
-	root->BorderThickness = 0.0f;
-	root->CornerRadius = 24.0f;
-
-	auto stack = std::make_shared<StackPanel>();
-	stack->Spacing = 8.0f;
-	root->child = stack;
-
-	stack->Add(std::make_shared<TextBlock>("VoidCore UI", Color(1.0f, 0.85f, 0.3f)));
-	stack->Add(std::make_shared<TextBlock>("Test 01"));
-	stack->Add(std::make_shared<TextBlock>("Test 02"));
-
-	auto bar = stack->Add(std::make_shared<ProgressBar>());
-	bar->Value = 0.65f;
-
-	auto row = stack->Add(std::make_shared<StackPanel>(Orientation::Horizontal, 8.0f));
-	for (int i = 1; i <= 3; ++i)
-	{
-		auto card = row->Add(std::make_shared<Decorator>());
-		card->Padding = Thickness(6, 12);
-		card->Background = Color(0.25f, 0.30f, 0.50f);
-		card->child = std::make_shared<TextBlock>("Card " + std::to_string(i));
-	}
-
-	grid->AddColumn(200);
-	grid->AddRow(1.0f, true);
-
-	grid->Add(root, 0, 0);
-	return grid;
+	return UIFactory::Get().LoadFromFile("Assets/UI/main.xml");
 }
 
 void CreateScene()
