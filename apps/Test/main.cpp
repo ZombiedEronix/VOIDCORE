@@ -17,8 +17,8 @@
 #include "Entity/Components/System/Camera.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
 
-#include "Entity/Components/Scripts/Rotator.h"
-#include "Entity/Components/Scripts/FreeCam.hpp"
+#include "Scripts/Rotator.h"
+#include "Scripts/Player/FreeCam.hpp"
 
 #include "Entity/Components/System/UI/UICanvas.hpp"
 #include "Entity/Components/System/UI/UIDocument.hpp"
@@ -29,10 +29,67 @@
 Engine engine;
 Material *material;
 
+#include <random>
+
 static std::shared_ptr<UIControl> BuildDemoUI()
 {
-	return UIFactory::Get().LoadFromFile("Assets/UI/main.xml");
+    auto rootBackground = std::make_shared<Decorator>();
+    auto rootMat = new Material();
+    
+    rootMat->shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+    rootMat->materialType = MaterialType::UI2D;
+    
+    rootBackground->material = rootMat;
+    rootBackground->CornerRadius = 0;
+    rootBackground->Margin = 0;
+    rootBackground->Background = Color::FromBytes(30, 30, 35, 255);
+
+    auto grid = std::make_shared<Grid>();
+
+    const int numRows = 3;
+    const int numCols = 3;
+
+    for (int i = 0; i < numRows; ++i) {
+        grid->AddRow(1, true);
+    }
+    for (int j = 0; j < numCols; ++j) {
+        grid->AddColumn(1, true);
+    }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, 255);
+
+    for (int row = 0; row < numRows; ++row)
+    {
+        for (int col = 0; col < numCols; ++col)
+        {
+            auto cardBackground = std::make_shared<Decorator>();
+            auto cardMat = new Material();
+
+            cardMat->shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+            cardMat->materialType = MaterialType::UI2D;
+
+            cardBackground->Margin = 12;
+            cardBackground->CornerRadius = 12;
+            cardBackground->material = cardMat;
+
+            uint8_t r = static_cast<uint8_t>(dis(gen));
+            uint8_t g = static_cast<uint8_t>(dis(gen));
+            uint8_t b = static_cast<uint8_t>(dis(gen));
+            
+            cardBackground->Background = Color::FromBytes(r, g, b, 255);
+
+            grid->Add(cardBackground, row, col);
+        }
+    }
+
+    rootBackground->child = grid;
+
+    return rootBackground;
 }
+
+
 
 void CreateScene()
 {

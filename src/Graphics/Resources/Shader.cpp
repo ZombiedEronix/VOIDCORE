@@ -67,7 +67,6 @@ Shader::Shader(const char *vertexFile, const char *fragmentFile)
     const std::string vsSrc = PreprocessShaderSource(vertexFile, vsIncludes);
     const std::string fsSrc = PreprocessShaderSource(fragmentFile, fsIncludes);
 
-
     ShaderDesc d;
     d.format = format;
 

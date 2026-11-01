@@ -14,7 +14,6 @@ namespace VoidCore::Rendering::Deferred
     public:
         void CreateScreenPipeline();
         PresentPass();
-        ~PresentPass();
         void Execute(VoidCore::RHI::ICommandList *cmd, VoidCore::RHI::ITexture *texture);
     };
 }

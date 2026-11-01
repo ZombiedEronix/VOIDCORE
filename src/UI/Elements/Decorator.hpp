@@ -10,6 +10,8 @@ public:
     Color BorderColor = Color::Transparent();
     float BorderThickness = 0.0f;
 
+    Material* material;
+
     size_t ChildCount() const override { return child ? 1 : 0; }
     UIControl *ChildAt(size_t) const override { return child.get(); }
 
@@ -31,6 +33,8 @@ protected:
     void OnRender(UIContext &ctx) override
     {
         if (Background.IsVisible())
-            ctx.AddRect(rect, Background, CornerRadius);
+        {
+            ctx.AddRect(material, rect, Background, CornerRadius);
+        }
     }
 };

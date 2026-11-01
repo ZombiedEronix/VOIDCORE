@@ -11,11 +11,13 @@
 class MeshRenderer : public Behaviour
 {
 public:
-	Mesh* mesh;
-	Material* material;
-	
+	Mesh *mesh;
+	Material *material;
+
 	MeshRenderer();
 	glm::mat4 Matrix() const;
-	void SetMesh(Mesh* meshPtr);
-	void Render(Renderer& renderer);
+	void SetMesh(Mesh *meshPtr);
+#ifndef BUILD_WITHOUT_3D
+	void Render(Renderer &renderer);
+#endif
 };

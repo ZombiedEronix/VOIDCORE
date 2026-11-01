@@ -13,6 +13,7 @@ namespace VoidCore::Rendering::Deferred
 
     DeferredRenderPipeline::~DeferredRenderPipeline()
     {
+        delete lightingPass;
         delete presentPass;
         delete geometryPass;
     }

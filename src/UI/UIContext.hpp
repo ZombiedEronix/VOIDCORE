@@ -11,11 +11,13 @@
 #include "Structures/Rect.hpp"
 #include "Structures/UIVertex.hpp"
 #include "Structures/Thickness.hpp"
-#include "UIMaterial.hpp"
+
+#include "Graphics/Resources/Material.h"
+
 
 struct UIBatch
 {
-    const UIMaterial *material;
+    const Material *material;
     uint32_t indexOffset;
     uint32_t indexCount;
 };
@@ -23,13 +25,10 @@ struct UIBatch
 class UIContext
 {
 public:
+
     std::vector<UIVertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
-
-    const UIMaterial *defaultMaterial = nullptr;
-    const Font *defaultFont = nullptr;
-    std::function<const UIMaterial*(const Font*)> getFontMaterial;
 
     void Clear()
     {
@@ -38,32 +37,30 @@ public:
         batches.clear();
     }
 
-    void AddRect(const Rect &r, const Color &c = Color::White(), const Thickness cornerSize = Thickness::Zero())
+    void AddRect(const Material* mat, const Rect &r, const Color &c = Color::White(), const Thickness cornerSize = Thickness::Zero())
     {
-        if (!defaultMaterial || r.w <= 0 || r.h <= 0 || !c.IsVisible())
+        if (!mat || r.w <= 0 || r.h <= 0 || !c.IsVisible())
             return;
-        
+
         const Font *f = Font::GetDefault();
         float u0 = f ? f->WhiteU() : 0.0f;
         float v0 = f ? f->WhiteV() : 0.0f;
-        AddQuad(defaultMaterial, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0, c, cornerSize);
+        AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0, c, cornerSize);
     }
 
-    void AddText(const Font *font, std::string_view text, float x, float y, const Color &c)
+    void AddText(const Material *mat, const Font *font, std::string_view text, float x, float y, const Color &c)
     {
-        const Font *f = font ? font : (defaultFont ? defaultFont : Font::GetDefault());
-        if (!f || !f->IsValid() || !c.IsVisible())
+        if (!font || !font->IsValid() || !c.IsVisible())
             return;
 
-        const UIMaterial *mat = getFontMaterial ? getFontMaterial(f) : defaultMaterial;
         if (!mat)
             return;
 
         const float startX = std::round(x);
         float penX = startX;
-        float baseY = std::round(y + f->Ascent());
-        const float invW = 1.0f / f->AtlasWidth();
-        const float invH = 1.0f / f->AtlasHeight();
+        float baseY = std::round(y + font->Ascent());
+        const float invW = 1.0f / font->AtlasWidth();
+        const float invH = 1.0f / font->AtlasHeight();
 
         const char *p = text.data();
         const char *end = p + text.size();
@@ -73,18 +70,18 @@ public:
             if (cp == '\n')
             {
                 penX = startX;
-                baseY += f->LineHeight();
+                baseY += font->LineHeight();
                 continue;
             }
             if (cp == '\r')
                 continue;
             if (cp == '\t')
             {
-                penX += f->SpaceAdvance() * 4.0f;
+                penX += font->SpaceAdvance() * 4.0f;
                 continue;
             }
 
-            const Glyph *g = f->GetGlyph(cp);
+            const Glyph *g = font->GetGlyph(cp);
             if (!g)
                 continue;
 
@@ -99,11 +96,11 @@ public:
         }
     }
 
-    void AddQuad(const UIMaterial *material, float x0, float y0, float x1, float y1,
+    void AddQuad(const Material *mat, float x0, float y0, float x1, float y1,
                  float u0, float v0, float u1, float v1, const Color &c,
                  const Thickness cornerRadius = Thickness::Zero())
     {
-        if (!material || !c.IsVisible())
+        if (!mat || !c.IsVisible())
             return;
 
         float width = std::abs(x1 - x0);
@@ -111,17 +108,17 @@ public:
         if (width <= 0.0f || height <= 0.0f)
             return;
 
-        if (batches.empty() || batches.back().material != material)
-            batches.push_back({material, static_cast<uint32_t>(indices.size()), 0});
+        if (batches.empty() || batches.back().material != mat)
+            batches.push_back({mat, static_cast<uint32_t>(indices.size()), 0});
 
         const uint32_t base = static_cast<uint32_t>(vertices.size());
 
         Rect elementBounds{x0, y0, width, height};
 
-        vertices.emplace_back(x0, y0, u0, v0, c, width, height, cornerRadius, elementBounds);
-        vertices.emplace_back(x1, y0, u1, v0, c, width, height, cornerRadius, elementBounds);
-        vertices.emplace_back(x1, y1, u1, v1, c, width, height, cornerRadius, elementBounds);
-        vertices.emplace_back(x0, y1, u0, v1, c, width, height, cornerRadius, elementBounds);
+        vertices.push_back({ {x0, y0}, {u0, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
+        vertices.push_back({ {x1, y0}, {u1, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
+        vertices.push_back({ {x1, y1}, {u1, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
+        vertices.push_back({ {x0, y1}, {u0, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
 
         indices.insert(indices.end(), {base, base + 1, base + 2, base, base + 2, base + 3});
         batches.back().indexCount += 6;

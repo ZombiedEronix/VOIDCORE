@@ -2,6 +2,7 @@
 #include <string>
 
 #include "UI/Elements/UIControl.hpp"
+#include "Graphics/Resources/Material.h"
 
 class TextBlock : public UIControl
 {
@@ -9,6 +10,8 @@ public:
     std::string Text;
     Color Foreground = Color::White();
     Font *font = nullptr;
+
+    Material *material;
 
     TextBlock() = default;
     explicit TextBlock(std::string text, Color color = Color::White())
@@ -25,6 +28,6 @@ protected:
     {
         const Font *f = font ? font : Font::GetDefault();
         const Rect c = ContentRect();
-        ctx.AddText(f, Text, c.x, c.y, Foreground);
+        ctx.AddText(material, f, Text, c.x, c.y, Foreground);
     }
 };

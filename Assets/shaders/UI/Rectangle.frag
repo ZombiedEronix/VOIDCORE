@@ -4,12 +4,12 @@ layout(location = 0) out vec4 OutColor;
 
 in vec2 TexCoords;
 in vec4 FragColor;
-in vec2 FragSize;
+in vec4 FragRect;
 in vec4 FragCorners;
 in vec2 LocalPos;
 in vec4 FragBorderColor;
+in vec4 FragBorderThickness;
 
-layout(binding = 0) uniform sampler2D U_UiTexture;
 
 float roundedBoxSDF(vec2 p, vec2 b, vec4 r) {
     vec2 q = abs(p) - b;
@@ -18,11 +18,11 @@ float roundedBoxSDF(vec2 p, vec2 b, vec4 r) {
 }
 
 void main() {
-    vec4 texColor = texture(U_UiTexture, TexCoords);
-    vec4 bgColor = texColor * FragColor;
+    vec4 bgColor = FragColor;
 
-    vec2 halfSize = FragSize * 0.5;
-    vec2 pixelPos = (LocalPos - 0.5) * FragSize;
+    vec2 size = FragRect.zw;
+    vec2 halfSize = size * 0.5;
+    vec2 pixelPos = LocalPos - halfSize;
 
     if(FragCorners.x > 0.0 || FragCorners.y > 0.0 || FragCorners.z > 0.0 || FragCorners.w > 0.0) {
 
@@ -30,7 +30,7 @@ void main() {
         float outerAlpha = smoothstep(1.0, -1.0, distance);
 
         if(FragBorderColor.a > 0.0) {
-            float borderThickness = 1.5;
+            float borderThickness = FragBorderThickness.x;
 
             float innerDistance = distance + borderThickness;
             float borderFactor = smoothstep(-1.0, 1.0, innerDistance);
@@ -49,3 +49,4 @@ void main() {
     if(OutColor.a < 0.001)
         discard;
 }
+

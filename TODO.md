@@ -1,10 +1,10 @@
 Aliases
 {
-    [ ] - Build without 3D
-    [ ] - Build without 2D
+    [X] - Build without 3D
+    [X] - Build without 2D
     [ ] - Build without PhysicsEngine
     [ ] - Build without SoundEngine
-    [ ] - Build Server
+    [X] - Build Server
     [X] - Build With Tracy
 }
 

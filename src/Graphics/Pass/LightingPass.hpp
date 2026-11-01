@@ -22,7 +22,6 @@ namespace VoidCore::Rendering::Deferred
 
     public:
         LightingPass();
-        ~LightingPass();
 
         VoidCore::RHI::ITexture *GetResult() { return litTexture.get(); }
         void Execute(VoidCore::RHI::ICommandList *cmd, class Renderer *renderer, class GeometryPass *gBuffer);

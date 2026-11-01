@@ -1,6 +1,6 @@
 #pragma once
 #include "Entity/Object.hpp"
-
+#include "Core/Debug.h"
 class GameObject;
 
 class Component : Object

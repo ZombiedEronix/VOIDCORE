@@ -2,7 +2,7 @@
 
 void SceneManager::LoadScene(Scene *obj, LoadSceneMode loadMode = LoadSceneMode::Single)
 {
-	ZoneScopedN("SceneManager Load Scene");
+	ZoneScopedN("Load Scene");
 	Debug::Log("Loading Scene : ", obj->name);
 
 	if(loadMode == LoadSceneMode::Additive)

@@ -47,10 +47,6 @@ namespace VoidCore::Rendering::Deferred
         screenPipeline = GetDevice().CreatePipeline(desc);
     }
 
-    PresentPass::~PresentPass()
-    {
-        delete screenShader;
-    }
 
     void PresentPass::Execute(ICommandList *cmd, ITexture *texture)
     {

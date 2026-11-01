@@ -54,8 +54,6 @@ namespace VoidCore::Rendering::Deferred
         lightingPipeline = GetDevice().CreatePipeline(desc);
     }
 
-    LightingPass::~LightingPass() { delete lightingShader; }
-
     void LightingPass::Execute(ICommandList *cmd, Renderer *renderer, GeometryPass *gBuffer)
     {
         RenderPassDesc passDesc;

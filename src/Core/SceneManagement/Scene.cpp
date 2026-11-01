@@ -51,6 +51,7 @@ void Scene::Render(Renderer &renderer)
 		renderer.SetCamera(activeCamera);
 	}
 
+#ifndef BUILD_WITHOUT_3D
 	for (GameObject *obj : gameObjects)
 	{
 		auto light = obj->GetComponent<Light>();
@@ -59,11 +60,14 @@ void Scene::Render(Renderer &renderer)
 			renderer.SubmitLight(light->info);
 		}
 	}
+#endif
 
+#ifndef BUILD_WITHOUT_3D
 	for (GameObject *obj : gameObjects)
 	{
 		if (activeCamera == nullptr)
 			continue;
+
 		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 		{
 			Debug::Log("Скип");
@@ -75,18 +79,21 @@ void Scene::Render(Renderer &renderer)
 
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
-
-	// ---- UI: рисуется после всей 3D-сцены, канвасы по sortingOrder ----
+#endif
+#ifndef BUILD_WITHOUT_2D
 	std::vector<UICanvas *> canvases;
+
 	for (GameObject *obj : gameObjects)
 	{
 		if (auto *canvas = obj->GetComponent<UICanvas>())
 			canvases.push_back(canvas);
 	}
+
 	std::stable_sort(canvases.begin(), canvases.end(),
 					 [](const UICanvas *a, const UICanvas *b)
 					 { return a->sortingOrder < b->sortingOrder; });
 
 	for (UICanvas *canvas : canvases)
 		canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
+#endif
 }
