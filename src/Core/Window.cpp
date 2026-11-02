@@ -119,24 +119,18 @@ void Window::Update()
         {
             pendingWidth = event.window.data1;
             pendingHeight = event.window.data2;
-            lastResizeTime = SDL_GetTicks();
             isResizing = true;
         }
     }
 
     if (isResizing)
     {
-        uint64_t currentTime = SDL_GetTicks();
-        if (currentTime - lastResizeTime > 150)
-        {
             width = pendingWidth;
             height = pendingHeight;
 
-            Debug::Log("Resizing window end.");
             OnResize.Call(width, height);
 
             isResizing = false;
-        }
     }
 }
 

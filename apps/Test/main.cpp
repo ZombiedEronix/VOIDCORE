@@ -34,11 +34,9 @@ Material *material;
 static std::shared_ptr<UIControl> BuildDemoUI()
 {
     auto rootBackground = std::make_shared<Decorator>();
-    auto rootMat = new Material();
-    
-    rootMat->shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
-    rootMat->materialType = MaterialType::UI2D;
-    
+    auto shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+    auto rootMat = new Material(shader, Material::CreateUIPipeline(shader));
+
     rootBackground->material = rootMat;
     rootBackground->CornerRadius = 0;
     rootBackground->Margin = 0;
@@ -65,10 +63,8 @@ static std::shared_ptr<UIControl> BuildDemoUI()
         for (int col = 0; col < numCols; ++col)
         {
             auto cardBackground = std::make_shared<Decorator>();
-            auto cardMat = new Material();
-
-            cardMat->shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
-            cardMat->materialType = MaterialType::UI2D;
+            auto cardShader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+            auto cardMat = new Material(cardShader, Material::CreateUIPipeline(cardShader));
 
             cardBackground->Margin = 12;
             cardBackground->CornerRadius = 12;
@@ -77,7 +73,7 @@ static std::shared_ptr<UIControl> BuildDemoUI()
             uint8_t r = static_cast<uint8_t>(dis(gen));
             uint8_t g = static_cast<uint8_t>(dis(gen));
             uint8_t b = static_cast<uint8_t>(dis(gen));
-            
+
             cardBackground->Background = Color::FromBytes(r, g, b, 255);
 
             grid->Add(cardBackground, row, col);
@@ -103,8 +99,8 @@ void CreateScene()
 
 	{
 		ZoneScopedN("Creating Material");
-		material = new Material();
-		material->shader = ResourceManager::GetShader("Assets/shaders/Deferred/Lit");
+		auto shader = ResourceManager::GetShader("Assets/shaders/Deferred/Lit");
+		material = new Material(shader, Material::CreateLitPipeline(shader));
 
 		material->SetTexture(0, ResourceManager::GetTexture("Assets/textures/test02_albedo.png", false).get());
 		material->SetTexture(1, ResourceManager::GetTexture("Assets/textures/test02_normal.png", false).get());

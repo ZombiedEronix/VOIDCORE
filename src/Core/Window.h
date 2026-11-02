@@ -17,7 +17,6 @@ class Window
 {
 private:
 	static inline bool isResizing = false;
-	static inline uint64_t lastResizeTime = 0;
 	static inline int pendingWidth = 0;
 	static inline int pendingHeight = 0;
 

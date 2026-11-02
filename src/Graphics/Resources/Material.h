@@ -4,30 +4,71 @@
 #include <glm/glm.hpp>
 #include "Device/RHI.hpp"
 #include "Shader.hpp"
-#include "VertexLayouts.hpp"
 #include "Assets/Texture.h"
-#include "UI/Structures/UIVertex.hpp"
 #include "Core/Debug.h"
-
-enum class RenderQueue
-{
-    Opaque,
-    Masked,
-    Transparent
-};
-
-enum class MaterialType
-{
-    Mesh3D,
-    UI2D
-};
+#include "UI/Structures/UIVertex.hpp"
+#include "VertexLayouts.hpp"
 
 class Material
 {
 public:
-    Shader *shader = nullptr;
-    RenderQueue queueType = RenderQueue::Opaque;
-    MaterialType materialType = MaterialType::Mesh3D;
+    Material(Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
+        : shader(shader), pipeline(pipeline) {}
+
+    Shader *GetShader() const { return shader; }
+
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(Shader* shader)
+    {
+        using namespace VoidCore::RHI;
+        GraphicsPipelineDesc d;
+        d.vertexShader = shader->GetVS();
+        d.fragmentShader = shader->GetFS();
+
+        d.vertexBuffers = {{sizeof(UIVertex), VertexInputRate::PerVertex}};
+        d.vertexAttributes = {
+            {0, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, pos), 0},
+            {1, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, uv), 0},
+            {2, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, rect), 0},
+            {3, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, color), 0},
+            {4, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, cornerSize), 0},
+            {5, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderColor), 0},
+            {6, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderThickness), 0},
+        };
+
+        d.depth.testEnable = false;
+        d.depth.writeEnable = false;
+        d.rasterizer.cullMode = CullMode::None;
+        d.blend[0].enable = true;
+
+        d.colorTargetCount = 1;
+        d.colorFormats[0] = Format::RGBA8_UNORM;
+        d.depthFormat = Format::Unknown;
+        d.debugName = "UIMaterialPipeline";
+
+        return GetDevice().CreatePipeline(d);
+    }
+
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(Shader* shader)
+    {
+        using namespace VoidCore::RHI;
+        GraphicsPipelineDesc d;
+        d.vertexShader = shader->GetVS();
+        d.fragmentShader = shader->GetFS();
+
+        SetupMeshInputLayout(d);
+
+        d.colorTargetCount = 1;
+        d.colorFormats[0] = Format::RGBA8_UNORM;
+        d.depthFormat = Format::D24_UNORM_S8_UINT;
+
+        d.depth.testEnable = true;
+        d.depth.writeEnable = true;
+        d.depth.compareOp = CompareOp::Less;
+        d.rasterizer.cullMode = CullMode::Back;
+        d.debugName = "MeshMaterialPipeline";
+
+        return GetDevice().CreatePipeline(d);
+    }
 
     void SetTexture(uint32_t slot, Texture *tex)
     {
@@ -67,8 +108,6 @@ public:
 
     bool Apply(VoidCore::RHI::ICommandList *cmd, VoidCore::RHI::ISampler *defaultSampler = nullptr) const
     {
-        if (!pipeline && !buildFailed)
-            Build();
         if (!pipeline)
             return false;
 
@@ -88,81 +127,10 @@ public:
         return true;
     }
 
-    VoidCore::RHI::IPipeline *GetPipeline() const
-    {
-        if (!pipeline && !buildFailed)
-            Build();
-        return pipeline.get();
-    }
+    VoidCore::RHI::IPipeline *GetPipeline() const { return pipeline.get(); }
 
 private:
-    void Build() const
-    {
-        using namespace VoidCore::RHI;
-        if (!shader || !shader->IsValid())
-        {
-            Debug::LogError("Material: shader is missing or failed to compile");
-            buildFailed = true;
-            return;
-        }
-
-        GraphicsPipelineDesc d;
-        d.vertexShader = shader->GetVS();
-        d.fragmentShader = shader->GetFS();
-
-        if (materialType == MaterialType::UI2D)
-        {
-            d.vertexBuffers = {{sizeof(UIVertex), VertexInputRate::PerVertex}};
-            d.vertexAttributes = {
-                {0, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, pos), 0},
-                {1, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, uv), 0},
-                {2, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, rect), 0},
-                {3, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, color), 0},
-                {4, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, cornerSize), 0},
-                {5, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderColor), 0},
-                {6, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderThickness), 0},
-            };
-
-            d.depth.testEnable = false;
-            d.depth.writeEnable = false;
-            d.rasterizer.cullMode = CullMode::None;
-            d.blend[0].enable = true;
-
-            d.colorTargetCount = 1;
-            d.colorFormats[0] = Format::RGBA8_UNORM;
-            d.depthFormat = Format::Unknown;
-            d.debugName = "UIMaterialPipeline";
-        }
-        else
-#ifndef BUILD_WITHOUT_3D
-        {
-            SetupMeshInputLayout(d);
-
-            d.colorTargetCount = 1;
-            d.colorFormats[0] = Format::RGBA8_UNORM;
-            d.depthFormat = Format::D24_UNORM_S8_UINT;
-
-            if (queueType == RenderQueue::Transparent)
-            {
-                d.blend[0].enable = true;
-                d.depth.writeEnable = false;
-            }
-            d.depth.testEnable = true;
-            d.depth.writeEnable = true;
-            d.depth.compareOp = CompareOp::Less;
-            d.debugName = "MeshMaterialPipeline";
-        }
-#else
-        {
-            //NOTHING
-        }
-#endif
-
-        pipeline = GetDevice().CreatePipeline(d);
-        buildFailed = (pipeline == nullptr);
-        if (buildFailed)
-            Debug::LogError("FAILED TO BUILD PIPELINE!");
-    }
+    Shader *shader = nullptr;
 
     Texture *assetTextures[VoidCore::RHI::kMaxTextureSlots] = {};
     VoidCore::RHI::ITexture *rhiTextures[VoidCore::RHI::kMaxTextureSlots] = {};
@@ -171,6 +139,5 @@ private:
     std::unordered_map<std::string, float> floatParams;
     std::unordered_map<std::string, glm::vec4> vectorParams;
 
-    mutable VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
-    mutable bool buildFailed = false;
+    VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
 };

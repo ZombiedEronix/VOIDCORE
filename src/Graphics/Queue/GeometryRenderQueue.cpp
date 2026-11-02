@@ -22,8 +22,12 @@ void GeometryRenderQueue::Sort()
         return;
 
     std::sort(m_Queue.begin(), m_Queue.end(), [](const GeometryRenderCommand &a, const GeometryRenderCommand &b)
-              { return std::tie(a.material->shader, a.material, a.mesh) <
-                       std::tie(b.material->shader, b.material, b.mesh); });
+              { 
+                  auto shaderA = a.material->GetShader();
+                  auto shaderB = b.material->GetShader();
+                  return std::tie(shaderA, a.material, a.mesh) <
+                         std::tie(shaderB, b.material, b.mesh); 
+              });
 }
 
 void GeometryRenderQueue::Execute(Renderer *renderer)
