@@ -50,7 +50,6 @@ void Scene::Render(Renderer &renderer)
 		renderer.SetCamera(activeCamera);
 	}
 
-#ifndef BUILD_WITHOUT_3D
 	for (GameObject *obj : gameObjects)
 	{
 		auto light = obj->GetComponent<Light>();
@@ -59,15 +58,13 @@ void Scene::Render(Renderer &renderer)
 			renderer.SubmitLight(light->info);
 		}
 	}
-#endif
 
-#ifndef BUILD_WITHOUT_3D
 	for (GameObject *obj : gameObjects)
 	{
 		if (activeCamera == nullptr)
 			continue;
-			
-			if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+
+		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 		{
 			Debug::Log("Скип");
 			continue;
@@ -78,8 +75,6 @@ void Scene::Render(Renderer &renderer)
 
 		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
 	}
-#endif
-#ifndef BUILD_WITHOUT_2D
 
 	for (GameObject *obj : gameObjects)
 	{
@@ -94,5 +89,4 @@ void Scene::Render(Renderer &renderer)
 	for (UICanvas *canvas : canvases)
 		canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
 	canvases.clear();
-#endif
 }

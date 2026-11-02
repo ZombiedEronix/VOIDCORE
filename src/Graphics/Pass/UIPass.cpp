@@ -60,14 +60,15 @@ namespace VoidCore::Rendering
             indexBuffer = GetDevice().CreateBuffer(d);
         }
     }
-
+    
     void UIPass::Execute(ICommandList *cmd, Renderer *renderer)
     {
+        renderer->SetRenderTargetTexture("GBuffer_UI", uiTexture.get());
         const UIContext &ctx = renderer->GetUIContext();
-
+        
         if (!cmd || ctx.indices.empty())
-            return;
-
+        return;
+        
         EnsureBuffers(ctx.vertices.size(), ctx.indices.size());
         cmd->UpdateBuffer(vertexBuffer.get(), ctx.vertices.data(), ctx.vertices.size() * sizeof(UIVertex));
         cmd->UpdateBuffer(indexBuffer.get(), ctx.indices.data(), ctx.indices.size() * sizeof(uint32_t));
@@ -93,7 +94,6 @@ namespace VoidCore::Rendering
             }
         }
 
-        renderer->SetRenderTargetTexture("GBuffer_UI", uiTexture.get());
         cmd->EndRenderPass();
     }
 }

@@ -1,7 +1,5 @@
 Aliases
 {
-    [X] - Build without 3D
-    [X] - Build without 2D
     [ ] - Build without PhysicsEngine
     [ ] - Build without SoundEngine
     [X] - Build Server

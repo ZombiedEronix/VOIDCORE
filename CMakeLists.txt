@@ -36,7 +36,6 @@ target_link_libraries(VOIDCORE PUBLIC
 
 target_compile_definitions(VOIDCORE PRIVATE 
     STB_IMAGE_IMPLEMENTATION
-    BUILD_WITHOUT_3D
 )
 
 #===================================Application===================================

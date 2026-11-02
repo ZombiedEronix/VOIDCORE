@@ -17,7 +17,5 @@ public:
 	MeshRenderer();
 	glm::mat4 Matrix() const;
 	void SetMesh(Mesh *meshPtr);
-#ifndef BUILD_WITHOUT_3D
 	void Render(Renderer &renderer);
-#endif
 };

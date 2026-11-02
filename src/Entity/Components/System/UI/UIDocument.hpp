@@ -23,7 +23,6 @@ public:
         if (currentHover != m_hoveredControl)
         {
             m_hoveredControl = currentHover;
-            Debug::Log("TESTED! : ", currentHover->Name);
         }
     }
 

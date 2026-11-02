@@ -33,59 +33,59 @@ Material *material;
 
 static std::shared_ptr<UIControl> BuildDemoUI()
 {
-    auto rootBackground = std::make_shared<Decorator>();
-    auto shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
-    auto rootMat = new Material(shader, Material::CreateUIPipeline(shader));
+	auto rootBackground = std::make_shared<Decorator>();
+	auto shader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+	auto rootMat = new Material(shader, Material::CreateUIPipeline(shader));
 
-    rootBackground->material = rootMat;
-    rootBackground->CornerRadius = 0;
-    rootBackground->Margin = 0;
-    rootBackground->Background = Color::FromBytes(30, 30, 35, 255);
+	rootBackground->material = rootMat;
+	rootBackground->CornerRadius = 0;
+	rootBackground->Margin = 0;
+	rootBackground->Background = Color::FromBytes(30, 30, 35, 255);
 
-    auto grid = std::make_shared<Grid>();
+	auto grid = std::make_shared<Grid>();
 
-    const int numRows = 3;
-    const int numCols = 3;
+	const int numRows = 3;
+	const int numCols = 3;
 
-    for (int i = 0; i < numRows; ++i) {
-        grid->AddRow(1, true);
-    }
-    for (int j = 0; j < numCols; ++j) {
-        grid->AddColumn(1, true);
-    }
+	for (int i = 0; i < numRows; ++i)
+	{
+		grid->AddRow(1, true);
+	}
+	for (int j = 0; j < numCols; ++j)
+	{
+		grid->AddColumn(1, true);
+	}
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, 255);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> dis(0, 255);
 
-    for (int row = 0; row < numRows; ++row)
-    {
-        for (int col = 0; col < numCols; ++col)
-        {
-            auto cardBackground = std::make_shared<Decorator>();
-            auto cardShader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
-            auto cardMat = new Material(cardShader, Material::CreateUIPipeline(cardShader));
+	for (int row = 0; row < numRows; ++row)
+	{
+		for (int col = 0; col < numCols; ++col)
+		{
+			auto cardBackground = std::make_shared<Decorator>();
+			auto cardShader = ResourceManager::GetShader("Assets/shaders/UI/Rectangle");
+			auto cardMat = new Material(cardShader, Material::CreateUIPipeline(cardShader));
 
-            cardBackground->Margin = 12;
-            cardBackground->CornerRadius = 12;
-            cardBackground->material = cardMat;
+			cardBackground->Margin = 12;
+			cardBackground->CornerRadius = 12;
+			cardBackground->material = cardMat;
 
-            uint8_t r = static_cast<uint8_t>(dis(gen));
-            uint8_t g = static_cast<uint8_t>(dis(gen));
-            uint8_t b = static_cast<uint8_t>(dis(gen));
+			uint8_t r = static_cast<uint8_t>(dis(gen));
+			uint8_t g = static_cast<uint8_t>(dis(gen));
+			uint8_t b = static_cast<uint8_t>(dis(gen));
 
-            cardBackground->Background = Color::FromBytes(r, g, b, 255);
+			cardBackground->Background = Color::FromBytes(r, g, b, 255);
 
-            grid->Add(cardBackground, row, col);
-        }
-    }
+			grid->Add(cardBackground, row, col);
+		}
+	}
 
-    rootBackground->child = grid;
+	rootBackground->child = grid;
 
-    return rootBackground;
+	return rootBackground;
 }
-
-
 
 void CreateScene()
 {
@@ -165,8 +165,8 @@ void CreateScene()
 		uiObject->AddComponent<UICanvas>();
 		uiObject->AddComponent<UIDocument>();
 		uiObject->GetComponent<UICanvas>()->SetDocument(uiObject->GetComponent<UIDocument>());
+		uiObject->GetComponent<UICanvas>()->SetEnabled(true);
 		uiObject->GetComponent<UIDocument>()->root = BuildDemoUI();
-
 		scene->AddGameObject(uiObject);
 	}
 

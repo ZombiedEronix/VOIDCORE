@@ -71,18 +71,11 @@ void Renderer::BeginFrame(ICommandList *commandList)
     cmd = commandList;
 }
 
-
-// void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
-// {
-//     switch (mat->queueType)
-//     {
-//     case RenderQueue::Opaque:
-//         opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
-//         break;
-//     default:
-//         break;
-//     }
-//}
+void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
+{
+    //opaque,transparent,masked???
+    opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
+}
 
 void Renderer::UploadFrameData()
 {

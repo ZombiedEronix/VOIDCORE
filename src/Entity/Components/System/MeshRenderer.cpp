@@ -19,11 +19,9 @@ void MeshRenderer::SetMesh(Mesh* meshPtr)
 	mesh = meshPtr;
 }
 
-#ifndef BUILD_WITHOUT_3D 
 void MeshRenderer::Render(Renderer& renderer) {
 	if (material && mesh) {
 		renderer.Submit(mesh, material, this->gameObject->transform->WorldMatrix());
 	}
 }
-#endif
 
