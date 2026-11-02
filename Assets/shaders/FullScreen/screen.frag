@@ -7,7 +7,7 @@ layout(binding = 1) uniform sampler2D u_UITex;
 
 
 void main() {
-    vec4 scene = texture(u_SceneTex, uv);
-    vec4 ui = texture(u_UITex, uv);
-    fragColor = mix(scene, ui, ui.a);
+    vec4 scene = texture(u_SceneTex, TexCoords);
+    vec4 ui = texture(u_UITex, TexCoords);
+    FragColor = mix(scene, ui, ui.a);
 }

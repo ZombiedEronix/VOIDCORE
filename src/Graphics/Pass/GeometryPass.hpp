@@ -17,6 +17,6 @@ namespace VoidCore::Rendering::Deferred
         public:
         GeometryPass();
 
-        void Execute(Renderer *commandList);
+        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
     };
 }

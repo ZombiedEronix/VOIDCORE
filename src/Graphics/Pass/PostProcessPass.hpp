@@ -24,9 +24,9 @@ namespace VoidCore::Rendering::Deferred
 
     public:
         PostProcessPass();
+        ~PostProcessPass();
 
         void AddEffect(std::unique_ptr<PostProcessEffect> effect);
-        void OnResize(int width, int height) override;
         void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
     };
 }

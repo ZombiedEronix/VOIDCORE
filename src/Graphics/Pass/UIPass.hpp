@@ -5,16 +5,17 @@
 #include "Device/RHI.hpp"
 #include "UI/Structures/Font.hpp"
 #include "UI/UIContext.hpp"
+#include "RenderPass.hpp"
 
 class Renderer;
 
 namespace VoidCore::Rendering
 {
-    class UIPass
+    class UIPass : public RenderPass
     {
     public:
         UIPass();
-        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer, const UIContext &ctx);
+        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer);
 
     private:
         void EnsureBuffers(size_t vertexCount, size_t indexCount);

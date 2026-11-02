@@ -27,7 +27,8 @@ Renderer::Renderer(Window *window)
     cb.debugName = "FrameUBO";
     cameraBuffer = GetDevice().CreateBuffer(cb);
 
-#ifndef BUILD_WITHOUT_3D
+    renderPipeline = new DeferredRenderPipeline();
+
     ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     BufferDesc lightB;
     lightB.size = sizeof(LightsBlock);
@@ -40,15 +41,8 @@ Renderer::Renderer(Window *window)
     CreateInstanceBuffer(currentBufferCapacity);
     opaqueQueue = new GeometryRenderQueue();
     lightBlock = new LightsBlock();
-    renderPipeline = new DeferredRenderPipeline();
-#else
-    opaqueQueue = nullptr;
-    lightBlock = nullptr;
-    renderPipeline = nullptr;
-#endif
 }
 
-#ifndef BUILD_WITHOUT_3D
 void Renderer::CreateInstanceBuffer(size_t capacity)
 {
     BufferDesc ib;
@@ -59,15 +53,12 @@ void Renderer::CreateInstanceBuffer(size_t capacity)
     instanceBuffer = GetDevice().CreateBuffer(ib);
     currentBufferCapacity = capacity;
 }
-#endif
 
 Renderer::~Renderer()
 {
-#ifndef BUILD_WITHOUT_3D
     delete opaqueQueue;
     delete lightBlock;
     delete renderPipeline;
-#endif
 }
 
 void Renderer::SetCamera(Camera *camera)
@@ -80,19 +71,18 @@ void Renderer::BeginFrame(ICommandList *commandList)
     cmd = commandList;
 }
 
-#ifndef BUILD_WITHOUT_3D
-void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
-{
-    switch (mat->queueType)
-    {
-    case RenderQueue::Opaque:
-        opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
-        break;
-    default:
-        break;
-    }
-}
-#endif
+
+// void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
+// {
+//     switch (mat->queueType)
+//     {
+//     case RenderQueue::Opaque:
+//         opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
+//         break;
+//     default:
+//         break;
+//     }
+//}
 
 void Renderer::UploadFrameData()
 {
@@ -122,7 +112,6 @@ void Renderer::UploadFrameData()
     cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
 }
 
-#ifndef BUILD_WITHOUT_3D
 void Renderer::UploadInstances(const GeometryRenderQueue &queue)
 {
     instanceMatrices.clear();
@@ -136,9 +125,7 @@ void Renderer::UploadInstances(const GeometryRenderQueue &queue)
     if (!instanceMatrices.empty())
         cmd->UpdateBuffer(instanceBuffer.get(), instanceMatrices.data(), instanceMatrices.size() * sizeof(glm::mat4));
 }
-#endif
 
-#ifndef BUILD_WITHOUT_3D
 GeometryRenderQueue *Renderer::GetOpaqueQueue()
 {
     return opaqueQueue;
@@ -153,7 +140,6 @@ void Renderer::SubmitLight(LightCommand &info)
 {
     lightBlock->AddLight(info);
 }
-#endif
 
 void Renderer::Flush()
 {
@@ -161,18 +147,16 @@ void Renderer::Flush()
     if (!cmd)
         return;
     UploadFrameData();
-#ifndef BUILD_WITHOUT_3D
     UploadInstances(*opaqueQueue);
     UploadLightData();
+
     if (renderPipeline)
     {
         renderPipeline->Execute(this);
     }
-#endif
-#ifndef BUILD_WITHOUT_3D
     opaqueQueue->Clear();
     lightBlock->Clear();
-#endif
+    uiContext.Clear();
     cmd = nullptr;
 }
 

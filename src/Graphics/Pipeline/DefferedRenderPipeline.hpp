@@ -2,22 +2,21 @@
 #include "IRenderPipeline.hpp"
 #include "Device/RHI.hpp"
 #include <memory>
+#include <map>
 
-#include "../Resources/Shader.hpp"
-#include "../Pass/GeometryPass.hpp"
-#include "../Pass/LightingPass.hpp"
-#include "../Pass/PresentPass.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {
     class DeferredRenderPipeline : public IRenderPipeline
     {
     private:
+        std::multimap<RenderPassEvent, std::unique_ptr<RenderPass>> m_RenderPasses;
         void CreateScreenPipeline();
 
     public:
-        DeferredRenderPipeline() = default;
+        DeferredRenderPipeline();
         void OnResize(int width, int height);
+        void AddPass(std::unique_ptr<RenderPass> pass, RenderPassEvent renderEvent) override;
         void Execute(Renderer *renderer) override;
     };
 }

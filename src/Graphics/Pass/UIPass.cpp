@@ -61,8 +61,10 @@ namespace VoidCore::Rendering
         }
     }
 
-    void UIPass::Execute(ICommandList *cmd, Renderer *renderer, const UIContext &ctx)
+    void UIPass::Execute(ICommandList *cmd, Renderer *renderer)
     {
+        const UIContext &ctx = renderer->GetUIContext();
+
         if (!cmd || ctx.indices.empty())
             return;
 

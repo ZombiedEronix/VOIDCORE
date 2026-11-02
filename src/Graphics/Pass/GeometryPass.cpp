@@ -39,9 +39,8 @@ namespace VoidCore::Rendering::Deferred
         CreateBuffers(Window::GetWidth(), Window::GetHeight());
     }
 
-    void GeometryPass::Execute(Renderer *renderer)
+    void GeometryPass::Execute(ICommandList *cmd, Renderer *renderer)
     {
-        auto cmd = renderer->GetCommandList();
 
         RenderPassDesc geomPass;
         geomPass.debugName = "G-Buffer Geometry Pass";

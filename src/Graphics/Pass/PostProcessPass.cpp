@@ -2,6 +2,15 @@
 
 namespace VoidCore::Rendering::Deferred
 {
+    PostProcessPass::PostProcessPass()
+    {
+        
+    }
+
+    PostProcessPass::~PostProcessPass()
+    {
+        
+    }
 
     void PostProcessPass::Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer)
     {

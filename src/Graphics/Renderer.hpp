@@ -21,10 +21,14 @@ class Camera;
 class GeometryRenderQueue;
 class Mesh;
 class Material;
+
 namespace VoidCore::Rendering
 {
+	class IRenderPipeline;
 	class UIPass;
 }
+
+
 class Window;
 
 class Renderer
@@ -41,7 +45,7 @@ private:
 
 	Camera *currentCamera = nullptr;
 
-	IRenderPipeline *renderPipeline;
+	VoidCore::Rendering::IRenderPipeline *renderPipeline;
 	UIContext uiContext;
 	GeometryRenderQueue *opaqueQueue;
 	std::vector<glm::mat4> instanceMatrices;

@@ -9,6 +9,24 @@ class UIDocument : public Behaviour
 public:
     std::shared_ptr<UIControl> root;
 
+    UIControl *m_hoveredControl = nullptr;
+
+    void Update() override
+    {
+        if (!root || !IsEnabled())
+            return;
+
+        glm::vec2 mousePos = Input::GetMousePosition();
+
+        UIControl *currentHover = root->HitTest(mousePos.x, mousePos.y);
+
+        if (currentHover != m_hoveredControl)
+        {
+            m_hoveredControl = currentHover;
+            Debug::Log("TESTED! : ", currentHover->Name);
+        }
+    }
+
     void UpdateLayout(const Rect &target)
     {
         if (!root)
