@@ -2,18 +2,20 @@
 #include "Graphics/Renderer.hpp"
 #include "Assets/ResourceManager.h"
 #include "Device/ICommandList.hpp"
+#include "RenderPass.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {
-    class PresentPass
+    class PresentPass : public RenderPass
     {
     private:
-        Shader *screenShader = nullptr;
+        Shader *shader = nullptr;
+        void CreateScreenPipeline();
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> presentSampler;
         VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> screenPipeline;
+
     public:
-        void CreateScreenPipeline();
         PresentPass();
-        void Execute(VoidCore::RHI::ICommandList *cmd, VoidCore::RHI::ITexture *texture);
+        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
     };
 }

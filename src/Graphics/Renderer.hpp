@@ -30,6 +30,8 @@ class Window;
 class Renderer
 {
 private:
+	std::unordered_map<std::string, VoidCore::RHI::ITexture *> m_RenderTargets;
+
 	VoidCore::RHI::ICommandList *cmd = nullptr;
 	Window *windowPtr;
 	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
@@ -40,7 +42,6 @@ private:
 	Camera *currentCamera = nullptr;
 
 	IRenderPipeline *renderPipeline;
-	VoidCore::Rendering::UIPass *uiPass = nullptr;
 	UIContext uiContext;
 	GeometryRenderQueue *opaqueQueue;
 	std::vector<glm::mat4> instanceMatrices;
@@ -53,6 +54,39 @@ private:
 	void UploadInstances(const GeometryRenderQueue &queue);
 
 public:
+	void SetRenderTargetTexture(const std::string &name, VoidCore::RHI::ITexture *texture)
+	{
+		assert(texture != nullptr && "[Renderer] : Attempted to set a nullptr texture.");
+
+		auto it = m_RenderTargets.find(name);
+		if (it != m_RenderTargets.end())
+		{
+			if (it->second != texture)
+			{
+				Debug::LogError("[Renderer] : RenderTexture '" + name + "' is being overwritten by a different texture!");
+				assert(false && "[Renderer] : RenderTexture overwriting detected!");
+			}
+			return;
+		}
+
+		m_RenderTargets[name] = texture;
+	}
+
+	VoidCore::RHI::ITexture *GetRenderTargetTexture(const std::string &name)
+	{
+		auto it = m_RenderTargets.find(name);
+		if (it != m_RenderTargets.end())
+		{
+			return it->second;
+		}
+		Debug::LogError("[Renderer] : TargetTexture '" + name + "' is not found!");
+		assert(false && "TargetTexture not found!");
+
+		return nullptr;
+	}
+
+	void ClearRenderTargets() { m_RenderTargets.clear(); }
+
 	GeometryRenderQueue *GetOpaqueQueue();
 	UIContext &GetUIContext() { return uiContext; }
 	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }

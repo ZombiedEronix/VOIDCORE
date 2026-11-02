@@ -4,27 +4,10 @@
 namespace VoidCore::Rendering::Deferred
 {
     using namespace VoidCore::RHI;
-    DeferredRenderPipeline::DeferredRenderPipeline()
-    {
-        lightingPass = new LightingPass();
-        geometryPass = new GeometryPass();
-        presentPass = new PresentPass();
-    }
-
-    DeferredRenderPipeline::~DeferredRenderPipeline()
-    {
-        delete lightingPass;
-        delete presentPass;
-        delete geometryPass;
-    }
 
     void DeferredRenderPipeline::OnResize(int width, int height)
     {
 
-        // if (geometryPass)
-        //     geometryPass->Resize(width, height);
-        // if (lightingPass)
-        //     lightingPass->Resize(width, height);
     }
 
     void DeferredRenderPipeline::Execute(Renderer *renderer)
@@ -32,8 +15,5 @@ namespace VoidCore::Rendering::Deferred
         auto cmd = renderer->GetCommandList();
         if (!cmd)
             return;
-        geometryPass->Execute(renderer);
-        lightingPass->Execute(cmd, renderer, geometryPass);
-        presentPass->Execute(cmd, lightingPass->GetResult());
     }
 }

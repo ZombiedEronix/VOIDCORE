@@ -1,6 +1,5 @@
 #include "Scene.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
-#include "Entity/Components/System/UI/UICanvas.hpp"
 
 #include <algorithm>
 
@@ -67,8 +66,8 @@ void Scene::Render(Renderer &renderer)
 	{
 		if (activeCamera == nullptr)
 			continue;
-
-		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+			
+			if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 		{
 			Debug::Log("Скип");
 			continue;
@@ -81,7 +80,6 @@ void Scene::Render(Renderer &renderer)
 	}
 #endif
 #ifndef BUILD_WITHOUT_2D
-	std::vector<UICanvas *> canvases;
 
 	for (GameObject *obj : gameObjects)
 	{
@@ -95,5 +93,6 @@ void Scene::Render(Renderer &renderer)
 
 	for (UICanvas *canvas : canvases)
 		canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
+	canvases.clear();
 #endif
 }

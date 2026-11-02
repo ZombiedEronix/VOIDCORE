@@ -46,11 +46,6 @@ Renderer::Renderer(Window *window)
     lightBlock = nullptr;
     renderPipeline = nullptr;
 #endif
-#ifndef BUILD_WITHOUT_2D
-    uiPass = new VoidCore::Rendering::UIPass();
-#else
-    uiPass = nullptr;
-#endif
 }
 
 #ifndef BUILD_WITHOUT_3D
@@ -173,13 +168,6 @@ void Renderer::Flush()
     {
         renderPipeline->Execute(this);
     }
-#endif
-#ifndef BUILD_WITHOUT_2D
-    if (uiPass)
-    {
-        uiPass->Execute(cmd, this, uiContext);
-    }
-    uiContext.Clear();
 #endif
 #ifndef BUILD_WITHOUT_3D
     opaqueQueue->Clear();

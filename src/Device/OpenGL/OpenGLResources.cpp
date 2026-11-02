@@ -1,6 +1,7 @@
 #include "OpenGLResources.hpp"
 #include "OpenGLConvert.hpp"
 #include "Core/Debug.h"
+#include "Core/Profiling.h"
 
 #include <algorithm>
 #include <string>
@@ -18,6 +19,7 @@ namespace VoidCore::RHI::OpenGL
     {
         m_desc.initialData = nullptr; // указатель принадлежит вызывающему
         glCreateBuffers(1, &m_id);
+        ++VoidCore::Profiling::g_gl.buffers;
 
         // Immutable storage: размер фиксирован. Dynamic = можно писать через SubData.
         GLbitfield flags = (desc.memory == MemoryType::Dynamic) ? GL_DYNAMIC_STORAGE_BIT : 0;
@@ -28,6 +30,7 @@ namespace VoidCore::RHI::OpenGL
     GLBuffer::~GLBuffer()
     {
         glDeleteBuffers(1, &m_id);
+        --VoidCore::Profiling::g_gl.buffers;
     }
 
     // ------------------------------------------------------------ Texture ---
@@ -46,6 +49,7 @@ namespace VoidCore::RHI::OpenGL
 
         const GLTextureFormat fmt = ToGL(desc.format);
         glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+        ++VoidCore::Profiling::g_gl.textures;
         glTextureStorage2D(m_id, static_cast<GLsizei>(levels), fmt.internalFormat,
                            static_cast<GLsizei>(desc.width), static_cast<GLsizei>(desc.height));
 
@@ -63,12 +67,14 @@ namespace VoidCore::RHI::OpenGL
     GLTexture::~GLTexture()
     {
         glDeleteTextures(1, &m_id);
+        --VoidCore::Profiling::g_gl.textures;
     }
 
     // ------------------------------------------------------------ Sampler ---
     GLSampler::GLSampler(const SamplerDesc &desc) : m_desc(desc)
     {
         glCreateSamplers(1, &m_id);
+        ++VoidCore::Profiling::g_gl.samplers;
         glSamplerParameteri(m_id, GL_TEXTURE_MIN_FILTER, ToGLMinFilter(desc.minFilter, desc.mipFilter));
         glSamplerParameteri(m_id, GL_TEXTURE_MAG_FILTER, desc.magFilter == Filter::Nearest ? GL_NEAREST : GL_LINEAR);
         glSamplerParameteri(m_id, GL_TEXTURE_WRAP_S, static_cast<GLint>(ToGL(desc.addressU)));
@@ -83,12 +89,14 @@ namespace VoidCore::RHI::OpenGL
     GLSampler::~GLSampler()
     {
         glDeleteSamplers(1, &m_id);
+        --VoidCore::Profiling::g_gl.samplers;
     }
 
     // ------------------------------------------------------------- Shader ---
     GLShader::GLShader(const ShaderDesc &desc) : m_stage(desc.stage)
     {
         m_id = glCreateShader(desc.stage == ShaderStage::Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+        ++VoidCore::Profiling::g_gl.shaders;
 
         const std::string source(static_cast<const char *>(desc.code), desc.codeSize);
         const char *src = source.c_str();
@@ -110,6 +118,7 @@ namespace VoidCore::RHI::OpenGL
     GLShader::~GLShader()
     {
         glDeleteShader(m_id);
+        --VoidCore::Profiling::g_gl.shaders;
     }
 
     // ----------------------------------------------------------- Pipeline ---
@@ -132,6 +141,7 @@ namespace VoidCore::RHI::OpenGL
 
         // --- program ---
         m_program = glCreateProgram();
+        ++VoidCore::Profiling::g_gl.programs;
         glAttachShader(m_program, vs->Handle());
         glAttachShader(m_program, fs->Handle());
         glLinkProgram(m_program);
@@ -150,6 +160,7 @@ namespace VoidCore::RHI::OpenGL
 
         // --- vertex input (VAO принадлежит пайплайну) ---
         glCreateVertexArrays(1, &m_vao);
+        ++VoidCore::Profiling::g_gl.vaos;
         for (const VertexAttribute &a : desc.vertexAttributes)
         {
             const GLVertexFormat f = ToGLVertex(a.format);
@@ -174,9 +185,15 @@ namespace VoidCore::RHI::OpenGL
     GLPipeline::~GLPipeline()
     {
         if (m_program)
+        {
             glDeleteProgram(m_program);
+            --VoidCore::Profiling::g_gl.programs;
+        }
         if (m_vao)
+        {
             glDeleteVertexArrays(1, &m_vao);
+            --VoidCore::Profiling::g_gl.vaos;
+        }
     }
 
     void GLPipeline::Apply() const

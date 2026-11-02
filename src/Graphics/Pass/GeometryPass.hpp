@@ -2,10 +2,11 @@
 #include "Graphics/Renderer.hpp"
 
 #include "Device/RHI.hpp"
+#include "RenderPass.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {
-    class GeometryPass
+    class GeometryPass : public RenderPass
     {
         private:
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gAlbedoTexture;
@@ -15,11 +16,6 @@ namespace VoidCore::Rendering::Deferred
 
         public:
         GeometryPass();
-
-        VoidCore::RHI::ITexture* GetAlbedo();
-        VoidCore::RHI::ITexture* GetDepth();
-        VoidCore::RHI::ITexture* GetNormal();
-        
 
         void Execute(Renderer *commandList);
     };

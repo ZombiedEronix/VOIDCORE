@@ -7,12 +7,13 @@ namespace VoidCore::Rendering::Deferred
 
     void GeometryPass::CreateBuffers(int width, int height)
     {
+
         TextureDesc albedoDesc;
         albedoDesc.width = width;
         albedoDesc.height = height;
         albedoDesc.format = Format::RGBA8_UNORM;
         albedoDesc.usage = TextureUsage::RenderTarget | TextureUsage::Sampled;
-        albedoDesc.debugName = "G_Albedo_Texture";
+        albedoDesc.debugName = "GBuffer_Albedo";
         gAlbedoTexture = GetDevice().CreateTexture(albedoDesc);
 
         TextureDesc depthDesc;
@@ -20,7 +21,7 @@ namespace VoidCore::Rendering::Deferred
         depthDesc.height = height;
         depthDesc.format = Format::D24_UNORM_S8_UINT;
         depthDesc.usage = TextureUsage::DepthStencil | TextureUsage::Sampled;
-        depthDesc.debugName = "G_Depth_Texture";
+        depthDesc.debugName = "GBuffer_Depth";
         gDepthTexture = GetDevice().CreateTexture(depthDesc);
 
         TextureDesc normalDesc;
@@ -29,30 +30,13 @@ namespace VoidCore::Rendering::Deferred
         normalDesc.height = height;
         normalDesc.format = Format::RGBA8_UNORM;
         normalDesc.usage = TextureUsage::RenderTarget | TextureUsage::Sampled;
-        normalDesc.debugName = "G_Normal_Texture";
+        normalDesc.debugName = "GBuffer_Normal";
         gNormalTexture = GetDevice().CreateTexture(normalDesc);
     }
 
     GeometryPass::GeometryPass()
     {
         CreateBuffers(Window::GetWidth(), Window::GetHeight());
-        Window::OnResize.Add([this](int width, int height)
-                             { this->CreateBuffers(width, height); });
-    }
-
-    VoidCore::RHI::ITexture *GeometryPass::GetAlbedo()
-    {
-        return gAlbedoTexture.get();
-    }
-
-    VoidCore::RHI::ITexture *GeometryPass::GetDepth()
-    {
-        return gDepthTexture.get();
-    }
-
-    VoidCore::RHI::ITexture *GeometryPass::GetNormal()
-    {
-        return gNormalTexture.get();
     }
 
     void GeometryPass::Execute(Renderer *renderer)
@@ -71,7 +55,7 @@ namespace VoidCore::Rendering::Deferred
         geomPass.colors[0].clearColor[3] = 1.0f;
 
         geomPass.colors[1].texture = gNormalTexture.get();
-        geomPass.colors[1].loadOp = LoadOp::Clear;
+        geomPass.colors[1].loadOp = LoadOp::DontCare;
         geomPass.colors[1].clearColor[0] = 0.1f;
         geomPass.colors[1].clearColor[1] = 0.1f;
         geomPass.colors[1].clearColor[2] = 0.1f;
@@ -94,5 +78,9 @@ namespace VoidCore::Rendering::Deferred
         queue->Execute(renderer);
 
         cmd->EndRenderPass();
+
+        renderer->SetRenderTargetTexture("GBuffer_Albedo", gAlbedoTexture.get());
+        renderer->SetRenderTargetTexture("GBuffer_Normal", gNormalTexture.get());
+        renderer->SetRenderTargetTexture("GBuffer_Depth", gDepthTexture.get());
     }
 };

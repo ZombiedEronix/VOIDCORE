@@ -3,11 +3,10 @@
 #include "Entity/Components/System/UI/UIDocument.hpp"
 #include "UI/Elements.hpp"
 
-// Куда и в каком порядке рисовать документ. Сейчас — только Screen Space.
 class UICanvas : public Behaviour
 {
 public:
-    int sortingOrder = 0; // больше = рисуется позже = поверх
+    int sortingOrder = 0;
 
     UIDocument *document = nullptr;
 
@@ -19,7 +18,6 @@ public:
         return Rect{0, 0, screenW, screenH};
     }
 
-    // Лейаут + запись команд рисования в ctx. Вызывается из Scene::Render.
     void Render(UIContext &ctx, float screenW, float screenH)
     {
         if (!document || !IsEnabled())

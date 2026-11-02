@@ -1,8 +1,6 @@
 #version 450 core
 out vec4 FragColor;
 
-
-//CAMERA !!!
 in vec3 ViewDir;
 
 uniform vec3 ZenithColor;

@@ -8,10 +8,13 @@
 #include "Entity/Components/System/Camera.hpp"
 #include "Entity/Components/System/MeshRenderer.hpp"
 
+#include "Entity/Components/System/UI/UICanvas.hpp"
+
 class Scene {
 public:
 	std::string name = "Scene";
 	std::vector<GameObject*> gameObjects;
+	std::vector<UICanvas *> canvases;
 
 	Scene();
 	~Scene()

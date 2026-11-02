@@ -162,7 +162,11 @@ namespace VoidCore::RHI::OpenGL
 
     void OpenGLDevice::SetVerticalSync(bool enabled)
     {
-        SDL_GL_SetSwapInterval(enabled ? 1 : 0);
+        if (!SDL_GL_SetSwapInterval(enabled ? 1 : 0))
+            Debug::LogWarning("[GL] SetSwapInterval failed: ", SDL_GetError());
+        int actual = -99;
+        SDL_GL_GetSwapInterval(&actual);
+        Debug::Log("[GL] swap interval requested=", enabled ? 1 : 0, " actual=", actual);
     }
 
     void OpenGLDevice::WaitIdle()

@@ -4,10 +4,10 @@
 #include "Device/IBuffer.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Queue/LightCommand.hpp"
-
+#include "RenderPass.hpp"
 namespace VoidCore::Rendering::Deferred
 {
-    class LightingPass
+    class LightingPass : public RenderPass
     {
     private:
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> litTexture;
@@ -17,13 +17,9 @@ namespace VoidCore::Rendering::Deferred
         void CreateBuffers(int width, int height);
         VoidCore::RHI::Ref<VoidCore::RHI::IBuffer>
             lightBuffer;
-
         void CreateLightingPipeline();
-
     public:
         LightingPass();
-
-        VoidCore::RHI::ITexture *GetResult() { return litTexture.get(); }
-        void Execute(VoidCore::RHI::ICommandList *cmd, class Renderer *renderer, class GeometryPass *gBuffer);
+        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer);
     };
 }

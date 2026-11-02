@@ -9,8 +9,6 @@ namespace VoidCore::Rendering::Deferred
     LightingPass::LightingPass()
     {
         CreateBuffers(Window::GetWidth(), Window::GetHeight());
-        Window::OnResize.Add([this](int width, int height)
-                             { this->CreateBuffers(width, height); });
     }
 
     void LightingPass::CreateBuffers(int width, int height)
@@ -54,7 +52,7 @@ namespace VoidCore::Rendering::Deferred
         lightingPipeline = GetDevice().CreatePipeline(desc);
     }
 
-    void LightingPass::Execute(ICommandList *cmd, Renderer *renderer, GeometryPass *gBuffer)
+    void LightingPass::Execute(ICommandList *cmd, Renderer *renderer)
     {
         RenderPassDesc passDesc;
         passDesc.debugName = "Deferred Lighting Pass";
@@ -76,13 +74,15 @@ namespace VoidCore::Rendering::Deferred
             cmd->SetPipeline(lightingPipeline.get());
 
             cmd->SetUniformBuffer(0, renderer->GetCameraBuffer());
-            cmd->SetTexture(0, gBuffer->GetAlbedo(), gBufferSampler.get());
-            cmd->SetTexture(1, gBuffer->GetNormal(), gBufferSampler.get());
-            cmd->SetTexture(2, gBuffer->GetDepth(), gBufferSampler.get());
+
+            cmd->SetTexture(0, renderer->GetRenderTargetTexture("GBuffer_Albedo"), gBufferSampler.get());
+            cmd->SetTexture(1, renderer->GetRenderTargetTexture("GBuffer_Normal"), gBufferSampler.get());
+            cmd->SetTexture(2, renderer->GetRenderTargetTexture("GBuffer_Depth"), gBufferSampler.get());
 
             cmd->Draw(3, 1, 0, 0);
         }
-
         cmd->EndRenderPass();
+
+        renderer->SetRenderTargetTexture("GBuffer_Lit", litTexture.get());
     }
 }

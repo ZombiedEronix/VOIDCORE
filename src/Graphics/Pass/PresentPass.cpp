@@ -3,11 +3,11 @@
 
 namespace VoidCore::Rendering::Deferred
 {
-
     using namespace VoidCore::RHI;
 
     PresentPass::PresentPass()
     {
+        executionEvent = RenderPassEvent::BeforeUI;
         SamplerDesc sDesc;
         sDesc.minFilter = Filter::Nearest;
         sDesc.magFilter = Filter::Nearest;
@@ -15,21 +15,21 @@ namespace VoidCore::Rendering::Deferred
         sDesc.addressV = AddressMode::ClampToEdge;
         presentSampler = GetDevice().CreateSampler(sDesc);
 
-        screenShader = ResourceManager::GetShader("Assets/shaders/FullScreen/screen");
+        shader = ResourceManager::GetShader("Assets/shaders/FullScreen/screen");
         CreateScreenPipeline();
     }
 
     void PresentPass::CreateScreenPipeline()
     {
-        if (!screenShader || !screenShader->IsValid())
+        if (!shader || !shader->IsValid())
         {
             Debug::LogError("DeferredRenderPipeline: screenShader is invalid!");
             return;
         }
 
         GraphicsPipelineDesc desc;
-        desc.vertexShader = screenShader->GetVS();
-        desc.fragmentShader = screenShader->GetFS();
+        desc.vertexShader = shader->GetVS();
+        desc.fragmentShader = shader->GetFS();
 
         desc.vertexAttributes.clear();
         desc.vertexBuffers.clear();
@@ -47,8 +47,7 @@ namespace VoidCore::Rendering::Deferred
         screenPipeline = GetDevice().CreatePipeline(desc);
     }
 
-
-    void PresentPass::Execute(ICommandList *cmd, ITexture *texture)
+    void PresentPass::Execute(ICommandList *cmd, Renderer *renderer)
     {
 
         RenderPassDesc presentPass;
@@ -68,8 +67,8 @@ namespace VoidCore::Rendering::Deferred
         if (screenPipeline)
         {
             cmd->SetPipeline(screenPipeline.get());
-            cmd->SetTexture(0, texture, presentSampler.get());
-
+            cmd->SetTexture(0, renderer->GetRenderTargetTexture("GBuffer_RenderResult"), presentSampler.get());
+            cmd->SetTexture(1, renderer->GetRenderTargetTexture("GBuffer_UI"), presentSampler.get());
             cmd->Draw(3, 1, 0, 0);
         }
 

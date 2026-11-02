@@ -18,6 +18,8 @@ namespace VoidCore::Rendering
 
     private:
         void EnsureBuffers(size_t vertexCount, size_t indexCount);
+        void CreateTexture();
+        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> uiTexture;
 
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler;
         VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> vertexBuffer;

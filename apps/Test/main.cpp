@@ -181,36 +181,10 @@ int main(int argc, char *args[])
 	{
 		ZoneScopedN("CreatingWindow and context");
 		Window::Create();
-		Window::GetRenderDevice()->SetVerticalSync(true);
+		Window::GetRenderDevice()->SetVerticalSync(false);
 		Window::Show();
 	}
 	CreateScene();
 	engine.Run();
 	return 0;
-}
-
-void *operator new(std::size_t count)
-{
-	auto ptr = malloc(count);
-	TracyAlloc(ptr, count);
-	return ptr;
-}
-
-void operator delete(void *ptr) noexcept
-{
-	TracyFree(ptr);
-	free(ptr);
-}
-
-void *operator new[](std::size_t count)
-{
-	auto ptr = malloc(count);
-	TracyAlloc(ptr, count);
-	return ptr;
-}
-
-void operator delete[](void *ptr) noexcept
-{
-	TracyFree(ptr);
-	free(ptr);
 }

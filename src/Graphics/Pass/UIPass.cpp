@@ -11,7 +11,6 @@ namespace VoidCore::Rendering
 {
     using namespace VoidCore::RHI;
 
-
     UIPass::UIPass()
     {
 
@@ -23,8 +22,19 @@ namespace VoidCore::Rendering
         sd.addressV = AddressMode::ClampToEdge;
         sd.debugName = "UISampler";
         sampler = GetDevice().CreateSampler(sd);
-
+        CreateTexture();
         EnsureBuffers(0, 0);
+    }
+
+    void UIPass::CreateTexture()
+    {
+        TextureDesc uiDesc;
+        uiDesc.width = Window::GetWidth();
+        uiDesc.height = Window::GetHeight();
+        uiDesc.format = Format::RGBA8_UNORM;
+        uiDesc.usage = TextureUsage::RenderTarget | TextureUsage::Sampled;
+        uiDesc.debugName = "GBuffer_UI";
+        uiTexture = GetDevice().CreateTexture(uiDesc);
     }
 
     void UIPass::EnsureBuffers(size_t vertexCount, size_t indexCount)
@@ -63,7 +73,7 @@ namespace VoidCore::Rendering
         RenderPassDesc pass;
         pass.debugName = "UI";
         pass.colorCount = 1;
-        pass.colors[0].texture = nullptr;
+        pass.colors[0].texture = uiTexture.get();
         pass.colors[0].loadOp = LoadOp::Load;
         pass.hasDepth = false;
 
@@ -81,6 +91,7 @@ namespace VoidCore::Rendering
             }
         }
 
+        renderer->SetRenderTargetTexture("GBuffer_UI", uiTexture.get());
         cmd->EndRenderPass();
     }
 }

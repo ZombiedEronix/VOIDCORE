@@ -2,8 +2,12 @@
 out vec4 FragColor;
 in vec2 TexCoords;
 
-layout(binding = 0) uniform sampler2D screenTexture; 
+layout(binding = 0) uniform sampler2D u_SceneTex; 
+layout(binding = 1) uniform sampler2D u_UITex; 
+
 
 void main() {
-    FragColor = texture(screenTexture, TexCoords); 
+    vec4 scene = texture(u_SceneTex, uv);
+    vec4 ui = texture(u_UITex, uv);
+    fragColor = mix(scene, ui, ui.a);
 }
