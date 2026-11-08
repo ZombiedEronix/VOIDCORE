@@ -37,11 +37,3 @@ target_link_libraries(VOIDCORE PUBLIC
 target_compile_definitions(VOIDCORE PRIVATE 
     STB_IMAGE_IMPLEMENTATION
 )
-
-#===================================Application===================================
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-
-add_subdirectory(apps/Test)
-#=================================================================================
