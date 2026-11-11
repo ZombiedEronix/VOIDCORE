@@ -13,18 +13,20 @@ void Input::ProcessEvent(const SDL_Event &event)
     {
         if (!event.key.repeat)
         {
-            keys[event.key.key] = true;
-            keysPressedThisFrame[event.key.key] = true;
+            KeyCode key = static_cast<KeyCode>(event.key.scancode);
+            keys[key] = true;
+            keysPressedThisFrame[key] = true;
         }
     }
     else if (event.type == SDL_EVENT_KEY_UP)
     {
-        keys[event.key.key] = false;
+        KeyCode key = static_cast<KeyCode>(event.key.scancode);
+        keys[key] = false;
     }
     else if (event.type == SDL_EVENT_MOUSE_MOTION)
     {
         mousePosition = glm::vec2(event.motion.x, event.motion.y);
-        mouseDelta = glm::vec2(event.motion.xrel, event.motion.yrel);
+        mouseDelta += glm::vec2(event.motion.xrel, event.motion.yrel);
     }
     else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
     {
@@ -37,13 +39,13 @@ void Input::ProcessEvent(const SDL_Event &event)
     }
 }
 
-bool Input::IsKeyHeld(SDL_Keycode key)
+bool Input::IsKeyHeld(KeyCode key)
 {
     auto it = keys.find(key);
     return it != keys.end() ? it->second : false;
 }
 
-bool Input::IsKeyPressed(SDL_Keycode key)
+bool Input::IsKeyPressed(KeyCode key)
 {
     auto it = keysPressedThisFrame.find(key);
     return it != keysPressedThisFrame.end() ? it->second : false;

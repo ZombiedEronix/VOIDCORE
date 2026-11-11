@@ -17,25 +17,25 @@ public:
         Transform *transform = gameObject->transform;
 
         float currentSpeed = moveSpeed;
-        if (Input::IsKeyHeld(SDLK_LSHIFT))
+        if (Input::IsKeyHeld(KeyCode::LShift))
         {
             currentSpeed *= 3.0f;
         }
 
         glm::vec3 moveDir{0.0f};
 
-        if (Input::IsKeyHeld(SDLK_W))
+        if (Input::IsKeyHeld(KeyCode::W))
             moveDir += transform->GetForward();
-        if (Input::IsKeyHeld(SDLK_S))
+        if (Input::IsKeyHeld(KeyCode::S))
             moveDir -= transform->GetForward();
-        if (Input::IsKeyHeld(SDLK_D))
+        if (Input::IsKeyHeld(KeyCode::D))
             moveDir += transform->GetRight();
-        if (Input::IsKeyHeld(SDLK_A))
+        if (Input::IsKeyHeld(KeyCode::A))
             moveDir -= transform->GetRight();
 
-        if (Input::IsKeyHeld(SDLK_E))
+        if (Input::IsKeyHeld(KeyCode::E))
             moveDir += glm::vec3(0.0f, 1.0f, 0.0f);
-        if (Input::IsKeyHeld(SDLK_Q))
+        if (Input::IsKeyHeld(KeyCode::Q))
             moveDir -= glm::vec3(0.0f, 1.0f, 0.0f);
 
         if (glm::length(moveDir) > 0.0f)
