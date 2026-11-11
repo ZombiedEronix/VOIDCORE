@@ -48,24 +48,69 @@ std::string PreprocessShaderSource(const std::string &filepath, std::unordered_s
     return result.str();
 }
 
-Shader::Shader(const char *vertexFile, const char *fragmentFile)
+bool Shader::SplitCombinedSource(const std::string &fullSrc, std::string &outVs, std::string &outFs, const std::string &filepath)
+{
+    std::stringstream fileStream(fullSrc);
+    std::string line;
+
+    std::stringstream vsStream, fsStream;
+    std::stringstream *currentStream = nullptr;
+    int sectionCount = 0;
+
+    while (std::getline(fileStream, line))
+    {
+        if (line.find("#section vertex") != std::string::npos)
+        {
+            currentStream = &vsStream;
+            sectionCount++;
+            continue;
+        }
+        else if (line.find("#section fragment") != std::string::npos)
+        {
+            currentStream = &fsStream;
+            sectionCount++;
+            continue;
+        }
+
+        if (currentStream)
+        {
+            *currentStream << line << "\n";
+        }
+    }
+
+    if (sectionCount < 2)
+    {
+        Debug::LogError("Shader split error in " + filepath + ": Missing '#section vertex' or '#section fragment'");
+        return false;
+    }
+
+    outVs = vsStream.str();
+    outFs = fsStream.str();
+    return true;
+}
+
+Shader::Shader(const char *combinedShaderFile)
 {
     auto &device = GetDevice();
     const ShaderFormat format = device.GetCaps().shaderFormat;
 
-    // TODO(Vulkan/D3D11/Metal): здесь выбирать файл под формат (.spv/.dxbc/.msl)
-    // из результата оффлайн-компиляции. Пока бэкенд один — читаем GLSL как есть.
     if (format != ShaderFormat::GLSL)
     {
         Debug::LogError("Shader: backend needs ", (int)format, " shaders, only GLSL loader is implemented");
         return;
     }
 
-    std::unordered_set<std::string> vsIncludes;
-    std::unordered_set<std::string> fsIncludes;
+    std::unordered_set<std::string> includes;
+    std::string fullSource = PreprocessShaderSource(combinedShaderFile, includes);
 
-    const std::string vsSrc = PreprocessShaderSource(vertexFile, vsIncludes);
-    const std::string fsSrc = PreprocessShaderSource(fragmentFile, fsIncludes);
+    if (fullSource.empty())
+        return;
+
+    std::string vsSrc, fsSrc;
+    if (!SplitCombinedSource(fullSource, vsSrc, fsSrc, combinedShaderFile))
+    {
+        return;
+    }
 
     ShaderDesc d;
     d.format = format;
@@ -73,13 +118,13 @@ Shader::Shader(const char *vertexFile, const char *fragmentFile)
     d.stage = ShaderStage::Vertex;
     d.code = vsSrc.data();
     d.codeSize = vsSrc.size();
-    d.debugName = vertexFile;
+    d.debugName = combinedShaderFile;
     vs = device.CreateShader(d);
 
     d.stage = ShaderStage::Fragment;
     d.code = fsSrc.data();
     d.codeSize = fsSrc.size();
-    d.debugName = fragmentFile;
+    d.debugName = combinedShaderFile;
     fs = device.CreateShader(d);
 }
 

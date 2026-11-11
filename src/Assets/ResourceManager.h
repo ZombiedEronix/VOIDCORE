@@ -66,10 +66,9 @@ public:
 	{
 		if (shaders.find(basePath) == shaders.end())
 		{
-			std::string vertPath = basePath + ".vert";
-			std::string fragPath = basePath + ".frag";
+			std::string path = basePath + ".glsl";
 
-			shaders[basePath] = std::make_shared<Shader>(vertPath.c_str(), fragPath.c_str());
+			shaders[basePath] = std::make_shared<Shader>(path.c_str());
 		}
 		return shaders[basePath].get();
 	}
