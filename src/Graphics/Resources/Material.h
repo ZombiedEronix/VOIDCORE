@@ -38,12 +38,21 @@ public:
         d.depth.testEnable = false;
         d.depth.writeEnable = false;
         d.rasterizer.cullMode = CullMode::None;
+
         d.blend[0].enable = true;
+        d.blend[0].srcColor = BlendFactor::SrcAlpha;
+        d.blend[0].dstColor = BlendFactor::OneMinusSrcAlpha;
+        d.blend[0].colorOp = BlendOp::Add;
+
+        d.blend[0].srcAlpha = BlendFactor::One;
+        d.blend[0].dstAlpha = BlendFactor::OneMinusSrcAlpha;
+        d.blend[0].alphaOp = BlendOp::Add;
 
         d.colorTargetCount = 1;
         d.colorFormats[0] = Format::RGBA8_UNORM;
         d.depthFormat = Format::Unknown;
         d.debugName = "UIMaterialPipeline";
+
 
         return GetDevice().CreatePipeline(d);
     }

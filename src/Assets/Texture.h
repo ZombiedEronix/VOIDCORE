@@ -8,6 +8,7 @@ public:
 
 	// srgb = true для цветных (albedo) текстур; false — данные/как раньше.
 	explicit Texture(const char *filename, bool srgb = false);
+	Texture(const uint8_t *data, size_t size, const char *debugName, bool srgb = false);
 
 	VoidCore::RHI::ITexture *GetRHI() const { return texture.get(); }
 	VoidCore::RHI::ISampler *GetSampler() const;

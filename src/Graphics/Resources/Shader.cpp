@@ -91,41 +91,9 @@ bool Shader::SplitCombinedSource(const std::string &fullSrc, std::string &outVs,
 
 Shader::Shader(const char *combinedShaderFile)
 {
-    auto &device = GetDevice();
-    const ShaderFormat format = device.GetCaps().shaderFormat;
-
-    if (format != ShaderFormat::GLSL)
-    {
-        Debug::LogError("Shader: backend needs ", (int)format, " shaders, only GLSL loader is implemented");
-        return;
-    }
-
     std::unordered_set<std::string> includes;
     std::string fullSource = PreprocessShaderSource(combinedShaderFile, includes);
-
-    if (fullSource.empty())
-        return;
-
-    std::string vsSrc, fsSrc;
-    if (!SplitCombinedSource(fullSource, vsSrc, fsSrc, combinedShaderFile))
-    {
-        return;
-    }
-
-    ShaderDesc d;
-    d.format = format;
-
-    d.stage = ShaderStage::Vertex;
-    d.code = vsSrc.data();
-    d.codeSize = vsSrc.size();
-    d.debugName = combinedShaderFile;
-    vs = device.CreateShader(d);
-
-    d.stage = ShaderStage::Fragment;
-    d.code = fsSrc.data();
-    d.codeSize = fsSrc.size();
-    d.debugName = combinedShaderFile;
-    fs = device.CreateShader(d);
+    CompileFromSource(fullSource, combinedShaderFile);
 }
 
 std::string get_file_contents(const char *filename)
@@ -143,4 +111,47 @@ std::string get_file_contents(const char *filename)
     }
     Debug::LogError("Failed to load shader file: ", filename);
     return "";
+}
+
+void Shader::CompileFromSource(const std::string &fullSource, const char *debugName)
+{
+    auto &device = GetDevice();
+    const ShaderFormat format = device.GetCaps().shaderFormat;
+
+    if (format != ShaderFormat::GLSL)
+    {
+        Debug::LogError("Shader: backend needs ", (int)format, " shaders, only GLSL loader is implemented");
+        return;
+    }
+
+    if (fullSource.empty())
+        return;
+
+    std::string vsSrc, fsSrc;
+    if (!SplitCombinedSource(fullSource, vsSrc, fsSrc, debugName))
+    {
+        return;
+    }
+
+    ShaderDesc d;
+    d.format = format;
+
+    d.stage = ShaderStage::Vertex;
+    d.code = vsSrc.data();
+    d.codeSize = vsSrc.size();
+    d.debugName = debugName;
+    vs = device.CreateShader(d);
+
+    d.stage = ShaderStage::Fragment;
+    d.code = fsSrc.data();
+    d.codeSize = fsSrc.size();
+    d.debugName = debugName;
+    fs = device.CreateShader(d);
+}
+
+std::shared_ptr<Shader> Shader::CreateFromSource(const std::string &fullSource, const char *debugName)
+{
+    auto shader = std::shared_ptr<Shader>(new Shader());
+    shader->CompileFromSource(fullSource, debugName);
+    return shader;
 }

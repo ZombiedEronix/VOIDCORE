@@ -11,7 +11,7 @@ void Camera::Update()
         return;
 
     glm::vec3 pos = gameObject->transform->GetPosition();
-    glm::vec3 rot = gameObject->transform->GetRotation(); // (Pitch, Yaw, Roll)
+    glm::vec3 rot = gameObject->transform->GetRotation();
 
     float pitch = glm::radians(rot.x);
     float yaw = glm::radians(rot.y);
@@ -35,9 +35,8 @@ void Camera::Update()
     planes[1] = m[3] + m[0]; // Right
     planes[2] = m[3] - m[1]; // Bottom
     planes[3] = m[3] + m[1]; // Top
-    // Глубина NDC в [0,1] (GLM_FORCE_DEPTH_ZERO_TO_ONE): 0 <= z <= w.
     planes[4] = m[3] - m[2]; // Far  (z <= w)
-    planes[5] = m[2];        // Near (z >= 0)  — в GL-конвенции [-1,1] было бы m[3] + m[2]
+    planes[5] = m[2];        // Near (z >= 0)
 
     for (int i = 0; i < 6; ++i)
     {
@@ -48,12 +47,13 @@ void Camera::Update()
 
 bool Camera::IsPointInFrustum(const glm::vec3 &point)
 {
-    for (int i = 0; i < 6; ++i)
-    {
-        if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
-        {
-            return false;
-        }
-    }
+    //mswnfpce todo: fix camera frustrum culling.
+    //   for (int i = 0; i < 6; ++i)
+    // {
+    //   if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
+    // {
+    //   return false;
+    // }
+    // }
     return true;
 }

@@ -77,7 +77,11 @@ namespace VoidCore::Rendering
         pass.debugName = "UI";
         pass.colorCount = 1;
         pass.colors[0].texture = uiTexture.get();
-        pass.colors[0].loadOp = LoadOp::Load;
+        pass.colors[0].loadOp = LoadOp::Clear;
+        pass.colors[0].clearColor[0] = 0.0f;
+        pass.colors[0].clearColor[1] = 0.0f;
+        pass.colors[0].clearColor[2] = 0.0f;
+        pass.colors[0].clearColor[3] = 0.0f;
         pass.hasDepth = false;
 
         cmd->BeginRenderPass(pass);

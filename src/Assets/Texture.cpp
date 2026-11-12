@@ -27,6 +27,36 @@ ISampler *Texture::GetSampler() const
 	return sampler ? sampler.get() : DefaultSampler();
 }
 
+Texture::Texture(const uint8_t *fileData, size_t dataSize, const char *debugName, bool srgb)
+{
+	stbi_set_flip_vertically_on_load(true);
+	int channels = 0;
+	unsigned char *pixels = stbi_load_from_memory(
+		fileData, static_cast<int>(dataSize), &widthTexture, &heightTexture, &channels, 4);
+
+	unsigned char whitePixel[4] = {255, 255, 255, 255};
+	const void *data = pixels ? static_cast<const void *>(pixels) : static_cast<const void *>(whitePixel);
+	if (!pixels)
+	{
+		Debug::LogError("Failed to decode texture: ", debugName);
+		widthTexture = 1;
+		heightTexture = 1;
+	}
+
+	TextureDesc d;
+	d.width = static_cast<uint32_t>(widthTexture);
+	d.height = static_cast<uint32_t>(heightTexture);
+	d.mipLevels = 0;
+	d.format = srgb ? Format::RGBA8_SRGB : Format::RGBA8_UNORM;
+	d.usage = TextureUsage::Sampled;
+	d.initialData = data;
+	d.debugName = debugName;
+	texture = GetDevice().CreateTexture(d);
+
+	if (pixels)
+		stbi_image_free(pixels);
+}
+
 Texture::Texture(const char *filename, bool srgb)
 {
 	// Флип — про порядок строк в данных, от графического API не зависит.

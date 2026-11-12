@@ -27,6 +27,7 @@ target_include_directories(VOIDCORE PUBLIC
 find_package(SDL3 REQUIRED)
 target_link_libraries(VOIDCORE PUBLIC
     GL
+    lz4
     SDL3::SDL3
     pthread
     dl
@@ -38,10 +39,4 @@ target_compile_definitions(VOIDCORE PRIVATE
     STB_IMAGE_IMPLEMENTATION
 )
 
-#===================================Application===================================
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-
-add_subdirectory(apps/Test)
-#=================================================================================
+add_subdirectory(Tools/VoidPacker)
