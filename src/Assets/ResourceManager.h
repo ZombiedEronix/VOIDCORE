@@ -10,6 +10,7 @@
 #include "ModelImporter.h"
 #include "File.hpp"
 #include "Assets/VPAK/VPAKReading.hpp"
+#include "vmat/MaterialLoader.hpp"
 
 class ResourceManager
 {
@@ -17,6 +18,7 @@ private:
 	inline static std::map<std::string, std::shared_ptr<Texture>> textures;
 	inline static std::map<std::string, std::shared_ptr<Mesh>> meshes;
 	inline static std::map<std::string, std::shared_ptr<Shader>> shaders;
+	inline static std::map<std::string, std::shared_ptr<Material>> materials;
 	inline static std::map<std::string, std::shared_ptr<VoidCore::Assets::File>> files;
 	inline static VoidCore::VPAK::AssetPakReader pakReader;
 
@@ -43,6 +45,34 @@ public:
 			return std::static_pointer_cast<T>(GetFile(path));
 		}
 		return nullptr;
+	}
+
+	static Material *GetMaterial(const std::string &path)
+	{
+		if (materials.find(path) == materials.end())
+		{
+			auto fileAsset = GetFile(path, false);
+			if (!fileAsset || fileAsset->IsEmpty())
+			{
+				Debug::LogError("ResourceManager: Material file not found -> " + path);
+				return nullptr;
+			}
+
+			auto mat = MaterialLoader::LoadYAML(
+				*fileAsset,
+				[](const std::string &shaderPath)
+				{ return GetShader(shaderPath); },
+				[](const std::string &texPath, bool srgb)
+				{ return GetTexture(texPath, srgb); });
+
+			if (!mat)
+			{
+				return nullptr;
+			}
+
+			materials[path] = mat;
+		}
+		return materials[path].get();
 	}
 
 	static std::shared_ptr<Texture> GetTexture(const std::string &path, bool srgb = false)

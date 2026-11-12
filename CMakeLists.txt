@@ -25,9 +25,11 @@ target_include_directories(VOIDCORE PUBLIC
 )
 
 find_package(SDL3 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 target_link_libraries(VOIDCORE PUBLIC
     GL
     lz4
+    yaml-cpp::yaml-cpp
     SDL3::SDL3
     pthread
     dl
