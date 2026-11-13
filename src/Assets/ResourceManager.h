@@ -10,7 +10,7 @@
 #include "ModelImporter.h"
 #include "File.hpp"
 #include "Assets/VPAK/VPAKReading.hpp"
-#include "vmat/MaterialLoader.hpp"
+#include "VMAT/MaterialLoader.hpp"
 
 class ResourceManager
 {
@@ -37,7 +37,6 @@ public:
 		}
 		if constexpr (std::is_same_v<T, Mesh>)
 		{
-			// Передаем путь в метод!
 			return std::static_pointer_cast<T>(GetMesh(path));
 		}
 		if constexpr (std::is_same_v<T, VoidCore::Assets::File>)

@@ -35,7 +35,7 @@ namespace VoidCore::Rendering::Deferred
     void LightingPass::CreateLightingPipeline()
     {
         GraphicsPipelineDesc desc;
-        desc.vertexShader = ResourceManager::GetShader("Assets/shaders/FullScreen/screen")->GetVS(); // Юзаем старый VS экрана
+        desc.vertexShader = ResourceManager::GetShader("Assets/shaders/FullScreen/screen")->GetVS();
         desc.fragmentShader = lightingShader->GetFS();
 
         desc.vertexAttributes.clear();
