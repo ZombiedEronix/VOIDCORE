@@ -214,6 +214,7 @@ void Window::Maximize()
     SDL_MaximizeWindow(windowPtr);
 }
 
+
 void Window::Hide()
 {
     if(isShowed)

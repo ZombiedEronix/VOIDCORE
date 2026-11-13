@@ -10,14 +10,6 @@
 #include "Assets/Vertex.h"
 #include "Core/Debug.h"
 
-struct MeshHeader
-{
-	char magic[4] = {'E', 'N', 'T', 'M'};
-	uint32_t version = 1;
-	uint32_t vCount;
-	uint32_t iCount;
-};
-
 class ModelImporter
 {
 public:
@@ -35,9 +27,6 @@ public:
 		std::string ext = path.substr(path.find_last_of("."));
 		if (ext == ".obj")
 			return LoadOBJStream(file, path, outVertices, outIndices);
-		if (ext == ".entm")
-			return LoadEntropyStream(file, outVertices, outIndices);
-
 		Debug::LogError("Model is not imported.\nReason: Format is not supported!");
 		return false;
 	}
@@ -52,32 +41,11 @@ public:
 		std::string ext = path.substr(path.find_last_of("."));
 		if (ext == ".obj")
 			return LoadOBJStream(stream, path, outVertices, outIndices);
-		if (ext == ".entm")
-			return LoadEntropyStream(stream, outVertices, outIndices);
-
 		Debug::LogError("Model is not imported from VPAK.\nReason: Format is not supported!");
 		return false;
 	}
 
 private:
-	static bool LoadEntropyStream(std::istream &file, std::vector<Vertex> &outVertices, std::vector<unsigned int> &outIndices)
-	{
-		MeshHeader header;
-		file.read(reinterpret_cast<char *>(&header), sizeof(MeshHeader));
-
-		outVertices.resize(header.vCount);
-		outIndices.resize(header.iCount);
-
-		file.read(reinterpret_cast<char *>(outVertices.data()), sizeof(Vertex) * header.vCount);
-		file.read(reinterpret_cast<char *>(outIndices.data()), sizeof(unsigned int) * header.iCount);
-
-		Debug::Log("Exporting Entropy Model...");
-		Debug::Log("Version :", header.version);
-		Debug::Log("Vertices :", header.vCount);
-		Debug::Log("Indices:", header.iCount);
-
-		return true;
-	}
 
 	static bool LoadOBJStream(std::istream &file, const std::string &path, std::vector<Vertex> &outVertices, std::vector<unsigned int> &outIndices)
 	{

@@ -10,7 +10,7 @@
 #include "ModelImporter.h"
 #include "File.hpp"
 #include "Assets/VPAK/VPAKReading.hpp"
-#include "VMAT/MaterialLoader.hpp"
+#include "MaterialLoader.hpp"
 
 class ResourceManager
 {

@@ -66,7 +66,6 @@ void Scene::Render(Renderer &renderer)
 
 		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
 		{
-			Debug::Log("Скип");
 			continue;
 		}
 		MeshRenderer *mr = obj->GetComponent<MeshRenderer>();
