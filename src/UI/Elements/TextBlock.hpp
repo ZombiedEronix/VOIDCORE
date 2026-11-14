@@ -17,6 +17,8 @@ public:
     explicit TextBlock(std::string text, Color color = Color::White())
         : Text(std::move(text)), Foreground(color) {}
 
+    std::string GetTypeName() const override { return "TextBlock"; }
+
 protected:
     Size MeasureOverride(Size) override
     {

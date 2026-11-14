@@ -18,6 +18,7 @@ public:
     size_t ChildCount() const override { return children.size(); }
     UIControl *ChildAt(size_t i) const override { return children[i].get(); }
 
+    std::string GetTypeName() const override { return "Panel"; }
 protected:
     Size MeasureOverride(Size available) override
     {

@@ -1,0 +1,11 @@
+shader: shaders/Deferred/Lit
+pipeline: Lit
+
+textures:
+
+floats:
+  roughness: 1.8
+  metallic: 1.7
+
+vectors:
+  tint: [1.0, 1.0, 1.0, 1.0]

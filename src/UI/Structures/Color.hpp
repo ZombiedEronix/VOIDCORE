@@ -24,6 +24,28 @@ struct Color
     static constexpr Color Blue() { return {0.0f, 0.0f, 1.0f, 1.0f}; }
     static constexpr Color Transparent() { return {0.0f, 0.0f, 0.0f, 0.0f}; }
 
+    static constexpr Color FromHex(std::string hex)
+    {
+        if (!hex.empty() && hex[0] == '#')
+            hex.erase(0, 1);
+
+        uint8_t r = 255, g = 255, b = 255, a = 255;
+
+        if (hex.length() >= 6)
+        {
+            r = static_cast<uint8_t>(std::stoul(hex.substr(0, 2), nullptr, 16));
+            g = static_cast<uint8_t>(std::stoul(hex.substr(2, 2), nullptr, 16));
+            b = static_cast<uint8_t>(std::stoul(hex.substr(4, 2), nullptr, 16));
+        }
+
+        if (hex.length() >= 8)
+        {
+            a = static_cast<uint8_t>(std::stoul(hex.substr(6, 2), nullptr, 16));
+        }
+
+        return Color::FromBytes(r, g, b, a);
+    }
+
     constexpr Color WithAlpha(float alpha) const { return {r, g, b, alpha}; }
     constexpr bool IsVisible() const { return a > 0.0f; }
 };

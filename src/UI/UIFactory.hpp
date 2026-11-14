@@ -1,3 +1,5 @@
+//mswnfpce: This class is deprecated
+
 #pragma once
 
 #include <string>
@@ -105,13 +107,6 @@ private:
             if (auto attr = node.attribute("Foreground"))
                 tb->Foreground = ParseColor(attr.as_string(), tb->Foreground);
             return tb; });
-
-        Register("ProgressBar", [](pugi::xml_node node)
-                 {
-            auto bar = std::make_shared<ProgressBar>();
-            ParseBaseAttributes(node, bar);
-            bar->Value = node.attribute("Value").as_float(0.0f);
-            return bar; });
     }
 
 public:

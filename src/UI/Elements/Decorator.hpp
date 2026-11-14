@@ -10,12 +10,12 @@ public:
     Color BorderColor = Color::Transparent();
     float BorderThickness = 0.0f;
 
-    Material* material;
-
     size_t ChildCount() const override { return child ? 1 : 0; }
     UIControl *ChildAt(size_t) const override { return child.get(); }
+    
+    std::string GetTypeName() const override { return "Decorator"; }
+    protected:
 
-protected:
     Size MeasureOverride(Size available) override
     {
         if (!child)

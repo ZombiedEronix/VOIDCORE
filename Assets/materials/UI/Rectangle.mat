@@ -1,0 +1,8 @@
+shader: shaders/UI/Rectangle
+pipeline: UI
+
+textures:
+
+floats:
+
+vectors:

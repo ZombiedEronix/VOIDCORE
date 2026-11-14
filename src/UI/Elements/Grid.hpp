@@ -36,6 +36,8 @@ public:
         positions.push_back({row, col});
     }
 
+    std::string GetTypeName() const override { return "Grid"; }
+
 private:
     std::vector<std::pair<int, int>> positions;
 

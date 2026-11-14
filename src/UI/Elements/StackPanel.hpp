@@ -14,6 +14,8 @@ public:
     StackPanel() = default;
     explicit StackPanel(Orientation o, float spacing = 0.0f) : orientation(o), Spacing(spacing) {}
 
+    std::string GetTypeName() const override { return "StackPanel"; }
+
 protected:
     Size MeasureOverride(Size available) override
     {

@@ -14,8 +14,22 @@
 #include "UI/Structures/Thickness.hpp"
 #include "UI/UIContext.hpp"
 
-enum class HAlign { Stretch, Left, Center, Right };
-enum class VAlign { Stretch, Top, Center, Bottom };
+#include "Assets/ResourceManager.h"
+
+enum class HAlign
+{
+    Stretch,
+    Left,
+    Center,
+    Right
+};
+enum class VAlign
+{
+    Stretch,
+    Top,
+    Center,
+    Bottom
+};
 
 class UIControl
 {
@@ -24,6 +38,9 @@ public:
     static constexpr float Infinity = std::numeric_limits<float>::infinity();
 
     std::string Name;
+    
+    Material *material = nullptr;
+    std::vector<std::string> Classes;
 
     Thickness Margin;
     Thickness Padding;
@@ -39,6 +56,8 @@ public:
     Size desiredSize;
 
     virtual ~UIControl() = default;
+
+    virtual std::string GetTypeName() const { return "UIControl"; }
 
     void Measure(float availableWidth, float availableHeight)
     {
@@ -93,6 +112,33 @@ public:
 
         rect = {slot.x + Margin.Left + offX, slot.y + Margin.Top + offY, boxW, boxH};
         ArrangeOverride(ContentRect());
+    }
+
+
+    virtual void SetProperty(const std::string &name, const std::string &value)
+    {
+        if (name == "Background")
+            Background = Color::FromHex(value);
+        if (name == "Shader")
+            material = ResourceManager::GetMaterial(value);
+        else if (name == "Classes")
+            ParseClasses(value);
+    }
+
+    bool HasClass(const std::string &className) const
+    {
+        return std::find(Classes.begin(), Classes.end(), className) != Classes.end();
+    }
+
+    void ParseClasses(const std::string &str)
+    {
+        Classes.clear();
+        std::istringstream stream(str);
+        std::string word;
+        while (stream >> word)
+        {
+            Classes.push_back(word);
+        }
     }
 
     virtual void Render(UIContext &ctx)
