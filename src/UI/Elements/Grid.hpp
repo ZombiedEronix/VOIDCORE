@@ -172,3 +172,4 @@ private:
         }
     }
 };
+REGISTER_UI_CONTROL(Grid);

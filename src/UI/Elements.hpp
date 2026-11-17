@@ -1,4 +1,5 @@
 #pragma once
+#include "UI/UIRegistry.hpp"
 
 #include "Elements/UIControl.hpp"
 #include "Elements/Panel.hpp"

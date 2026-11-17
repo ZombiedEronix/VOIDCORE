@@ -29,10 +29,6 @@ public:
             {0, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, pos), 0},
             {1, Format::RG32_FLOAT, (uint32_t)offsetof(UIVertex, uv), 0},
             {2, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, rect), 0},
-            {3, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, color), 0},
-            {4, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, cornerSize), 0},
-            {5, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderColor), 0},
-            {6, Format::RGBA32_FLOAT, (uint32_t)offsetof(UIVertex, borderThickness), 0},
         };
 
         d.depth.testEnable = false;

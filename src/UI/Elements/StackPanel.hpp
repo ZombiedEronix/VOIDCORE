@@ -64,3 +64,4 @@ protected:
         }
     }
 };
+REGISTER_UI_CONTROL(StackPanel);

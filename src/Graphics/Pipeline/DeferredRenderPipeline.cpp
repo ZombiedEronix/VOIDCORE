@@ -25,6 +25,13 @@ namespace VoidCore::Rendering::Deferred
 
     void DeferredRenderPipeline::OnResize(int width, int height)
     {
+        for (auto &[renderEvent, pass] : m_RenderPasses)
+        {
+            if (pass)
+            {
+                pass->OnResize(width, height);
+            }
+        }
     }
 
     void DeferredRenderPipeline::AddPass(std::unique_ptr<RenderPass> pass, RenderPassEvent renderEvent)

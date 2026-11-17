@@ -1,85 +1,19 @@
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <vector>
-#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <regex>
+#include <filesystem>
+#include <iostream>
+#include <vector>
+
 #include <lz4.h>
 
 #include "Assets/VPAK/VPAK.hpp"
+#include "Shader/ShaderPreprocessor.hpp"
 
 namespace fs = std::filesystem;
 using namespace VoidCore::VPAK;
 
-fs::path ResolveInclude(const std::string &incName, const fs::path &currentDir, const fs::path &gameAssets, const fs::path &engineAssets)
-{
-    fs::path localPath = currentDir / incName;
-    if (fs::exists(localPath) && fs::is_regular_file(localPath))
-        return localPath;
-
-    fs::path engineShaderPath = engineAssets / "shaders" / incName;
-    if (fs::exists(engineShaderPath) && fs::is_regular_file(engineShaderPath))
-        return engineShaderPath;
-
-    return {};
-}
-
-std::string PreprocessShader(const fs::path &filePath,
-                             const fs::path &gameAssets,
-                             const fs::path &engineAssets,
-                             std::unordered_set<std::string> &includedFiles)
-{
-    std::string canonical = fs::weakly_canonical(filePath).string();
-    if (includedFiles.count(canonical))
-    {
-        return "";
-    }
-    includedFiles.insert(canonical);
-
-    std::ifstream file(filePath);
-    if (!file.is_open())
-    {
-        std::cerr << "[VoidPacker] ERROR: Cannot open shader: " << filePath << "\n";
-        std::exit(1);
-    }
-
-    std::string result;
-    std::string line;
-    std::regex includeRegex(R"(^\s*#include\s+["<]([^">]+)[">])");
-
-    while (std::getline(file, line))
-    {
-        if (line.find("#section") != std::string::npos)
-        {
-            includedFiles.clear();
-            includedFiles.insert(canonical);
-            result += line + "\n";
-            continue;
-        }
-
-        std::smatch match;
-        if (std::regex_search(line, match, includeRegex))
-        {
-            std::string incName = match[1].str();
-            fs::path resolved = ResolveInclude(incName, filePath.parent_path(), gameAssets, engineAssets);
-            if (resolved.empty())
-            {
-                std::cerr << "[VoidPacker] ERROR: Unresolved #include \"" << incName << "\" in " << filePath << "\n";
-                std::exit(1);
-            }
-            result += PreprocessShader(resolved, gameAssets, engineAssets, includedFiles) + "\n";
-        }
-        else
-        {
-            result += line + "\n";
-        }
-    }
-    return result;
-}
 
 int main(int argc, char **argv)
 {
@@ -98,7 +32,7 @@ int main(int argc, char **argv)
 
     if (outputPak.empty())
     {
-        std::cerr << "Usage: VoidPacker --engine-assets <dir> --game-assets <dir> --output <file.vpak>\n";
+        Debug::LogError("Usage: VoidPacker --engine-assets <dir> --game-assets <dir> --output <file.vpak>\n");
         return 1;
     }
 
@@ -122,9 +56,10 @@ int main(int argc, char **argv)
 
     fs::create_directories(outputPak.parent_path());
     std::ofstream out(outputPak, std::ios::binary);
+
     if (!out.is_open())
     {
-        std::cerr << "[VoidPacker] Failed to create output file: " << outputPak << "\n";
+        Debug::LogError("Failed to create output file: ", outputPak, "\n");
         return 1;
     }
 
@@ -142,7 +77,7 @@ int main(int argc, char **argv)
         if (fullPath.extension() == ".glsl")
         {
             std::unordered_set<std::string> included;
-            std::string processed = PreprocessShader(fullPath, gameAssets, engineAssets, included);
+            std::string processed = ShaderPreprocessor::Preprocess(fullPath, gameAssets, engineAssets, included);
             rawData.assign(processed.begin(), processed.end());
         }
         else
@@ -192,6 +127,6 @@ int main(int argc, char **argv)
     out.seekp(0);
     out.write(reinterpret_cast<const char *>(&header), sizeof(VPAKHeader));
 
-    std::cout << "[VoidPacker] Packed " << entries.size() << " assets into " << outputPak << "\n";
+    Debug::Log("Packed ", entries.size(), " assets into ", outputPak, "\n");
     return 0;
 }

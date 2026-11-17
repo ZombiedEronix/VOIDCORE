@@ -33,3 +33,4 @@ protected:
         ctx.AddText(material, f, Text, c.x, c.y, Foreground);
     }
 };
+REGISTER_UI_CONTROL(TextBlock);

@@ -38,3 +38,4 @@ protected:
             child->Arrange(content);
     }
 };
+REGISTER_UI_CONTROL(Panel);

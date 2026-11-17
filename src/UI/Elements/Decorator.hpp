@@ -34,7 +34,8 @@ public:
     {
         if (Background.IsVisible())
         {
-            ctx.AddRect(material, rect, Background, CornerRadius);
+            ctx.AddRect(material, rect);
         }
     }
 };
+REGISTER_UI_CONTROL(Decorator);

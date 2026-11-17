@@ -1,3 +1,4 @@
+```
 Aliases
 {
     [ ] - Build without PhysicsEngine
@@ -58,3 +59,4 @@ UI
         [ ] - PBR
     }
 }
+```

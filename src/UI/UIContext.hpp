@@ -14,7 +14,6 @@
 
 #include "Graphics/Resources/Material.h"
 
-
 struct UIBatch
 {
     const Material *material;
@@ -25,7 +24,6 @@ struct UIBatch
 class UIContext
 {
 public:
-
     std::vector<UIVertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
@@ -37,15 +35,15 @@ public:
         batches.clear();
     }
 
-    void AddRect(const Material* mat, const Rect &r, const Color &c = Color::White(), const Thickness cornerSize = Thickness::Zero())
+    void AddRect(const Material *mat, const Rect &r)
     {
-        if (!mat || r.w <= 0 || r.h <= 0 || !c.IsVisible())
+        if (!mat || r.w <= 0 || r.h <= 0)
             return;
 
         const Font *f = Font::GetDefault();
         float u0 = f ? f->WhiteU() : 0.0f;
         float v0 = f ? f->WhiteV() : 0.0f;
-        AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0, c, cornerSize);
+        AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0);
     }
 
     void AddText(const Material *mat, const Font *font, std::string_view text, float x, float y, const Color &c)
@@ -90,17 +88,16 @@ public:
                 const float qx = std::round(penX + g->xoff);
                 const float qy = std::round(baseY + g->yoff);
                 AddQuad(mat, qx, qy, qx + (g->xoff2 - g->xoff), qy + (g->yoff2 - g->yoff),
-                        g->x0 * invW, g->y0 * invH, g->x1 * invW, g->y1 * invH, c);
+                        g->x0 * invW, g->y0 * invH, g->x1 * invW, g->y1 * invH);
             }
             penX += g->xadvance;
         }
     }
 
     void AddQuad(const Material *mat, float x0, float y0, float x1, float y1,
-                 float u0, float v0, float u1, float v1, const Color &c,
-                 const Thickness cornerRadius = Thickness::Zero())
+                 float u0, float v0, float u1, float v1)
     {
-        if (!mat || !c.IsVisible())
+        if (!mat)
             return;
 
         float width = std::abs(x1 - x0);
@@ -115,10 +112,10 @@ public:
 
         Rect elementBounds{x0, y0, width, height};
 
-        vertices.push_back({ {x0, y0}, {u0, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
-        vertices.push_back({ {x1, y0}, {u1, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
-        vertices.push_back({ {x1, y1}, {u1, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
-        vertices.push_back({ {x0, y1}, {u0, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}, {c.r, c.g, c.b, c.a}, {cornerRadius.Bottom, cornerRadius.Left, cornerRadius.Right, cornerRadius.Top} });
+        vertices.push_back({{x0, y0}, {u0, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}});
+        vertices.push_back({{x1, y0}, {u1, v0}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}});
+        vertices.push_back({{x1, y1}, {u1, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}});
+        vertices.push_back({{x0, y1}, {u0, v1}, {elementBounds.x, elementBounds.y, elementBounds.w, elementBounds.h}});
 
         indices.insert(indices.end(), {base, base + 1, base + 2, base, base + 2, base + 3});
         batches.back().indexCount += 6;
