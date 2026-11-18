@@ -1,6 +1,6 @@
 #section vertex
 #version 450 core
-out vec2 TexCoords;
+layout(location = 0) out vec2 TexCoords;
 
 void main() {
     float x = -1.0 + float((gl_VertexID & 1) << 2);
@@ -15,8 +15,8 @@ void main() {
 
 #section fragment
 #version 450 core
-out vec4 FragColor;
-in vec2 TexCoords;
+layout(location = 0) out vec4 FragColor;
+layout(location = 0) in vec2 TexCoords;
 
 layout(binding = 0) uniform sampler2D u_SceneTex; 
 layout(binding = 1) uniform sampler2D u_UITex; 

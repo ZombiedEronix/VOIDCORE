@@ -1,6 +1,6 @@
 #section vertex
 #version 450 core
-out vec2 TexCoords;
+layout(location = 0) out vec2 TexCoords;
 
 void main() {
     float x = -1.0 + float((gl_VertexID & 1) << 2);
@@ -17,13 +17,13 @@ void main() {
 
 #version 450 core
 
-in vec2 TexCoords;
-out vec4 FragColor;
+layout(location = 0) in vec2 TexCoords;
+layout(location = 0) out vec4 FragColor;
 
 #include "../Common.glsl"
 
-uniform sampler2D U_NormalTexture;
-uniform sampler2D U_LightPassTexture;
+layout(binding = 0) uniform sampler2D U_NormalTexture;
+layout(binding = 1) uniform sampler2D U_LightPassTexture;
 
 const int NUM_STEPS = 8;
 const float PI = 3.1415926535;

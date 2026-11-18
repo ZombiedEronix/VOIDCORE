@@ -18,15 +18,15 @@ namespace VoidCore::VPAK
             if (!m_File.is_open())
                 return false;
 
-            VPAKHeader header{};
-            m_File.read(reinterpret_cast<char *>(&header), sizeof(VPAKHeader));
+            Header header{};
+            m_File.read(reinterpret_cast<char *>(&header), sizeof(Header));
 
             if (std::memcmp(header.magic, "VPAK", 4) != 0 || header.version != 1)
                 return false;
 
             m_File.seekg(static_cast<std::streamoff>(header.tocOffset), std::ios::beg);
-            std::vector<PakEntry> entries(header.fileCount);
-            m_File.read(reinterpret_cast<char *>(entries.data()), header.fileCount * sizeof(PakEntry));
+            std::vector<Entry> entries(header.fileCount);
+            m_File.read(reinterpret_cast<char *>(entries.data()), header.fileCount * sizeof(Entry));
 
             m_Entries.clear();
             for (const auto &entry : entries)
@@ -46,7 +46,7 @@ namespace VoidCore::VPAK
             if (it == m_Entries.end())
                 return false;
 
-            const PakEntry &entry = it->second;
+            const Entry &entry = it->second;
             outData.resize(entry.originalSize);
 
             m_File.seekg(static_cast<std::streamoff>(entry.dataOffset), std::ios::beg);
@@ -83,6 +83,6 @@ namespace VoidCore::VPAK
 
     private:
         std::ifstream m_File;
-        std::unordered_map<uint64_t, PakEntry> m_Entries;
+        std::unordered_map<uint64_t, Entry> m_Entries;
     };
 }

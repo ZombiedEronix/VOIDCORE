@@ -1,157 +1,88 @@
 #include <fstream>
 #include <unordered_set>
+#include <spirv/spirv_reflect.c>
 
 #include "Shader.hpp"
 #include "Core/Debug.h"
+#include "Assets/VCSP/Header.hpp"
+#include <cstring>
 
 using namespace VoidCore::RHI;
 
-std::string PreprocessShaderSource(const std::string &filepath, std::unordered_set<std::string> &includedFiles)
+void ReflectShaderStage(const void *spirvCode, size_t spirvSize, MaterialBuffer &outLayout)
 {
-    if (includedFiles.count(filepath) > 0)
-        return "";
-    includedFiles.insert(filepath);
+    SpvReflectShaderModule module;
+    if (spvReflectCreateShaderModule(spirvSize, spirvCode, &module) != SPV_REFLECT_RESULT_SUCCESS)
+        return;
 
-    std::ifstream file(filepath);
-    if (!file.is_open())
+    uint32_t count = 0;
+    spvReflectEnumerateDescriptorBindings(&module, &count, nullptr);
+    std::vector<SpvReflectDescriptorBinding *> bindings(count);
+    spvReflectEnumerateDescriptorBindings(&module, &count, bindings.data());
+
+    for (const auto *b : bindings)
     {
-        Debug::LogError("Shader preprocessor error: " + filepath);
-        return "";
-    }
-
-    std::stringstream result;
-    std::string line;
-
-    while (std::getline(file, line))
-    {
-        if (line.rfind("#include ", 0) == 0)
+        if (b->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER && b->binding == 1)
         {
-            size_t startQuote = line.find('"');
-            size_t endQuote = line.rfind('"');
+            outLayout.binding = b->binding;
+            outLayout.totalSize = b->block.size;
 
-            if (startQuote != std::string::npos && endQuote != std::string::npos && startQuote < endQuote)
+            for (uint32_t i = 0; i < b->block.member_count; ++i)
             {
-                std::string includeFileName = line.substr(startQuote + 1, endQuote - startQuote - 1);
-
-                size_t lastSlash = filepath.find_last_of("/\\");
-                std::string directory = (lastSlash != std::string::npos) ? filepath.substr(0, lastSlash + 1) : "";
-                std::string includeFullPath = directory + includeFileName;
-
-                result << PreprocessShaderSource(includeFullPath, includedFiles) << "\n";
+                const auto &member = b->block.members[i];
+                if (member.name && member.name[0] != '\0')
+                {
+                    outLayout.fields[member.name] = {member.offset, member.size};
+                }
             }
-        }
-        else
-        {
-            result << line << "\n";
-        }
-    }
-    return result.str();
-}
-
-bool Shader::SplitCombinedSource(const std::string &fullSrc, std::string &outVs, std::string &outFs, const std::string &filepath)
-{
-    std::stringstream fileStream(fullSrc);
-    std::string line;
-
-    std::stringstream vsStream, fsStream;
-    std::stringstream *currentStream = nullptr;
-    int sectionCount = 0;
-
-    while (std::getline(fileStream, line))
-    {
-        if (line.find("#section vertex") != std::string::npos)
-        {
-            currentStream = &vsStream;
-            sectionCount++;
-            continue;
-        }
-        else if (line.find("#section fragment") != std::string::npos)
-        {
-            currentStream = &fsStream;
-            sectionCount++;
-            continue;
-        }
-
-        if (currentStream)
-        {
-            *currentStream << line << "\n";
+            break;
         }
     }
 
-    if (sectionCount < 2)
-    {
-        Debug::LogError("Shader split error in " + filepath + ": Missing '#section vertex' or '#section fragment'");
-        return false;
-    }
-
-    outVs = vsStream.str();
-    outFs = fsStream.str();
-    return true;
+    spvReflectDestroyShaderModule(&module);
 }
 
-Shader::Shader(const char *combinedShaderFile)
-{
-    std::unordered_set<std::string> includes;
-    std::string fullSource = PreprocessShaderSource(combinedShaderFile, includes);
-    CompileFromSource(fullSource, combinedShaderFile);
-}
-
-std::string get_file_contents(const char *filename)
-{
-    std::ifstream in(filename, std::ios::binary);
-    if (in)
-    {
-        std::string contents;
-        in.seekg(0, std::ios::end);
-        contents.resize(in.tellg());
-        in.seekg(0, std::ios::beg);
-        in.read(&contents[0], contents.size());
-        in.close();
-        return contents;
-    }
-    Debug::LogError("Failed to load shader file: ", filename);
-    return "";
-}
-
-void Shader::CompileFromSource(const std::string &fullSource, const char *debugName)
+Shader::Shader(const void *data, size_t byteSize, const char *debugName)
 {
     auto &device = GetDevice();
-    const ShaderFormat format = device.GetCaps().shaderFormat;
 
-    if (format != ShaderFormat::GLSL)
+    if (!data || byteSize < sizeof(VoidCore::VCSP::Header))
     {
-        Debug::LogError("Shader: backend needs ", (int)format, " shaders, only GLSL loader is implemented");
+        Debug::LogError("Invalid VCSP data size: ", debugName ? debugName : "unknown");
         return;
     }
 
-    if (fullSource.empty())
-        return;
-
-    std::string vsSrc, fsSrc;
-    if (!SplitCombinedSource(fullSource, vsSrc, fsSrc, debugName))
+    const auto *header = reinterpret_cast<const VoidCore::VCSP::Header *>(data);
+    if (std::memcmp(header->magic, "VCSP", 4) != 0 || header->version != 1)
     {
+        Debug::LogError("Bad VCSP magic or version in: ", debugName ? debugName : "unknown");
         return;
     }
 
-    ShaderDesc d;
-    d.format = format;
+    if (sizeof(VoidCore::VCSP::Header) + header->vsSize + header->fsSize > byteSize)
+    {
+        Debug::LogError("Corrupted VCSP section sizes in: ", debugName ? debugName : "unknown");
+        return;
+    }
 
-    d.stage = ShaderStage::Vertex;
-    d.code = vsSrc.data();
-    d.codeSize = vsSrc.size();
+    const uint8_t *bytes = static_cast<const uint8_t *>(data);
+    const void *vsCode = bytes + sizeof(VoidCore::VCSP::Header);
+    const void *fsCode = bytes + sizeof(VoidCore::VCSP::Header) + header->vsSize;
+
+    VoidCore::RHI::ShaderDesc d;
+    d.format = VoidCore::RHI::ShaderFormat::SPIRV;
     d.debugName = debugName;
+
+    d.stage = VoidCore::RHI::ShaderStage::Vertex;
+    d.code = vsCode;
+    d.codeSize = header->vsSize;
     vs = device.CreateShader(d);
 
-    d.stage = ShaderStage::Fragment;
-    d.code = fsSrc.data();
-    d.codeSize = fsSrc.size();
-    d.debugName = debugName;
+    d.stage = VoidCore::RHI::ShaderStage::Fragment;
+    d.code = fsCode;
+    d.codeSize = header->fsSize;
     fs = device.CreateShader(d);
-}
 
-std::shared_ptr<Shader> Shader::CreateFromSource(const std::string &fullSource, const char *debugName)
-{
-    auto shader = std::shared_ptr<Shader>(new Shader());
-    shader->CompileFromSource(fullSource, debugName);
-    return shader;
+    ReflectShaderStage(fsCode, header->fsSize, materialLayout);
+    ReflectShaderStage(vsCode, header->vsSize, materialLayout);
 }

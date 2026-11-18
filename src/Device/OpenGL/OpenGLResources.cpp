@@ -98,10 +98,22 @@ namespace VoidCore::RHI::OpenGL
         m_id = glCreateShader(desc.stage == ShaderStage::Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
         ++VoidCore::Profiling::g_gl.shaders;
 
-        const std::string source(static_cast<const char *>(desc.code), desc.codeSize);
-        const char *src = source.c_str();
-        glShaderSource(m_id, 1, &src, nullptr);
-        glCompileShader(m_id);
+        if (desc.format == ShaderFormat::SPIRV)
+        {
+            glShaderBinary(1, &m_id, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.code, static_cast<GLsizei>(desc.codeSize));
+            glSpecializeShaderARB(m_id, "main", 0, nullptr, nullptr);
+        }
+        else if(desc.format == ShaderFormat::GLSL)
+        {
+            const std::string source(static_cast<const char *>(desc.code), desc.codeSize);
+            const char *src = source.c_str();
+            glShaderSource(m_id, 1, &src, nullptr);
+            glCompileShader(m_id);
+        }
+        else
+        {
+            Debug::LogError("OpenGL support only GLSL or SPIR-V");
+        }
 
         GLint ok = 0;
         glGetShaderiv(m_id, GL_COMPILE_STATUS, &ok);
@@ -110,7 +122,7 @@ namespace VoidCore::RHI::OpenGL
         {
             char log[2048];
             glGetShaderInfoLog(m_id, sizeof(log), nullptr, log);
-            Debug::LogError("[GL] ", desc.debugName ? desc.debugName : "shader", " compile error:\n", log);
+            Debug::LogError("[GL] ", desc.debugName ? desc.debugName : "shader", " compile/specialize error:\n", log);
         }
         Label(GL_SHADER, m_id, desc.debugName);
     }

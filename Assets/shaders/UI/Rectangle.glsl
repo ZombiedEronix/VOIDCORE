@@ -3,12 +3,18 @@
 
 #include "UIBase.glsl"
 
-out vec4 FragColor;
-out vec4 FragRect;
-out vec4 FragCorners;
-out vec2 LocalPos;
-out vec4 FragBorderColor;
-out vec4 FragBorderThickness;
+layout(location = 3) in vec4 inColor;
+layout(location = 4) in vec4 inCornerSize;
+layout(location = 5) in vec4 inBorderColor;
+layout(location = 6) in vec4 inBorderThickness;
+
+layout(location = 0) out vec2 TexCoords;
+layout(location = 1) out vec4 FragColor;
+layout(location = 2) out vec4 FragRect;
+layout(location = 3) out vec4 FragCorners;
+layout(location = 4) out vec2 LocalPos;
+layout(location = 5) out vec4 FragBorderColor;
+layout(location = 6) out vec4 FragBorderThickness;
 
 void main() {
     TexCoords = inUV;
@@ -20,25 +26,21 @@ void main() {
 
     LocalPos = inPos - inRect.xy;
 
-    gl_Position = U_OrthoProjection * vec4(inPos, 0.0, 1.0);
+    gl_Position = UI_TransformPosition(inPos);
 }
 
-
-
 #section fragment
-
 #version 450 core
 
 layout(location = 0) out vec4 OutColor;
 
-in vec2 TexCoords;
-in vec4 FragColor;
-in vec4 FragRect;
-in vec4 FragCorners;
-in vec2 LocalPos;
-in vec4 FragBorderColor;
-in vec4 FragBorderThickness;
-
+layout(location = 0) in vec2 TexCoords;
+layout(location = 1) in vec4 FragColor;
+layout(location = 2) in vec4 FragRect;
+layout(location = 3) in vec4 FragCorners;
+layout(location = 4) in vec2 LocalPos;
+layout(location = 5) in vec4 FragBorderColor;
+layout(location = 6) in vec4 FragBorderThickness;
 
 float roundedBoxSDF(vec2 p, vec2 b, vec4 r) {
     vec2 q = abs(p) - b;
@@ -78,4 +80,3 @@ void main() {
     if(OutColor.a < 0.001)
         discard;
 }
-

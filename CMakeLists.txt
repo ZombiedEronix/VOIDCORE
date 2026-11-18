@@ -12,6 +12,7 @@ file(GLOB SHADER_FILES
     "Assets/shaders/*.frag"
 )
 
+
 add_library(VOIDCORE STATIC
     ${ENGINE_SOURCES}
     ${SHADER_FILES}
@@ -21,11 +22,15 @@ add_library(VOIDCORE STATIC
 target_include_directories(VOIDCORE PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/include
+    ${SHADERC_INCLUDE_DIRS}
+    ThirdParty/SPIRV-Reflect
     include
 )
 
 find_package(SDL3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SHADERC REQUIRED IMPORTED_TARGET shaderc)
 target_link_libraries(VOIDCORE PUBLIC
     GL
     lz4

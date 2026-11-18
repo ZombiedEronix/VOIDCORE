@@ -159,16 +159,16 @@ public:
 	{
 		if (shaders.find(basePath) == shaders.end())
 		{
-			std::string path = basePath + ".glsl";
-			std::string shaderSource;
+			std::string path = basePath + ".vcsp";
+			std::vector<uint8_t> buffer;
 
-			if (pakReader.ReadTextFile(path, shaderSource))
+			if (pakReader.ReadFile(path, buffer))
 			{
-				shaders[basePath] = Shader::CreateFromSource(shaderSource, path.c_str());
+				shaders[basePath] = std::make_shared<Shader>(buffer.data(), buffer.size(), path.c_str());
 			}
 			else
 			{
-				Debug::LogWarning("Shader : ", basePath.c_str(), "is not found");
+				Debug::LogWarning("Shader : ", path.c_str(), " is not found");
 			}
 		}
 		return shaders[basePath].get();

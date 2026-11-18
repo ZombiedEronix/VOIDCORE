@@ -5,7 +5,7 @@
 namespace VoidCore::VPAK
 {
 #pragma pack(push, 1)
-    struct VPAKHeader
+    struct Header
     {
         char magic[4] = {'V', 'P', 'A', 'K'};
         uint32_t version = 1;
@@ -13,7 +13,7 @@ namespace VoidCore::VPAK
         uint64_t tocOffset = 0;
     };
 
-    struct PakEntry
+    struct Entry
     {
         uint64_t pathHash;
         uint64_t dataOffset;

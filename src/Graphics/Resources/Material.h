@@ -8,16 +8,34 @@
 #include "Core/Debug.h"
 #include "UI/Structures/UIVertex.hpp"
 #include "VertexLayouts.hpp"
+#include <cstring>
 
 class Material
 {
 public:
     Material(Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
-        : shader(shader), pipeline(pipeline) {}
+        : shader(shader), pipeline(pipeline)
+    {
+        if (!shader)
+            return;
+
+        const auto &layout = shader->GetMaterialLayout();
+        if (layout.IsValid())
+        {
+            cpuBuffer.resize(layout.totalSize, 0);
+
+            VoidCore::RHI::BufferDesc bd;
+            bd.size = layout.totalSize;
+            bd.usage = VoidCore::RHI::BufferUsage::Uniform;
+            bd.memory = VoidCore::RHI::MemoryType::Dynamic;
+            bd.debugName = "MaterialUniformBuffer";
+            uniformBuffer = VoidCore::RHI::GetDevice().CreateBuffer(bd);
+        }
+    }
 
     Shader *GetShader() const { return shader; }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(Shader* shader)
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -49,11 +67,10 @@ public:
         d.depthFormat = Format::Unknown;
         d.debugName = "UIMaterialPipeline";
 
-
         return GetDevice().CreatePipeline(d);
     }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(Shader* shader)
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -95,20 +112,38 @@ public:
         }
     }
 
-    void SetFloat(const std::string &name, float value) { floatParams[name] = value; }
-    void SetVector(const std::string &name, const glm::vec4 &value) { vectorParams[name] = value; }
-    void SetColor(const std::string &name, const Color &color) { vectorParams[name] = glm::vec4(color.r, color.g, color.b, color.a); }
-
-    float GetFloat(const std::string &name) const
+    void SetFloat(const std::string &name, float value)
     {
-        auto it = floatParams.find(name);
-        return it != floatParams.end() ? it->second : 0.0f;
+        if (!shader || cpuBuffer.empty())
+            return;
+
+        const auto &fields = shader->GetMaterialLayout().fields;
+        auto it = fields.find(name);
+        if (it != fields.end() && it->second.size >= sizeof(float))
+        {
+            std::memcpy(cpuBuffer.data() + it->second.offset, &value, sizeof(float));
+            isDirty = true;
+        }
     }
 
-    glm::vec4 GetVector(const std::string &name) const
+    void SetVector(const std::string &name, const glm::vec4 &value)
     {
-        auto it = vectorParams.find(name);
-        return it != vectorParams.end() ? it->second : glm::vec4(0.0f);
+        if (!shader || cpuBuffer.empty())
+            return;
+
+        const auto &fields = shader->GetMaterialLayout().fields;
+        auto it = fields.find(name);
+        if (it != fields.end())
+        {
+            size_t copySize = std::min<size_t>(it->second.size, sizeof(glm::vec4));
+            std::memcpy(cpuBuffer.data() + it->second.offset, &value, copySize);
+            isDirty = true;
+        }
+    }
+
+    void SetColor(const std::string &name, const Color &color)
+    {
+        SetVector(name, glm::vec4(color.r, color.g, color.b, color.a));
     }
 
     bool Apply(VoidCore::RHI::ICommandList *cmd, VoidCore::RHI::ISampler *defaultSampler = nullptr) const
@@ -143,6 +178,10 @@ private:
 
     std::unordered_map<std::string, float> floatParams;
     std::unordered_map<std::string, glm::vec4> vectorParams;
+    VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> uniformBuffer;
+
+    std::vector<uint8_t> cpuBuffer;
+    mutable bool isDirty = true;
 
     VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
 };

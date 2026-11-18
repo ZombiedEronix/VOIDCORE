@@ -88,7 +88,7 @@ namespace VoidCore::RHI::OpenGL
         if (m_context)
         {
             WaitIdle();
-            m_cmd.reset(); // FBO нужно удалить, пока жив контекст
+            m_cmd.reset();
             SDL_GL_DestroyContext(m_context);
         }
     }
@@ -126,22 +126,20 @@ namespace VoidCore::RHI::OpenGL
 
     Ref<IShader> OpenGLDevice::CreateShader(const ShaderDesc &desc)
     {
-        if (desc.format != ShaderFormat::GLSL || !desc.code || desc.codeSize == 0)
+        if ((desc.format != ShaderFormat::GLSL && desc.format != ShaderFormat::SPIRV) || !desc.code || desc.codeSize == 0)
         {
-            Debug::LogError("[RHI] OpenGL backend accepts only ShaderFormat::GLSL source");
+            Debug::LogError("OpenGL backend accepts only GLSL or SPIRV");
             return nullptr;
         }
         auto shader = std::make_shared<GLShader>(desc);
         return shader->IsValid() ? shader : nullptr;
     }
-
     Ref<IPipeline> OpenGLDevice::CreatePipeline(const GraphicsPipelineDesc &desc)
     {
         auto pipeline = std::make_shared<GLPipeline>(desc);
         return pipeline->IsValid() ? pipeline : nullptr;
     }
 
-    // --------------------------------------------------------------- кадр ---
     ICommandList *OpenGLDevice::BeginFrame()
     {
         return m_cmd.get();

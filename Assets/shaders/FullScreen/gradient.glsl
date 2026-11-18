@@ -1,6 +1,6 @@
 #section vertex
 #version 450 core
-out vec2 TexCoords;
+layout(location = 0) out vec2 TexCoords;
 
 void main() {
 
@@ -18,8 +18,8 @@ void main() {
 #version 450 core
 #include "../Common.glsl"
 
-out vec4 FragColor;
-in vec2 TexCoords;
+layout(location = 0) in vec2 TexCoords;
+layout(location = 0) out vec4 FragColor;
 
 void main() {
     float r = sin(TexCoords.x * 3.0 + U_Time) * 0.5 + 0.5;
