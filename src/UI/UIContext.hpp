@@ -28,6 +28,8 @@ public:
     std::vector<uint32_t> indices;
     std::vector<UIBatch> batches;
 
+    /// @brief
+    /// Clears UI buffers
     void Clear()
     {
         vertices.clear();
@@ -35,6 +37,8 @@ public:
         batches.clear();
     }
 
+    /// @brief
+    /// Generates a quad based on Rect coordinates
     void AddRect(const Material *mat, const Rect &r)
     {
         if (!mat || r.w <= 0 || r.h <= 0)
@@ -46,13 +50,26 @@ public:
         AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0);
     }
 
+    /// @brief
+    /// Generates a set of quads for a string of text.
     void AddText(const Material *mat, const Font *font, std::string_view text, float x, float y, const Color &c)
     {
-        if (!font || !font->IsValid() || !c.IsVisible())
+        if (!c.IsVisible())
+        {
             return;
+        }
+
+        if (!font || !font->IsValid())
+        {
+            assert(false && "Error: font is not found or not valid!");
+            return;
+        }
 
         if (!mat)
+        {
+            assert(false && "Error: material is nullptr!");
             return;
+        }
 
         const float startX = std::round(x);
         float penX = startX;
@@ -87,6 +104,7 @@ public:
             {
                 const float qx = std::round(penX + g->xoff);
                 const float qy = std::round(baseY + g->yoff);
+                
                 AddQuad(mat, qx, qy, qx + (g->xoff2 - g->xoff), qy + (g->yoff2 - g->yoff),
                         g->x0 * invW, g->y0 * invH, g->x1 * invW, g->y1 * invH);
             }
@@ -94,8 +112,11 @@ public:
         }
     }
 
+    /// @brief
+    /// Adds 4 vertices and 6 indices (2 triangles) to the shared buffer.
+    /// Merges the draw call with the previous batch if the material has not changed.
     void AddQuad(const Material *mat, float x0, float y0, float x1, float y1,
-                 float u0, float v0, float u1, float v1)
+                                                                                  float u0, float v0, float u1, float v1)
     {
         if (!mat)
             return;

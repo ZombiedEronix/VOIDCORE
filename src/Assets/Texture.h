@@ -6,15 +6,15 @@ class Texture
 public:
 	int widthTexture = 0, heightTexture = 0;
 
-	// srgb = true для цветных (albedo) текстур; false — данные/как раньше.
 	explicit Texture(const char *filename, bool srgb = false);
+	explicit Texture(const uint8_t *rawPixels, int width, int height, const char *debugName, bool srgb = false);
+	
 	Texture(const uint8_t *data, size_t size, const char *debugName, bool srgb = false);
 
 	VoidCore::RHI::ITexture *GetRHI() const { return texture.get(); }
 	VoidCore::RHI::ISampler *GetSampler() const;
 	void SetSampler(VoidCore::RHI::Ref<VoidCore::RHI::ISampler> s) { sampler = std::move(s); }
 
-	// Общий сэмплер по умолчанию (linear + repeat). Освободить до уничтожения устройства.
 	static void ReleaseSharedResources();
 
 private:

@@ -10,7 +10,6 @@
 
 namespace
 {
-    // Какие символы кладём в атлас. Добавишь свои диапазоны — появятся в шрифте.
     struct RangeDef
     {
         int first;
@@ -25,20 +24,18 @@ namespace
         {0x2116, 1},     // №
     };
 
-    // Верхние строки атласа зарезервированы под белый блок (для прямоугольников).
-    constexpr int kReservedRows = 4;
     constexpr int kWhiteBlock = 4;
     constexpr int kPadding = 2;
-    constexpr int kOversample = 1;
+    constexpr int kOversample = 3;
 
-    std::vector<unsigned char> ReadFile(const char *path)
+    std::vector<uint8_t> ReadFile(const char *path)
     {
         std::ifstream in(path, std::ios::binary | std::ios::ate);
         if (!in)
             return {};
         const std::streamsize size = in.tellg();
         in.seekg(0, std::ios::beg);
-        std::vector<unsigned char> data(static_cast<size_t>(size));
+        std::vector<uint8_t> data(static_cast<size_t>(size));
         in.read(reinterpret_cast<char *>(data.data()), size);
         return data;
     }
@@ -52,10 +49,23 @@ uint32_t Font::DecodeUTF8(const char *&p, const char *end)
 
     int extra = 0;
     uint32_t cp = 0;
-    if ((c & 0xE0) == 0xC0) { extra = 1; cp = c & 0x1F; }
-    else if ((c & 0xF0) == 0xE0) { extra = 2; cp = c & 0x0F; }
-    else if ((c & 0xF8) == 0xF0) { extra = 3; cp = c & 0x07; }
-    else return 0xFFFD;
+    if ((c & 0xE0) == 0xC0)
+    {
+        extra = 1;
+        cp = c & 0x1F;
+    }
+    else if ((c & 0xF0) == 0xE0)
+    {
+        extra = 2;
+        cp = c & 0x0F;
+    }
+    else if ((c & 0xF8) == 0xF0)
+    {
+        extra = 3;
+        cp = c & 0x07;
+    }
+    else
+        return 0xFFFD;
 
     for (int i = 0; i < extra; ++i)
     {
@@ -68,7 +78,6 @@ uint32_t Font::DecodeUTF8(const char *&p, const char *end)
 
 void Font::BuildEmptyAtlas()
 {
-    // Шрифт не загрузился: атлас из одного белого блока. Прямоугольники всё равно рисуются.
     atlasSize = 64;
     atlasRGBA.assign(static_cast<size_t>(atlasSize) * atlasSize * 4, 0);
     for (int y = 0; y < kWhiteBlock; ++y)
@@ -79,25 +88,42 @@ void Font::BuildEmptyAtlas()
     whiteV = (kWhiteBlock * 0.5f) / atlasSize;
 }
 
+Font::Font(const std::vector<uint8_t> &data, float fontSize) : pixelHeight(fontSize)
+{
+    if (data.empty())
+    {
+        Debug::LogError("Font: empty memory buffer");
+        BuildEmptyAtlas();
+        return;
+    }
+    InitFromMemory(data.data(), data.size(), "memory");
+}
+
 Font::Font(const char *ttfPath, float px) : pixelHeight(px)
 {
-    std::vector<unsigned char> ttf = ReadFile(ttfPath);
+    std::vector<uint8_t> ttf = ReadFile(ttfPath);
     if (ttf.empty())
     {
         Debug::LogError("Font: can't read file: ", ttfPath);
         BuildEmptyAtlas();
         return;
     }
+    InitFromMemory(ttf.data(), ttf.size(), ttfPath);
+}
+
+void Font::InitFromMemory(const uint8_t *ttfData, size_t dataSize, const char *debugName)
+{
+    (void)dataSize;
 
     stbtt_fontinfo info;
-    if (!stbtt_InitFont(&info, ttf.data(), stbtt_GetFontOffsetForIndex(ttf.data(), 0)))
+    if (!stbtt_InitFont(&info, ttfData, stbtt_GetFontOffsetForIndex(ttfData, 0)))
     {
-        Debug::LogError("Font: not a valid TTF: ", ttfPath);
+        Debug::LogError("Font: not a valid TTF: ", debugName);
         BuildEmptyAtlas();
         return;
     }
 
-    const float scale = stbtt_ScaleForPixelHeight(&info, px);
+    const float scale = stbtt_ScaleForPixelHeight(&info, pixelHeight);
     int asc = 0, desc = 0, gap = 0;
     stbtt_GetFontVMetrics(&info, &asc, &desc, &gap);
     ascent = asc * scale;
@@ -125,24 +151,23 @@ Font::Font(const char *ttfPath, float px) : pixelHeight(px)
         {
             packed[i].assign(static_cast<size_t>(kRanges[i].count), stbtt_packedchar{});
             ranges[i] = {};
-            ranges[i].font_size = px;
+            ranges[i].font_size = pixelHeight;
             ranges[i].first_unicode_codepoint_in_range = kRanges[i].first;
             ranges[i].num_chars = kRanges[i].count;
             ranges[i].chardata_for_range = packed[i].data();
         }
 
-        ok = stbtt_PackFontRanges(&pc, ttf.data(), 0, ranges.data(), static_cast<int>(ranges.size())) != 0;
+        ok = stbtt_PackFontRanges(&pc, ttfData, 0, ranges.data(), static_cast<int>(ranges.size())) != 0;
         stbtt_PackEnd(&pc);
     }
 
     if (!ok)
     {
-        Debug::LogError("Font: atlas too small for ", ttfPath, " at ", px, "px");
+        Debug::LogError("Font: atlas too small for ", debugName, " at ", pixelHeight, "px");
         BuildEmptyAtlas();
         return;
     }
 
-    // --- глифы ---
     for (size_t r = 0; r < std::size(kRanges); ++r)
     {
         for (int i = 0; i < kRanges[r].count; ++i)
@@ -153,7 +178,6 @@ Font::Font(const char *ttfPath, float px) : pixelHeight(px)
 
             const stbtt_packedchar &c = packed[r][static_cast<size_t>(i)];
             Glyph g;
-            // ИСПРАВЛЕНИЕ 2: Убираем ручные сдвиги на kReservedRows, так как упаковывали честно с нуля
             g.x0 = c.x0;
             g.x1 = c.x1;
             g.y0 = c.y0;

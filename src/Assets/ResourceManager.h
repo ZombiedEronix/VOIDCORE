@@ -19,6 +19,7 @@ private:
 	inline static std::map<std::string, std::shared_ptr<Mesh>> meshes;
 	inline static std::map<std::string, std::shared_ptr<Shader>> shaders;
 	inline static std::map<std::string, std::shared_ptr<Material>> materials;
+	inline static std::map<std::string, std::shared_ptr<Font>> fonts;
 	inline static std::map<std::string, std::shared_ptr<VoidCore::Assets::File>> files;
 	inline static VoidCore::VPAK::AssetPakReader pakReader;
 
@@ -28,6 +29,9 @@ public:
 		return pakReader.Mount(pakPath);
 	}
 
+	/// @brief Universal method для загрузки resources
+	/// @param basePath path to asset
+	/// @return loaded asset
 	template <typename T>
 	static std::shared_ptr<T> GetResource(const std::string &path)
 	{
@@ -39,6 +43,10 @@ public:
 		{
 			return std::static_pointer_cast<T>(GetMesh(path));
 		}
+		if constexpr (std::is_same_v<T, Font>)
+		{
+			return std::static_pointer_cast<T>(GetFont(path));
+		}
 		if constexpr (std::is_same_v<T, VoidCore::Assets::File>)
 		{
 			return std::static_pointer_cast<T>(GetFile(path));
@@ -46,6 +54,9 @@ public:
 		return nullptr;
 	}
 
+	/// @brief Get's material from resources
+	/// @param basePath path to material
+	/// @return loaded material
 	static Material *GetMaterial(const std::string &path)
 	{
 		if (materials.find(path) == materials.end())
@@ -74,6 +85,9 @@ public:
 		return materials[path].get();
 	}
 
+	/// @brief Get's texture from resources
+	/// @param basePath path to texture
+	/// @return loaded texture
 	static std::shared_ptr<Texture> GetTexture(const std::string &path, bool srgb = false)
 	{
 		if (textures.find(path) == textures.end())
@@ -91,6 +105,9 @@ public:
 		return textures[path];
 	}
 
+	/// @brief Get's file from resources
+	/// @param basePath path to file
+	/// @return loaded file
 	static std::shared_ptr<VoidCore::Assets::File> GetFile(const std::string &path, bool useCache = true)
 	{
 		if (useCache && files.find(path) != files.end())
@@ -125,6 +142,9 @@ public:
 		return asset;
 	}
 
+	/// @brief Get's mesh from resources
+	/// @param basePath path to mesh
+	/// @return loaded mesh
 	static Mesh *GetMesh(const std::string &path)
 	{
 		if (meshes.find(path) == meshes.end())
@@ -139,7 +159,7 @@ public:
 			}
 			else
 			{
-				//ADD LOGGING
+				// ADD LOGGING
 				ModelImporter::Load(path, vertices, indices);
 			}
 
@@ -155,6 +175,31 @@ public:
 		return meshes[path].get();
 	}
 
+	/// @brief Get's font from resources (support .ttf only)
+	/// @param basePath path to font
+	/// @return loaded font
+	static Font *GetFont(const std::string &basePath, float px = 20)
+	{
+		if (fonts.find(basePath) == fonts.end())
+		{
+			std::vector<uint8_t> buffer;
+
+			if (pakReader.ReadFile(basePath, buffer))
+			{
+				fonts[basePath] = std::make_shared<Font>(buffer, px);
+			}
+			else
+			{
+				Debug::LogWarning("Font : ", basePath.c_str(), " is not found");
+			}
+		}
+		return fonts[basePath].get();
+	}
+
+
+	/// @brief Get's shader from resources
+	/// @param basePath path to shader
+	/// @return loaded shader 
 	static Shader *GetShader(const std::string &basePath)
 	{
 		if (shaders.find(basePath) == shaders.end())
@@ -174,6 +219,7 @@ public:
 		return shaders[basePath].get();
 	}
 
+	/// @brief Clean resources
 	static void Clear()
 	{
 		textures.clear();

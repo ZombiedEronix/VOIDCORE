@@ -27,6 +27,22 @@ ISampler *Texture::GetSampler() const
 	return sampler ? sampler.get() : DefaultSampler();
 }
 
+Texture::Texture(const uint8_t *rawPixels, int width, int height, const char *debugName, bool srgb)
+{
+	widthTexture = width;
+	heightTexture = height;
+
+	TextureDesc d;
+	d.width = static_cast<uint32_t>(width);
+	d.height = static_cast<uint32_t>(height);
+	d.mipLevels = 0;
+	d.format = srgb ? Format::RGBA8_SRGB : Format::RGBA8_UNORM;
+	d.usage = TextureUsage::Sampled;
+	d.initialData = rawPixels;
+	d.debugName = debugName;
+	texture = GetDevice().CreateTexture(d);
+}
+
 Texture::Texture(const uint8_t *fileData, size_t dataSize, const char *debugName, bool srgb)
 {
 	stbi_set_flip_vertically_on_load(true);
@@ -59,11 +75,9 @@ Texture::Texture(const uint8_t *fileData, size_t dataSize, const char *debugName
 
 Texture::Texture(const char *filename, bool srgb)
 {
-	// Флип — про порядок строк в данных, от графического API не зависит.
 	stbi_set_flip_vertically_on_load(true);
 
 	int channels = 0;
-	// Всегда 4 канала: RGB8 нет в D3D11/Metal.
 	unsigned char *pixels = stbi_load(filename, &widthTexture, &heightTexture, &channels, 4);
 
 	unsigned char whitePixel[4] = {255, 255, 255, 255};
@@ -79,7 +93,7 @@ Texture::Texture(const char *filename, bool srgb)
 	TextureDesc d;
 	d.width = static_cast<uint32_t>(widthTexture);
 	d.height = static_cast<uint32_t>(heightTexture);
-	d.mipLevels = 0; // полная цепочка, генерирует бэкенд
+	d.mipLevels = 0;
 	d.format = srgb ? Format::RGBA8_SRGB : Format::RGBA8_UNORM;
 	d.usage = TextureUsage::Sampled;
 	d.initialData = data;

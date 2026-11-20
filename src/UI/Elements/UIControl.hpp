@@ -38,7 +38,7 @@ public:
     static constexpr float Infinity = std::numeric_limits<float>::infinity();
 
     std::string Name;
-    
+
     Material *material = nullptr;
     std::vector<std::string> Classes;
 
@@ -114,15 +114,26 @@ public:
         ArrangeOverride(ContentRect());
     }
 
-
     virtual void SetProperty(const std::string &name, const std::string &value)
     {
         if (name == "Background")
+        {
             Background = Color::FromHex(value);
-        if (name == "Shader")
+        }
+        else if (name == "Padding")
+        {  
+        }
+        else if(name == "Padding")
+        {
+        }
+        else if(name == "Material")
+        {
             material = ResourceManager::GetMaterial(value);
+        }
         else if (name == "Classes")
+        {
             ParseClasses(value);
+        }
     }
 
     bool HasClass(const std::string &className) const
