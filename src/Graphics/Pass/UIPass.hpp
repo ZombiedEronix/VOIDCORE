@@ -16,10 +16,11 @@ namespace VoidCore::Rendering
     public:
         UIPass();
         void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer);
+        void OnResize(int width, int height) override;
 
     private:
         void EnsureBuffers(size_t vertexCount, size_t indexCount);
-        void CreateTexture();
+        
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> uiTexture;
 
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler;

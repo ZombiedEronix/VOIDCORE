@@ -4,12 +4,17 @@ namespace VoidCore::Rendering::Deferred
 {
     PostProcessPass::PostProcessPass()
     {
-        
+        OnResize(Window::GetWidth(), Window::GetHeight());
     }
 
     PostProcessPass::~PostProcessPass()
     {
         
+    }
+
+    void PostProcessPass::OnResize(int width, int height)
+    {
+
     }
 
     void PostProcessPass::Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer)

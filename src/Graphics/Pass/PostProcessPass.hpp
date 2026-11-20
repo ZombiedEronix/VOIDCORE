@@ -20,13 +20,13 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> m_PingPongRT[2];
         int m_CurrentTargetIdx = 0;
 
-        void CreateBuffers(int width, int height);
 
     public:
         PostProcessPass();
         ~PostProcessPass();
 
         void AddEffect(std::unique_ptr<PostProcessEffect> effect);
+        void OnResize(int width, int height) override;
         void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
     };
 }

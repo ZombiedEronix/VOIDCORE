@@ -8,10 +8,19 @@ namespace VoidCore::Rendering::Deferred
 
     LightingPass::LightingPass()
     {
-        CreateBuffers(Window::GetWidth(), Window::GetHeight());
+        SamplerDesc sDesc;
+        sDesc.minFilter = Filter::Nearest;
+        sDesc.magFilter = Filter::Nearest;
+        sDesc.addressU = AddressMode::ClampToEdge;
+        sDesc.addressV = AddressMode::ClampToEdge;
+        gBufferSampler = GetDevice().CreateSampler(sDesc);
+
+        lightingShader = ResourceManager::GetShader("Assets/shaders/Deferred/lighting");
+        
+        OnResize(Window::GetWidth(), Window::GetHeight());
     }
 
-    void LightingPass::CreateBuffers(int width, int height)
+    void LightingPass::OnResize(int width, int height)
     {
         TextureDesc litDesc;
         litDesc.width = width;
@@ -21,14 +30,6 @@ namespace VoidCore::Rendering::Deferred
         litDesc.debugName = "G_Lit_Output_Texture";
         litTexture = GetDevice().CreateTexture(litDesc);
 
-        SamplerDesc sDesc;
-        sDesc.minFilter = Filter::Nearest;
-        sDesc.magFilter = Filter::Nearest;
-        sDesc.addressU = AddressMode::ClampToEdge;
-        sDesc.addressV = AddressMode::ClampToEdge;
-        gBufferSampler = GetDevice().CreateSampler(sDesc);
-
-        lightingShader = ResourceManager::GetShader("Assets/shaders/Deferred/lighting");
         CreateLightingPipeline();
     }
 

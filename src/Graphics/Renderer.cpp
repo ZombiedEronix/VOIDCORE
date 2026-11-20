@@ -150,6 +150,7 @@ void Renderer::Flush()
     opaqueQueue->Clear();
     lightBlock->Clear();
     uiContext.Clear();
+    ClearRenderTargets();
     cmd = nullptr;
 }
 

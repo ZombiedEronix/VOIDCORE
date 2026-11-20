@@ -14,12 +14,12 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> gBufferSampler;
         VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> lightingPipeline;
         Shader *lightingShader = nullptr;
-        void CreateBuffers(int width, int height);
         VoidCore::RHI::Ref<VoidCore::RHI::IBuffer>
-            lightBuffer;
+        lightBuffer;
         void CreateLightingPipeline();
-    public:
+        public:
         LightingPass();
+        void OnResize(int width, int height) override;
         void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer);
     };
 }

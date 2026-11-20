@@ -5,9 +5,8 @@ namespace VoidCore::Rendering::Deferred
 {
     using namespace VoidCore::RHI;
 
-    void GeometryPass::CreateBuffers(int width, int height)
+    void GeometryPass::OnResize(int width, int height)
     {
-
         TextureDesc albedoDesc;
         albedoDesc.width = width;
         albedoDesc.height = height;
@@ -36,7 +35,7 @@ namespace VoidCore::Rendering::Deferred
 
     GeometryPass::GeometryPass()
     {
-        CreateBuffers(Window::GetWidth(), Window::GetHeight());
+        OnResize(Window::GetWidth(), Window::GetHeight());
     }
 
     void GeometryPass::Execute(ICommandList *cmd, Renderer *renderer)

@@ -21,10 +21,15 @@ namespace VoidCore::Rendering::Deferred
         AddPass(std::make_unique<PostProcessPass>(), RenderPassEvent::BeforeUI);
         AddPass(std::make_unique<UIPass>(), RenderPassEvent::BeforeUI);
         AddPass(std::make_unique<PresentPass>(), RenderPassEvent::AfterUI);
+        
+        Window::OnResize.Add([this](int width, int height) { OnResize(width, height); });
     }
 
     void DeferredRenderPipeline::OnResize(int width, int height)
     {
+        if (width <= 0 || height <= 0)
+            return;
+            
         for (auto &[renderEvent, pass] : m_RenderPasses)
         {
             if (pass)

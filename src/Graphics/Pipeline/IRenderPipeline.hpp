@@ -10,5 +10,6 @@ namespace VoidCore::Rendering
         virtual ~IRenderPipeline() = default;
         virtual void AddPass(std::unique_ptr<RenderPass> pass, RenderPassEvent renderEvent) = 0;
         virtual void Execute(Renderer *renderer) = 0;
+        virtual void OnResize(int width, int height) = 0;
     };
 }

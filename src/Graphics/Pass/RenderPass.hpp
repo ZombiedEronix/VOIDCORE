@@ -11,7 +11,7 @@ namespace VoidCore::Rendering
     public:
         RenderPassEvent executionEvent = RenderPassEvent::AfterGeometry;
         virtual ~RenderPass() = default;
+        virtual void OnResize(int width, int height) = 0;
         virtual void Execute(RHI::ICommandList *cmd, Renderer *renderer) = 0;
-        virtual void OnResize(int width, int height) {}
     };
 }

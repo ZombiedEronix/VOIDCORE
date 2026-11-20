@@ -21,16 +21,17 @@ namespace VoidCore::Rendering
         sd.addressU = AddressMode::ClampToEdge;
         sd.addressV = AddressMode::ClampToEdge;
         sd.debugName = "UISampler";
+        OnResize(Window::GetWidth(), Window::GetHeight());
         sampler = GetDevice().CreateSampler(sd);
-        CreateTexture();
+
         EnsureBuffers(0, 0);
     }
-
-    void UIPass::CreateTexture()
+    
+    void UIPass::OnResize(int width, int height)
     {
         TextureDesc uiDesc;
-        uiDesc.width = Window::GetWidth();
-        uiDesc.height = Window::GetHeight();
+        uiDesc.width = width;
+        uiDesc.height = height;
         uiDesc.format = Format::RGBA8_UNORM;
         uiDesc.usage = TextureUsage::RenderTarget | TextureUsage::Sampled;
         uiDesc.debugName = "GBuffer_UI";

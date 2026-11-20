@@ -14,9 +14,15 @@ namespace VoidCore::Rendering::Deferred
         sDesc.addressU = AddressMode::ClampToEdge;
         sDesc.addressV = AddressMode::ClampToEdge;
         presentSampler = GetDevice().CreateSampler(sDesc);
+        OnResize(Window::GetWidth(), Window::GetHeight());
 
         shader = ResourceManager::GetShader("Assets/shaders/FullScreen/screen");
         CreateScreenPipeline();
+    }
+
+    void PresentPass::OnResize(int width, int height)
+    {
+        
     }
 
     void PresentPass::CreateScreenPipeline()

@@ -16,6 +16,7 @@ namespace VoidCore::Rendering::Deferred
 
     public:
         PresentPass();
+        void OnResize(int width, int height) override;
         void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
     };
 }
