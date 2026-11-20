@@ -95,7 +95,7 @@ namespace VoidCore::RHI::OpenGL
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
-        // Сбрасываем всё, что может помешать clear'у, и ставим полный viewport/scissor.
+        // We reset everything that could interfere with clear, and set the full viewport/scissor.
         glEnable(GL_SCISSOR_TEST);
         glScissor(0, 0, width, height);
         glViewport(0, 0, width, height);
@@ -134,7 +134,7 @@ namespace VoidCore::RHI::OpenGL
             return;
 
         p->Apply();
-        // VAO у каждого пайплайна свой → перепривязать буферы лениво, на Draw.
+        // Each pipeline has its own VAO → rebind the buffers lazily, to Draw.
         m_vertexDirty = (1u << kMaxVertexBuffers) - 1u;
         m_indexDirty = true;
     }

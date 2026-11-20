@@ -18,8 +18,8 @@ namespace
     constexpr RangeDef kRanges[] = {
         {0x0020, 0x5F},  // Basic Latin
         {0x00A0, 0x60},  // Latin-1 Supplement
-        {0x0400, 0x100}, // Кириллица
-        {0x2010, 0x20},  // Пунктуация: – — ‘ ’ “ ” … •
+        {0x0400, 0x100}, // Cyrillic
+        {0x2010, 0x20},  // Punctuation: – – ‘ ’ “ ” … •
         {0x20AC, 1},     // €
         {0x2116, 1},     // №
     };

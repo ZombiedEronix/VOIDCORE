@@ -1,5 +1,5 @@
 #pragma once
-// Всё, что превращает RHI-enum'ы в GLenum, живёт ТОЛЬКО здесь.
+// Everything that turns RHI-enums into GLenums lives ONLY here.
 #include <glad/gl.h>
 #include "Device/RHITypes.hpp"
 
@@ -138,7 +138,7 @@ namespace VoidCore::RHI::OpenGL
         return t == IndexType::UInt16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
     }
 
-    // min-фильтр в GL — это комбинация filter + mip filter
+    // min filter in GL is a combination of filter + mip filter
     inline GLint ToGLMinFilter(Filter min, Filter mip)
     {
         if (min == Filter::Nearest)

@@ -11,8 +11,8 @@ namespace VoidCore::RHI
         IResource(const IResource &) = delete;
         IResource &operator=(const IResource &) = delete;
 
-        // Только для отладки/интеропа (ImGui, RenderDoc). Движок на это
-        // значение опираться НЕ должен — оно значит разное в разных API.
+        // For debugging/interop only (ImGui, RenderDoc). Engine for this
+        // the value should NOT be based on - it means different things in different APIs.
         virtual uint64_t GetNativeHandle() const = 0;
     };
 }

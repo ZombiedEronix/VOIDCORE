@@ -5,10 +5,10 @@
 #include "Device/RHI.hpp"
 #include "Assets/Vertex.h"
 
-// Единственное место, где описан формат вершин меша и инстансов.
-// Должно совпадать с layout(location = N) в шейдерах:
-//   0 pos | 1 uv | 2 normal   — слот 0 (на вершину)
-//   3..6  mat4 model          — слот 1 (на инстанс)
+// The only place where the format of mesh vertices and instances is described.
+// Must match layout(location = N) in shaders:
+// 0 pos | 1 uv | 2 normal — slot 0 (to the top)
+// 3..6 mat4 model — slot 1 (per instance)
 
 inline void SetupMeshInputLayout(VoidCore::RHI::GraphicsPipelineDesc &d)
 {

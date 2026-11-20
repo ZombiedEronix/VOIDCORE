@@ -2,7 +2,7 @@
 #include "Core/Debug.h"
 #include <SDL3/SDL.h>
 
-// Какие бэкенды собирать. Задаются в CMake: target_compile_definitions(... VC_RHI_VULKAN=1)
+// What backends to collect. Set in CMake: target_compile_definitions(... VC_RHI_VULKAN=1)
 #ifndef VC_RHI_OPENGL
 #define VC_RHI_OPENGL 1
 #endif
@@ -44,7 +44,7 @@ namespace VoidCore::RHI
 #endif
         case GraphicsAPI::Vulkan: return SDL_WINDOW_VULKAN;
         case GraphicsAPI::Metal:  return SDL_WINDOW_METAL;
-        case GraphicsAPI::D3D11:  return 0; // нужен только HWND, флаги не нужны
+        case GraphicsAPI::D3D11:  return 0; // only HWND is needed, no flags needed
         }
         return 0;
     }

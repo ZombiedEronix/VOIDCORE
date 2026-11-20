@@ -9,7 +9,7 @@
 
 namespace VoidCore::RHI::OpenGL
 {
-    // Выставить GL-атрибуты контекста. Вызывать до SDL_CreateWindow.
+    // Set the GL attributes of the context. Call before SDL_CreateWindow.
     void ConfigureWindowAttributes(bool debug);
 
     class OpenGLDevice final : public IRenderDevice

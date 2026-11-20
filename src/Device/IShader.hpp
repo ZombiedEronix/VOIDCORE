@@ -9,14 +9,14 @@ namespace VoidCore::RHI
     {
         ShaderStage stage = ShaderStage::Vertex;
         ShaderFormat format = ShaderFormat::GLSL;
-        const void *code = nullptr; // текст (GLSL/MSL) или бинарник (SPIRV/DXBC)
+        const void *code = nullptr; // text (GLSL/MSL) or binary (SPIRV/DXBC)
         size_t codeSize = 0;
         const char *entryPoint = "main";
         const char *debugName = nullptr;
     };
 
-    // Одна стадия (VS или FS). Никаких Use()/SetInt()/SetFloat() по имени:
-    // параметры идут через uniform-буферы и текстурные слоты (см. RHI.hpp).
+    // One stage (VS or FS). No Use()/SetInt()/SetFloat() by name:
+    // parameters go through uniform buffers and texture slots (see RHI.hpp).
     class IShader : public IResource
     {
     public:

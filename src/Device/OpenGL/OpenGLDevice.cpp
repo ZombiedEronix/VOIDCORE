@@ -55,7 +55,7 @@ namespace VoidCore::RHI::OpenGL
             return false;
         }
 
-        // Единая конвенция глубины для всех API: NDC z ∈ [0,1].
+        // Single depth convention for all APIs: NDC z ∈ [0,1].
         glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
         if (desc.enableValidation)
@@ -93,7 +93,7 @@ namespace VoidCore::RHI::OpenGL
         }
     }
 
-    // ------------------------------------------------------------ ресурсы ---
+    // ---------------------------------------------- Resources ---
     Ref<IBuffer> OpenGLDevice::CreateBuffer(const BufferDesc &desc)
     {
         if (desc.size == 0)

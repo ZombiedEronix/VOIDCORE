@@ -8,11 +8,11 @@ namespace VoidCore::RHI
     {
         uint32_t width = 1;
         uint32_t height = 1;
-        uint32_t mipLevels = 1; // 0 = полная цепочка
+        uint32_t mipLevels = 1; // 0 = complete chain
         Format format = Format::RGBA8_UNORM;
         TextureUsage usage = TextureUsage::Sampled;
-        // Данные mip 0, плотно упакованные (rowPitch = width * FormatSize).
-        // Если mipLevels != 1 — остальные уровни генерируются автоматически.
+        // mip 0 data, densely packed (rowPitch = width * FormatSize).
+        // If mipLevels != 1, the remaining levels are generated automatically.
         const void *initialData = nullptr;
         const char *debugName = nullptr;
     };
@@ -34,8 +34,8 @@ namespace VoidCore::RHI
         const char *debugName = nullptr;
     };
 
-    // Сэмплер — отдельный объект (так в D3D11/Vulkan/Metal; в GL это sampler object).
-    // Параметры фильтрации больше НЕ живут внутри текстуры.
+    // A sampler is a separate object (as in D3D11/Vulkan/Metal; in GL it is a sampler object).
+    // Filtering options no longer live inside the texture.
     class ISampler : public IResource
     {
     public:

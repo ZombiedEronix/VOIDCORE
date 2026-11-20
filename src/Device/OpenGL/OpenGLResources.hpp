@@ -80,7 +80,7 @@ namespace VoidCore::RHI::OpenGL
         uint64_t GetNativeHandle() const override { return m_program; }
         bool IsValid() const { return m_valid; }
 
-        // Применить фиксированное состояние (вызывается из command list).
+        // Apply fixed state (called from command list).
         void Apply() const;
 
         GLuint Program() const { return m_program; }
@@ -95,7 +95,7 @@ namespace VoidCore::RHI::OpenGL
         uint32_t m_strides[kMaxVertexBuffers] = {};
         bool m_valid = false;
 
-        // копия состояния — исходные указатели из desc нам не принадлежат
+        // copy of the state - the original pointers from desc do not belong to us
         RasterizerState m_raster;
         DepthState m_depth;
         BlendState m_blend[kMaxColorTargets];

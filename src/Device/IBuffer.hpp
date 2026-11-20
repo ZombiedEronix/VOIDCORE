@@ -9,12 +9,12 @@ namespace VoidCore::RHI
         uint64_t size = 0;
         BufferUsage usage = BufferUsage::None;
         MemoryType memory = MemoryType::Static;
-        const void *initialData = nullptr; // обязателен для Static, игнорируется после создания
+        const void *initialData = nullptr; // required for Static, ignored after creation
         const char *debugName = nullptr;
     };
 
-    // Один тип буфера вместо VBO/EBO/UBO/... — назначение задаётся usage-флагами.
-    // Никаких Bind()/Unbind(): привязка делается через ICommandList.
+    // One buffer type instead of VBO/EBO/UBO/... - the purpose is specified by usage flags.
+    // No Bind()/Unbind(): binding is done via ICommandList.
     class IBuffer : public IResource
     {
     public:

@@ -3,19 +3,19 @@
 #include <memory>
 #include "Device/IRenderDevice.hpp"
 
-// Единственная точка, где движок «выбирает API». Остальной код видит только
-// интерфейсы из IRenderDevice.hpp.
+// The only point where the engine "selects the API". The rest of the code is only visible
+// interfaces from IRenderDevice.hpp.
 namespace VoidCore::RHI
 {
-    // Флаги для SDL_CreateWindow (SDL_WINDOW_OPENGL / _VULKAN / _METAL / 0).
-    // Вызывать ДО создания окна: OpenGL-бэкенд тут же выставляет GL-атрибуты.
+    // Flags for SDL_CreateWindow (SDL_WINDOW_OPENGL / _VULKAN / _METAL / 0).
+    // Call BEFORE window creation: The OpenGL backend immediately sets GL attributes.
     uint64_t GetWindowFlags(GraphicsAPI api);
 
-    // nullptr, если бэкенд не собран или не реализован.
+    // nullptr if the backend is not built or implemented.
     std::unique_ptr<IRenderDevice> CreateRenderDevice(GraphicsAPI api);
 
-    // Глобальный доступ к активному устройству (Mesh/Texture/Material создаются
-    // из мест, где device не передашь). Window ставит его после Initialize.
+    // Global access to the active device (Mesh/Texture/Material are created
+    // from places where the device cannot be transferred). Window puts it after Initialize.
     void SetDevice(IRenderDevice *device);
     IRenderDevice &GetDevice();
 }

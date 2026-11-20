@@ -17,11 +17,11 @@ namespace VoidCore::RHI::OpenGL
     // ------------------------------------------------------------- Buffer ---
     GLBuffer::GLBuffer(const BufferDesc &desc) : m_desc(desc)
     {
-        m_desc.initialData = nullptr; // указатель принадлежит вызывающему
+        m_desc.initialData = nullptr; // the pointer belongs to the caller
         glCreateBuffers(1, &m_id);
         ++VoidCore::Profiling::g_gl.buffers;
 
-        // Immutable storage: размер фиксирован. Dynamic = можно писать через SubData.
+        // Immutable storage: fixed size. Dynamic = can be written via SubData.
         GLbitfield flags = (desc.memory == MemoryType::Dynamic) ? GL_DYNAMIC_STORAGE_BIT : 0;
         glNamedBufferStorage(m_id, static_cast<GLsizeiptr>(desc.size), desc.initialData, flags);
         Label(GL_BUFFER, m_id, desc.debugName);
@@ -55,7 +55,7 @@ namespace VoidCore::RHI::OpenGL
 
         if (desc.initialData)
         {
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ширина*bpp не обязана быть кратна 4
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // width*bpp does not have to be a multiple of 4
             glTextureSubImage2D(m_id, 0, 0, 0, static_cast<GLsizei>(desc.width),
                                 static_cast<GLsizei>(desc.height), fmt.format, fmt.type, desc.initialData);
             if (levels > 1)
@@ -170,7 +170,7 @@ namespace VoidCore::RHI::OpenGL
             return;
         }
 
-        // --- vertex input (VAO принадлежит пайплайну) ---
+        // --- vertex input (VAO belongs to the pipeline) ---
         glCreateVertexArrays(1, &m_vao);
         ++VoidCore::Profiling::g_gl.vaos;
         for (const VertexAttribute &a : desc.vertexAttributes)
@@ -231,7 +231,7 @@ namespace VoidCore::RHI::OpenGL
         glDepthFunc(ToGL(m_depth.compareOp));
         glDepthMask(m_depth.writeEnable ? GL_TRUE : GL_FALSE);
 
-        // blend (по целям)
+        // blend (by target)
         for (uint32_t i = 0; i < m_colorTargetCount; ++i)
         {
             const BlendState &b = m_blend[i];

@@ -7,10 +7,10 @@ struct SDL_Window;
 
 namespace VoidCore::RHI::OpenGL
 {
-    // В GL команды исполняются сразу, поэтому «запись» — это просто вызовы gl*.
-    // Состояние (текущий пайплайн, vertex/index буферы) кэшируется здесь,
-    // чтобы RHI-контракт был тем же, что у Vulkan/Metal: порядок
-    // SetPipeline / SetVertexBuffer не важен, всё применяется перед Draw.
+    // In GL, commands are executed immediately, so "writing" is just calls to gl*.
+    // The state (current pipeline, vertex/index buffers) is cached here,
+    // so that the RHI contract is the same as that of Vulkan/Metal: order
+    // SetPipeline / SetVertexBuffer is not important, everything is applied before Draw.
     class GLCommandList final : public ICommandList
     {
     public:
@@ -49,7 +49,7 @@ namespace VoidCore::RHI::OpenGL
         };
 
         SDL_Window *m_window;
-        GLuint m_fbo = 0; // переиспользуемый FBO для offscreen-проходов
+        GLuint m_fbo = 0; // reusable FBO for offscreen passes
 
         const GLPipeline *m_pipeline = nullptr;
         VertexBinding m_vertexBuffers[kMaxVertexBuffers];

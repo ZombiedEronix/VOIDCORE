@@ -9,10 +9,10 @@ namespace VoidCore::RHI
 
     struct VertexAttribute
     {
-        uint32_t location = 0;   // layout(location = N) в шейдере
+        uint32_t location = 0;   // layout(location = N) in the shader
         Format format = Format::Unknown;
-        uint32_t offset = 0;     // смещение внутри вершины, байт
-        uint32_t bufferSlot = 0; // из какого vertex buffer слота читаем
+        uint32_t offset = 0;     // offset inside the vertex, byte
+        uint32_t bufferSlot = 0; // from which vertex buffer slot are we reading?
     };
 
     struct VertexBufferLayout
@@ -46,26 +46,26 @@ namespace VoidCore::RHI
         ColorWriteMask writeMask = ColorWriteMask::All;
     };
 
-    // ВСЁ состояние, которое раньше менялось через glEnable/glBlendFunc/glDepthMask,
-    // теперь собрано в один неизменяемый объект. Так устроены Vulkan (VkPipeline),
-    // Metal (MTLRenderPipelineState) и D3D11 (набор state-объектов).
+    // ALL state that was previously changed via glEnable/glBlendFunc/glDepthMask,
+    // is now collected into one immutable object. This is how Vulkan (VkPipeline) works,
+    // Metal (MTLRenderPipelineState) and D3D11 (a set of state objects).
     struct GraphicsPipelineDesc
     {
         IShader *vertexShader = nullptr;
         IShader *fragmentShader = nullptr;
 
         std::vector<VertexAttribute> vertexAttributes;
-        std::vector<VertexBufferLayout> vertexBuffers; // индекс = bufferSlot
+        std::vector<VertexBufferLayout> vertexBuffers; // index = bufferSlot
 
         PrimitiveTopology topology = PrimitiveTopology::TriangleList;
         RasterizerState rasterizer;
         DepthState depth;
         BlendState blend[kMaxColorTargets];
 
-        // Форматы целей рендера — нужны Vulkan/Metal на этапе создания пайплайна.
+        // Render target formats - needed by Vulkan/Metal at the stage of creating the pipeline.
         uint32_t colorTargetCount = 1;
         Format colorFormats[kMaxColorTargets] = {Format::RGBA8_UNORM};
-        Format depthFormat = Format::D24_UNORM_S8_UINT; // Unknown = без глубины
+        Format depthFormat = Format::D24_UNORM_S8_UINT; // Unknown = no depth
 
         const char *debugName = nullptr;
     };

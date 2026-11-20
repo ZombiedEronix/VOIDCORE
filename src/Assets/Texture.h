@@ -19,5 +19,5 @@ public:
 
 private:
 	VoidCore::RHI::Ref<VoidCore::RHI::ITexture> texture;
-	VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler; // nullptr → общий по умолчанию
+	VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler; // nullptr → common by default
 };

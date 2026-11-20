@@ -3,13 +3,13 @@
 
 enum class Orientation { Vertical, Horizontal };
 
-// Выстраивает детей в столбик или в строку.
-// Поперёк оси дети растягиваются (Stretch) или выравниваются по своему Alignment.
+// Arranges children in a column or in a row.
+// Children are stretched across the axis (Stretch) or aligned according to their Alignment.
 class StackPanel : public Panel
 {
 public:
     Orientation orientation = Orientation::Vertical;
-    float Spacing = 0.0f; // промежуток между детьми
+    float Spacing = 0.0f; // gap between children
 
     StackPanel() = default;
     explicit StackPanel(Orientation o, float spacing = 0.0f) : orientation(o), Spacing(spacing) {}
@@ -27,7 +27,7 @@ protected:
         {
             if (!child->Visible)
                 continue;
-            // Вдоль оси ребёнку отдаём «бесконечность»: пусть скажет, сколько ему надо.
+            // Along the axis we give the child “infinity”: let him say how much he needs.
             child->Measure(vertical ? available.Width : Infinity,
                            vertical ? Infinity : available.Height);
             const Size d = child->desiredSize;

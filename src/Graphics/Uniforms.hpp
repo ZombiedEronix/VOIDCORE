@@ -18,7 +18,7 @@ struct LightsBlock
     void Clear() { currentLights = 0; }
 };
 
-// Переместить в другой файл...
+// Move to another file...
 struct ShaderBlock
 {
     glm::mat4 U_Projection;
@@ -31,4 +31,4 @@ struct ShaderBlock
     float U_ScreenWidth;
     float U_ScreenHeight;
 };
-// Переместить в другой файл...
+// Move to another file...

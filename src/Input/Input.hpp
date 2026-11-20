@@ -26,5 +26,5 @@ public:
 
     static glm::vec2 GetMousePosition() { return mousePosition; }
     static glm::vec2 GetMouseDelta() { return mouseDelta; }
-    static bool IsMouseButtonHeld(int button) { return mouseButtons[button]; } // 1 - Левая, 3 - Правая (SDL)
+    static bool IsMouseButtonHeld(int button) { return mouseButtons[button]; } // 1 - Left, 3 - Right (SDL)
 };

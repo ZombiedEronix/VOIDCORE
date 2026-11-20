@@ -29,7 +29,7 @@ public:
 		return pakReader.Mount(pakPath);
 	}
 
-	/// @brief Universal method для загрузки resources
+	/// @brief Universal method for loading resources
 	/// @param basePath path to asset
 	/// @return loaded asset
 	template <typename T>

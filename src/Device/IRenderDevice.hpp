@@ -9,7 +9,7 @@
 #include "Device/IPipeline.hpp"
 #include "Device/ICommandList.hpp"
 
-struct SDL_Window; // SDL тянуть в публичный RHI-заголовок не нужно
+struct SDL_Window; // There is no need to drag SDL into the public RHI header
 
 namespace VoidCore::RHI
 {
@@ -23,11 +23,11 @@ namespace VoidCore::RHI
     {
         GraphicsAPI api = GraphicsAPI::OpenGL;
         const char *deviceName = "";
-        ShaderFormat shaderFormat = ShaderFormat::GLSL; // что принимает CreateShader
+        ShaderFormat shaderFormat = ShaderFormat::GLSL; // what does CreateShader accept?
         uint32_t maxTextureSize = 0;
-        uint32_t uniformBufferAlignment = 256; // для offset в SetUniformBuffer
-        // Конвенция глубины одинакова везде: NDC z в [0, 1].
-        // => в проекте нужен GLM_FORCE_DEPTH_ZERO_TO_ONE.
+        uint32_t uniformBufferAlignment = 256; // for offset in SetUniformBuffer
+        // The depth convention is the same everywhere: NDC z at [0, 1].
+        // => the project needs GLM_FORCE_DEPTH_ZERO_TO_ONE.
     };
 
     class IRenderDevice
@@ -40,24 +40,24 @@ namespace VoidCore::RHI
         virtual GraphicsAPI GetAPI() const = 0;
         virtual const DeviceCaps &GetCaps() const = 0;
 
-        // ---- Фабрика ресурсов (вместо RenderFactory с switch-ами) ----
-        // При ошибке возвращают nullptr и пишут причину в лог.
+        // ---- Resource factory (instead of RenderFactory with switches) ----
+        // If there is an error, they return nullptr and write the reason to the log.
         virtual Ref<IBuffer> CreateBuffer(const BufferDesc &desc) = 0;
         virtual Ref<ITexture> CreateTexture(const TextureDesc &desc) = 0;
         virtual Ref<ISampler> CreateSampler(const SamplerDesc &desc) = 0;
         virtual Ref<IShader> CreateShader(const ShaderDesc &desc) = 0;
         virtual Ref<IPipeline> CreatePipeline(const GraphicsPipelineDesc &desc) = 0;
 
-        // ---- Кадр ----
-        // BeginFrame: ждёт/берёт свободный кадр, возвращает основной command list.
-        // EndFrame:   закрывает его, сабмитит и показывает (Present / SwapBuffers).
+        // ---- Cadre ----
+        // BeginFrame: waits/takes a free frame, returns the main command list.
+        // EndFrame: closes it, submits and shows (Present / SwapBuffers).
         virtual ICommandList *BeginFrame() = 0;
         virtual void EndFrame() = 0;
 
         virtual void GetBackBufferSize(uint32_t &width, uint32_t &height) const = 0;
         virtual void SetVerticalSync(bool enabled) = 0;
 
-        // Дождаться GPU. ОБЯЗАТЕЛЬНО перед уничтожением ресурсов/устройства.
+        // Wait for the GPU. MANDATORY before destroying resources/device.
         virtual void WaitIdle() = 0;
     };
 }

@@ -1,7 +1,7 @@
 #pragma once
 // ============================================================================
-//  VoidCore RHI — общие типы. Здесь НЕТ ни одного API-специфичного заголовка
-//  (никаких glad / vulkan / d3d11 / metal). Если сюда попадёт GLenum — RHI сломан.
+// VoidCore RHI - general types. There are NO API-specific headers here
+// (no glad / vulkan / d3d11 / metal). If GLenum gets here, RHI is broken.
 // ============================================================================
 #include <cstdint>
 #include <memory>
@@ -52,9 +52,9 @@ namespace VoidCore::RHI
         return (static_cast<U>(value) & static_cast<U>(flag)) != 0;
     }
 
-    // ---- Форматы ------------------------------------------------------------
-    // Берём только то, что есть на ВСЕХ API. Например, RGB8 (3 канала) нет в
-    // D3D11/Metal — картинки из stb надо грузить с req_comp = 4.
+    // ---- Format --------------------------------------------------------------------
+    // We take only what is available on ALL APIs. For example, RGB8 (3 channels) is not available in
+    // D3D11/Metal - images from stb must be loaded with req_comp = 4.
     enum class Format : uint8_t
     {
         Unknown,
@@ -71,7 +71,7 @@ namespace VoidCore::RHI
 
         R32_FLOAT,
         RG32_FLOAT,
-        RGB32_FLOAT, // ТОЛЬКО для вершинных атрибутов (как текстура — нельзя)
+        RGB32_FLOAT, // ONLY for vertex attributes (as a texture - not allowed)
         RGBA32_FLOAT,
 
         R32_UINT,
@@ -108,7 +108,7 @@ namespace VoidCore::RHI
         }
     }
 
-    // ---- Буферы -------------------------------------------------------------
+    // ---- Buffers --------------------------------------------------------------------
     enum class BufferUsage : uint32_t
     {
         None    = 0,
@@ -120,15 +120,15 @@ namespace VoidCore::RHI
 
     enum class MemoryType : uint8_t
     {
-        Static,  // данные только при создании (initialData), потом не меняются
-        Dynamic, // CPU обновляет часто (каждый кадр) через ICommandList::UpdateBuffer
+        Static,  // data only when created (initialData), then does not change
+        Dynamic, // CPU updates frequently (every frame) via ICommandList::UpdateBuffer
     };
 
     enum class IndexType : uint8_t { UInt16, UInt32 };
 
     constexpr uint32_t IndexSize(IndexType t) { return t == IndexType::UInt16 ? 2u : 4u; }
 
-    // ---- Текстуры -----------------------------------------------------------
+    // ---- Textures -------------------------------------------------------------
     enum class TextureUsage : uint32_t
     {
         Sampled      = 1 << 0,
@@ -140,27 +140,27 @@ namespace VoidCore::RHI
     enum class Filter : uint8_t { Nearest, Linear };
     enum class AddressMode : uint8_t { Repeat, MirroredRepeat, ClampToEdge };
 
-    // ---- Шейдеры ------------------------------------------------------------
+    // ---- Shaders --------------------------------------------------------------
     enum class ShaderStage : uint8_t { Vertex, Fragment };
 
-    // В каком виде лежит код. Каждый бэкенд принимает СВОЙ формат
-    // (см. DeviceCaps::shaderFormat), остальное — задача asset-пайплайна.
+    // What form is the code in? Each backend accepts OWN format
+    // (see DeviceCaps::shaderFormat), the rest is the task of the asset pipeline.
     enum class ShaderFormat : uint8_t
     {
-        GLSL,  // исходник текстом   (OpenGL)
-        SPIRV, // бинарник           (Vulkan)
-        DXBC,  // бинарник           (D3D11)
-        MSL,   // исходник текстом   (Metal)
+        GLSL,  // source text (OpenGL)
+        SPIRV, // binary (Vulcan)
+        DXBC,  // binary (D3D11)
+        MSL,   // source text (Metal)
     };
 
-    // ---- Состояния пайплайна -----------------------------------------------
+    // ---- Pipeline states -----------------------------------------------
     enum class PrimitiveTopology : uint8_t { TriangleList, TriangleStrip, LineList, PointList };
     enum class VertexInputRate : uint8_t { PerVertex, PerInstance };
     enum class CullMode : uint8_t { None, Front, Back };
 
-    // Направление обхода задаётся в clip-space/NDC (CCW — как в GLM по умолчанию).
-    // Бэкенды, у которых NDC/framebuffer перевёрнуты (Vulkan/D3D/Metal), сами
-    // переводят это в своё значение.
+    // The traversal direction is set in clip-space/NDC (CCW - as in GLM by default).
+    // Backends with NDC/framebuffer reversed (Vulkan/D3D/Metal) themselves
+    // translate it into their meaning.
     enum class FrontFace : uint8_t { CounterClockwise, Clockwise };
 
     enum class CompareOp : uint8_t { Never, Less, Equal, LessEqual, Greater, NotEqual, GreaterEqual, Always };
@@ -185,7 +185,7 @@ namespace VoidCore::RHI
     // ---- Render pass --------------------------------------------------------
     enum class LoadOp : uint8_t { Load, Clear, DontCare };
 
-    // ---- Прочее -------------------------------------------------------------
+    // ---- Other -------------------------------------------------------------
     struct Viewport
     {
         float x = 0, y = 0, width = 0, height = 0;
@@ -198,9 +198,9 @@ namespace VoidCore::RHI
         uint32_t width = 0, height = 0;
     };
 
-    // Фиксированные лимиты (одинаковые для всех бэкендов).
+    // Fixed limits (same for all backends).
     constexpr uint32_t kMaxColorTargets   = 4;
     constexpr uint32_t kMaxVertexBuffers  = 4;
-    constexpr uint32_t kMaxUniformBuffers = 8;  // слоты 0..7
-    constexpr uint32_t kMaxTextureSlots   = 16; // слоты 0..15
+    constexpr uint32_t kMaxUniformBuffers = 8;  // slots 0..7
+    constexpr uint32_t kMaxTextureSlots   = 16; // slots 0..15
 }
