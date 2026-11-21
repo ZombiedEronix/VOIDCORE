@@ -46,6 +46,7 @@ public:
     Thickness Padding;
     float Width = Auto;
     float Height = Auto;
+    bool IsHitTestVisible = true;
     HAlign HorizontalAlignment = HAlign::Stretch;
     VAlign VerticalAlignment = VAlign::Stretch;
 
@@ -119,14 +120,9 @@ public:
         if (name == "Background")
         {
             Background = Color::FromHex(value);
+            material->SetColor("Background", Background);
         }
-        else if (name == "Padding")
-        {  
-        }
-        else if(name == "Padding")
-        {
-        }
-        else if(name == "Material")
+        else if (name == "Material")
         {
             material = ResourceManager::GetMaterial(value);
         }
@@ -168,13 +164,19 @@ public:
 
     virtual UIControl *HitTest(float mx, float my)
     {
-        if (!Visible || !rect.IsInside(mx, my))
+        if (!Visible || !rect.IsInside(mx, my) || !IsHitTestVisible)
             return nullptr;
         for (size_t i = ChildCount(); i-- > 0;)
             if (UIControl *hit = ChildAt(i)->HitTest(mx, my))
                 return hit;
         return this;
     }
+
+    virtual void OnMouseEnter() {}
+    virtual void OnMouseLeave() {}
+    virtual void OnMouseDown() {}
+    virtual void OnMouseUp() {}
+    virtual void OnClick() {}
 
     Rect ContentRect() const
     {

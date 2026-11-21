@@ -1,3 +1,4 @@
+#pragma once
 #include <functional>
 #include "UI/Elements/UIControl.hpp"
 

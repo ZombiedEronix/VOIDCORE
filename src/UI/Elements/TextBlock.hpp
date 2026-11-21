@@ -22,9 +22,13 @@ public:
 
     void SetProperty(const std::string &name, const std::string&value) override
     {
-        UIControl::SetProperty(name, value);
-
-        if (name == "Text")
+        if (name == "Background")
+        {
+            Background = Color::FromHex(value);
+            material->SetColor("Background", Background);
+        }
+        
+        else if (name == "Text")
         {
             Text = value;
         }
@@ -36,7 +40,7 @@ public:
         else if (name == "Font")
         {
             font = ResourceManager::GetFont(value);
-
+            
             //I don't know how fix this situation.
             if(material == nullptr)
             {
@@ -44,6 +48,10 @@ public:
             }
 
             material->SetTexture(0, new Texture(font->AtlasPixels(), font->AtlasWidth(), font->AtlasHeight(), "texture_font"));
+        }
+        else
+        {
+            UIControl::SetProperty(name, value);
         }
     }
 

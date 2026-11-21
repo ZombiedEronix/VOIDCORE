@@ -219,6 +219,23 @@ public:
 		return shaders[basePath].get();
 	}
 
+	/// @brief Due to the lack of an RHI contract and the absence of a sleep mechanism,
+	/// I couldn't come up with anything better than simply having the ResourceManager update the materials itself.
+	/// TODO: REWRITE !
+	static void UpdateMaterials(VoidCore::RHI::ICommandList *cmd)
+	{
+		if (!cmd)
+			return;
+
+		for (auto &[path, mat] : materials)
+		{
+			if (mat)
+			{
+				mat->Upload(cmd);
+			}
+		}
+	}
+
 	/// @brief Clean resources
 	static void Clear()
 	{

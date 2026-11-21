@@ -12,6 +12,9 @@
 
 #include "Graphics/Pass/UIPass.hpp"
 
+/// TEMPORARY SOLUTION
+#include "Assets/ResourceManager.h"
+
 using namespace VoidCore::RHI;
 using namespace VoidCore::Rendering::Deferred;
 
@@ -137,6 +140,10 @@ void Renderer::SubmitLight(LightCommand &info)
 void Renderer::Flush()
 {
     ZoneScoped;
+
+    /// TEMPORARY SOLUTION
+    ResourceManager::UpdateMaterials(cmd);
+    
     if (!cmd)
         return;
     UploadFrameData();

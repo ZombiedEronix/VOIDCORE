@@ -146,12 +146,51 @@ public:
         SetVector(name, glm::vec4(color.r, color.g, color.b, color.a));
     }
 
+    void Upload(VoidCore::RHI::ICommandList *cmd)
+    {
+        if (uniformBuffer && !cpuBuffer.empty())
+        {
+            if (isDirty)
+            {
+                cmd->UpdateBuffer(uniformBuffer.get(), cpuBuffer.data(), cpuBuffer.size());
+                isDirty = false;
+            }
+        }
+    }
+
+    //ALARM
+    Material * Clone() const
+    {
+        auto copy = new Material(shader, pipeline);
+
+        if (!cpuBuffer.empty() && copy->cpuBuffer.size() == cpuBuffer.size())
+        {
+            copy->cpuBuffer = cpuBuffer;
+            copy->isDirty = true;
+        }
+
+        for (uint32_t slot = 0; slot < VoidCore::RHI::kMaxTextureSlots; ++slot)
+        {
+            copy->assetTextures[slot] = assetTextures[slot];
+            copy->rhiTextures[slot] = rhiTextures[slot];
+            copy->rhiSamplers[slot] = rhiSamplers[slot];
+        }
+
+        return copy;
+    }
+
     bool Apply(VoidCore::RHI::ICommandList *cmd, VoidCore::RHI::ISampler *defaultSampler = nullptr) const
     {
         if (!pipeline)
             return false;
 
         cmd->SetPipeline(pipeline.get());
+        
+        if (uniformBuffer && !cpuBuffer.empty())
+        {
+            cmd->SetUniformBuffer(shader->GetMaterialLayout().binding, uniformBuffer.get());
+        }
+
         for (uint32_t slot = 0; slot < VoidCore::RHI::kMaxTextureSlots; ++slot)
         {
             if (rhiTextures[slot])

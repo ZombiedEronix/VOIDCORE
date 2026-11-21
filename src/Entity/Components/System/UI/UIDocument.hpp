@@ -10,6 +10,7 @@ public:
     std::shared_ptr<UIControl> root;
 
     UIControl *m_hoveredControl = nullptr;
+    UIControl *m_pressedControl = nullptr;
 
     void Update() override
     {
@@ -17,12 +18,39 @@ public:
             return;
 
         glm::vec2 mousePos = Input::GetMousePosition();
-
         UIControl *currentHover = root->HitTest(mousePos.x, mousePos.y);
 
         if (currentHover != m_hoveredControl)
         {
+            if (m_hoveredControl)
+            {
+                m_hoveredControl->OnMouseLeave();
+            }
+
             m_hoveredControl = currentHover;
+
+            if (m_hoveredControl)
+            {
+                m_hoveredControl->OnMouseEnter();
+            }
+        }
+
+        if (Input::IsMouseButtonHeld(1) && m_hoveredControl)
+        {
+            m_pressedControl = m_hoveredControl;
+            m_pressedControl->OnMouseDown();
+        }
+
+        if (!Input::IsMouseButtonHeld(1) && m_pressedControl)
+        {
+            m_pressedControl->OnMouseUp();
+
+            if (m_pressedControl == m_hoveredControl)
+            {
+                m_pressedControl->OnClick();
+            }
+
+            m_pressedControl = nullptr;
         }
     }
 
