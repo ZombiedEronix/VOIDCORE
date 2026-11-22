@@ -127,7 +127,7 @@ public:
         if (name == "Background")
         {
             Background = Color::FromHex(value);
-            material->SetColor("Background", Background);
+            material.Get()->SetColor("Background", Background);
         }
         else if (name == "Material")
         {
@@ -204,7 +204,7 @@ public:
     }
 
 protected:
-    Material *material = nullptr;
+    Ref<Material> material = nullptr;
 
     virtual Size MeasureOverride(Size) { return {}; }
 

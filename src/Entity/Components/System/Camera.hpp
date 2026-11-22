@@ -21,7 +21,6 @@ class Camera : public Behaviour
 private:
 	glm::vec4 planes[6];
 public:
-	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 orthoProjection = glm::mat4(1.0f);

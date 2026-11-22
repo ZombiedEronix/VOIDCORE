@@ -39,7 +39,6 @@ public:
     float WhiteV() const { return whiteV; }
 
     static void SetDefault(Font *font) { defaultFont = font; }
-    static Font *GetDefault() { return defaultFont; }
 
     static uint32_t DecodeUTF8(const char *&p, const char *end);
 

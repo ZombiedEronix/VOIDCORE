@@ -16,12 +16,12 @@
 class ResourceManager
 {
 private:
-	inline static std::map<std::string, std::shared_ptr<Texture>> textures;
-	inline static std::map<std::string, std::shared_ptr<Mesh>> meshes;
-	inline static std::map<std::string, std::shared_ptr<Shader>> shaders;
+	inline static std::map<std::string, Ref<Texture>> textures;
+	inline static std::map<std::string, Ref<Mesh>> meshes;
+	inline static std::map<std::string, Ref<Shader>> shaders;
 	inline static std::map<std::string, Ref<Material>> materials;
-	inline static std::map<std::string, std::shared_ptr<Font>> fonts;
-	inline static std::map<std::string, std::shared_ptr<VoidCore::Assets::File>> files;
+	inline static std::map<std::string, Ref<Font>> fonts;
+	inline static std::map<std::string, Ref<VoidCore::Assets::File>> files;
 	inline static VoidCore::VPAK::AssetPakReader pakReader;
 
 public:
@@ -89,18 +89,18 @@ public:
 	/// @brief Get's texture from resources
 	/// @param basePath path to texture
 	/// @return loaded texture
-	static const std::shared_ptr<Texture> GetTexture(const std::string &path, bool srgb = false)
+	static const Ref<Texture> GetTexture(const std::string &path, bool srgb = false)
 	{
 		if (textures.find(path) == textures.end())
 		{
 			std::vector<uint8_t> buffer;
 			if (pakReader.ReadFile(path, buffer))
 			{
-				textures[path] = std::make_shared<Texture>(buffer.data(), buffer.size(), path.c_str(), srgb);
+				textures[path] = new Texture(buffer.data(), buffer.size(), path.c_str(), srgb);
 			}
 			else
 			{
-				textures[path] = std::make_shared<Texture>(path.c_str(), srgb);
+				textures[path] = new Texture(path.c_str(), srgb);
 			}
 		}
 		return textures[path];
@@ -109,7 +109,7 @@ public:
 	/// @brief Get's file from resources
 	/// @param basePath path to file
 	/// @return loaded file
-	static const std::shared_ptr<VoidCore::Assets::File> GetFile(const std::string &path, bool useCache = true)
+	static const Ref<VoidCore::Assets::File> GetFile(const std::string &path, bool useCache = true)
 	{
 		if (useCache && files.find(path) != files.end())
 		{
@@ -135,7 +135,7 @@ public:
 			}
 		}
 
-		auto asset = std::make_shared<VoidCore::Assets::File>(path, std::move(buffer));
+		Ref<VoidCore::Assets::File> asset = new VoidCore::Assets::File(path, std::move(buffer));
 		if (useCache)
 		{
 			files[path] = asset;
@@ -146,7 +146,7 @@ public:
 	/// @brief Get's mesh from resources
 	/// @param basePath path to mesh
 	/// @return loaded mesh
-	static const Mesh *GetMesh(const std::string &path)
+	static const Ref<Mesh> GetMesh(const std::string &path)
 	{
 		if (meshes.find(path) == meshes.end())
 		{
@@ -166,20 +166,20 @@ public:
 
 			if (!vertices.empty() && !indices.empty())
 			{
-				meshes[path] = std::make_shared<Mesh>(vertices, indices);
+				meshes[path] = new Mesh(vertices, indices);
 			}
 			else
 			{
 				return nullptr;
 			}
 		}
-		return meshes[path].get();
+		return meshes[path];
 	}
 
 	/// @brief Get's font from resources (support .ttf only)
 	/// @param basePath path to font
 	/// @return loaded font
-	static const Font *GetFont(const std::string &basePath, float px = 20)
+	static const Ref<Font> GetFont(const std::string &basePath, float px = 20)
 	{
 		if (fonts.find(basePath) == fonts.end())
 		{
@@ -187,20 +187,20 @@ public:
 
 			if (pakReader.ReadFile(basePath, buffer))
 			{
-				fonts[basePath] = std::make_shared<Font>(buffer, px);
+				fonts[basePath] = new Font(buffer, px);
 			}
 			else
 			{
 				Debug::LogWarning("Font : ", basePath.c_str(), " is not found");
 			}
 		}
-		return fonts[basePath].get();
+		return fonts[basePath];
 	}
 
 	/// @brief Get's shader from resources
 	/// @param basePath path to shader
 	/// @return loaded shader
-	static const Shader *GetShader(const std::string &basePath)
+	static const Ref<Shader> GetShader(const std::string &basePath)
 	{
 		if (shaders.find(basePath) == shaders.end())
 		{
@@ -209,14 +209,14 @@ public:
 
 			if (pakReader.ReadFile(path, buffer))
 			{
-				shaders[basePath] = std::make_shared<Shader>(buffer.data(), buffer.size(), path.c_str());
+				shaders[basePath] = new Shader(buffer.data(), buffer.size(), path.c_str());
 			}
 			else
 			{
 				Debug::LogWarning("Shader : ", path.c_str(), " is not found");
 			}
 		}
-		return shaders[basePath].get();
+		return shaders[basePath];
 	}
 
 	/// @brief Clean resources

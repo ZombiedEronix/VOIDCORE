@@ -8,15 +8,18 @@
 #include "Graphics/Renderer.hpp"
 #include "Device/RHI.hpp"
 
-class Engine
+namespace VoidCore::Core
 {
-private:
-	static inline bool isRunning = false;
-	static void Update();
-	static void PrintLogo();
+	class Engine
+	{
+	private:
+		static inline bool isRunning = false;
+		static void Update();
+		static void PrintLogo();
 
-public:
-	static bool Initialize();
-	static void Run();
-	static void ShutDown();
-};
+	public:
+		static bool Initialize();
+		static void Run();
+		static void ShutDown();
+	};
+}

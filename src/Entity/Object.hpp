@@ -10,7 +10,7 @@ private:
 
 public:
     std::string name;
-
+    virtual ~Object() = default;
     static void Destroy(Object *obj)
     {
         if (!obj || obj->IsDestroyed())

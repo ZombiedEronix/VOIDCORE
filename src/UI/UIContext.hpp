@@ -44,10 +44,7 @@ public:
         if (!mat || r.w <= 0 || r.h <= 0)
             return;
 
-        const Font *f = Font::GetDefault();
-        float u0 = f ? f->WhiteU() : 0.0f;
-        float v0 = f ? f->WhiteV() : 0.0f;
-        AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), u0, v0, u0, v0);
+        AddQuad(mat, r.x, r.y, r.Right(), r.Bottom(), 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     /// @brief

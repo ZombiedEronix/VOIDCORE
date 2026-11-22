@@ -28,7 +28,7 @@ public:
             std::string shaderPath = root["shader"].as<std::string>();
             std::string pipelineType = root["pipeline"] ? root["pipeline"].as<std::string>() : "Lit";
 
-            const Shader *shader = getShader(shaderPath);
+            Ref<const Shader> shader = getShader(shaderPath);
             if (!shader)
             {
                 Debug::LogError("MaterialLoader: Failed to load shader -> " + shaderPath);
@@ -63,10 +63,10 @@ public:
 
                     if (!texPath.empty())
                     {
-                        std::shared_ptr<Texture> tex = getTexture(texPath, srgb);
+                        Ref<Texture> tex = getTexture(texPath, srgb);
                         if (tex)
                         {
-                            mat->SetTexture(slot, tex.get());
+                            mat->SetTexture(slot, tex.Get());
                         }
                     }
                 }

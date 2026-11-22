@@ -14,7 +14,7 @@ glm::mat4 MeshRenderer::Matrix() const
 	return model;
 }
 
-void MeshRenderer::SetMesh(Mesh* meshPtr)
+void MeshRenderer::SetMesh(Ref<Mesh> meshPtr)
 {
 	mesh = meshPtr;
 }

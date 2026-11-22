@@ -1,21 +1,19 @@
 #pragma once
 #include "Graphics/Renderer.hpp"
-#include "Assets/Texture.h"
 #include "Entity/Components/System/Transform.hpp"
 #include "Entity/Material.hpp"
 #include "Assets/Vertex.h"
 #include "Assets/Mesh.h"
-
-#include <glm/gtc/matrix_transform.hpp>
+#include "GarbageCollector/Ref.hpp"
 
 class MeshRenderer : public Behaviour
 {
 public:
-	const Mesh *mesh;
-	Material *material;
+	Ref<const Mesh> mesh;
+	Ref<Material> material;
 
 	MeshRenderer();
 	glm::mat4 Matrix() const;
-	void SetMesh(Mesh *meshPtr);
+	void SetMesh(Ref<Mesh> meshPtr);
 	void Render(Renderer &renderer);
 };
