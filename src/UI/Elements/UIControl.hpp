@@ -39,7 +39,6 @@ public:
 
     std::string Name;
 
-    Material *material = nullptr;
     std::vector<std::string> Classes;
 
     Thickness Margin;
@@ -56,9 +55,17 @@ public:
     Rect rect;
     Size desiredSize;
 
-    virtual ~UIControl() = default;
-
     virtual std::string GetTypeName() const { return "UIControl"; }
+
+    virtual ~UIControl()
+    {
+        /// TODO: I ended up changing my approach because I couldn't come up with a solution to the material leakage problem.
+        if (material)
+        {
+            delete material;
+            material = nullptr;
+        }
+    }
 
     void Measure(float availableWidth, float availableHeight)
     {
@@ -125,7 +132,7 @@ public:
         else if (name == "Material")
         {
             //Утечка.
-            material = ResourceManager::GetMaterial(value)->Clone();
+            material = ResourceManager::GetMaterial(value).Get()->Clone();
         }
         else if (name == "Classes")
         {
@@ -197,6 +204,8 @@ public:
     }
 
 protected:
+    Material *material = nullptr;
+
     virtual Size MeasureOverride(Size) { return {}; }
 
     virtual void ArrangeOverride(const Rect &) {}

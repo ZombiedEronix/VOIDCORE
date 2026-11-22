@@ -1,7 +1,8 @@
 #pragma once
 #include "Device/RHI.hpp"
+#include "Entity/Object.hpp"
 
-class Texture
+class Texture : public Object
 {
 public:
 	int widthTexture = 0, heightTexture = 0;

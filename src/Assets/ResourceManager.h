@@ -6,11 +6,12 @@
 
 #include "Assets/Texture.h"
 #include "Assets/Mesh.h"
-#include "Graphics/Resources/Shader.hpp"
-#include "ModelImporter.h"
+#include "Assets/Shader.hpp"
+#include "Assets/Mesh/ModelImporter.h"
 #include "File.hpp"
 #include "Assets/VPAK/VPAKReading.hpp"
 #include "MaterialLoader.hpp"
+#include "GarbageCollector/Ref.hpp"
 
 class ResourceManager
 {
@@ -18,7 +19,7 @@ private:
 	inline static std::map<std::string, std::shared_ptr<Texture>> textures;
 	inline static std::map<std::string, std::shared_ptr<Mesh>> meshes;
 	inline static std::map<std::string, std::shared_ptr<Shader>> shaders;
-	inline static std::map<std::string, std::shared_ptr<Material>> materials;
+	inline static std::map<std::string, Ref<Material>> materials;
 	inline static std::map<std::string, std::shared_ptr<Font>> fonts;
 	inline static std::map<std::string, std::shared_ptr<VoidCore::Assets::File>> files;
 	inline static VoidCore::VPAK::AssetPakReader pakReader;
@@ -57,7 +58,7 @@ public:
 	/// @brief Get's material from resources
 	/// @param basePath path to material
 	/// @return loaded material
-	static const Material *GetMaterial(const std::string &path)
+	static const Ref<Material> GetMaterial(const std::string &path)
 	{
 		if (materials.find(path) == materials.end())
 		{
@@ -82,7 +83,7 @@ public:
 
 			materials[path] = mat;
 		}
-		return materials[path].get();
+		return materials[path];
 	}
 
 	/// @brief Get's texture from resources
@@ -196,7 +197,6 @@ public:
 		return fonts[basePath].get();
 	}
 
-
 	/// @brief Get's shader from resources
 	/// @param basePath path to shader
 	/// @return loaded shader
@@ -217,24 +217,6 @@ public:
 			}
 		}
 		return shaders[basePath].get();
-	}
-
-	/// @brief Due to the lack of an RHI contract and the absence of a sleep mechanism,
-	/// I couldn't come up with anything better than simply having the ResourceManager update the materials itself.
-	/// TODO: REWRITE !
-	
-	static const void UpdateMaterials(VoidCore::RHI::ICommandList *cmd)
-	{
-		if (!cmd)
-			return;
-
-		for (auto &[path, mat] : materials)
-		{
-			if (mat)
-			{
-				mat->Upload(cmd);
-			}
-		}
 	}
 
 	/// @brief Clean resources

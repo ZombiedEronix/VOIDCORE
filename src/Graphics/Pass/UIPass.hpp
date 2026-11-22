@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "Device/RHI.hpp"
-#include "UI/Structures/Font.hpp"
+#include "Assets/Font.hpp"
 #include "UI/UIContext.hpp"
 #include "RenderPass.hpp"
 

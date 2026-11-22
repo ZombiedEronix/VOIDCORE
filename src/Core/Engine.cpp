@@ -3,7 +3,7 @@
 #include "Assets/ResourceManager.h"
 #include <Tracy/tracy/Tracy.hpp>
 #include "Core/Profiling.h"
-
+#include "GarbageCollector/GC.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <new>
@@ -113,7 +113,7 @@ void Engine::Update()
 		SceneManager::Render(*renderer);
 
 		renderer->Flush();
-
+        GC::Collect();    
 		device->EndFrame();
 	}
 	PlotMemoryStats();

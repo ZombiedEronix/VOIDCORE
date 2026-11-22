@@ -3,8 +3,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-
-#include "Size.hpp"
+#include "Entity/Object.hpp"
+#include "UI/Structures/Size.hpp"
 
 struct Glyph
 {
@@ -13,7 +13,7 @@ struct Glyph
     float xadvance;
 };
 
-class Font
+class Font : public Object
 {
 public:
     Font(const std::vector<uint8_t> &data, float fontSize);

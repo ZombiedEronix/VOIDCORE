@@ -7,7 +7,7 @@
 #include <functional>
 
 #include "Structures/Color.hpp"
-#include "Structures/Font.hpp"
+#include "Assets/Font.hpp"
 #include "Structures/Rect.hpp"
 #include "Structures/UIVertex.hpp"
 #include "Structures/Thickness.hpp"

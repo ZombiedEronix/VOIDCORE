@@ -1,6 +1,6 @@
 #pragma once
 #include "Device/RHI.hpp"
-#include "Graphics/Resources/Shader.hpp"
+#include "Assets/Shader.hpp"
 #include "Device/IBuffer.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Queue/LightCommand.hpp"

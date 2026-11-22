@@ -142,10 +142,12 @@ void Renderer::Flush()
     ZoneScoped;
 
     /// TEMPORARY SOLUTION
-    ResourceManager::UpdateMaterials(cmd);
     
     if (!cmd)
-        return;
+    return;
+
+    Material::UpdateAll(cmd);
+    
     UploadFrameData();
     UploadInstances(*opaqueQueue);
     UploadLightData();

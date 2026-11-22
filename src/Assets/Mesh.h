@@ -5,7 +5,7 @@
 #include "Vertex.h"
 #include "Core/Debug.h"
 
-class Mesh
+class Mesh : public Object
 {
 private:
 	int vertexCount = 0;

@@ -8,12 +8,12 @@
 #include "Entity/Material.hpp"
 #include "Assets/File.hpp"
 #include "Core/Debug.h"
-
+#include "GarbageCollector/Ref.hpp"
 class MaterialLoader
 {
 public:
     template <typename ShaderResolver, typename TextureResolver>
-    static std::shared_ptr<Material> LoadYAML(const VoidCore::Assets::File &asset, ShaderResolver &&getShader, TextureResolver &&getTexture)
+    static Ref<Material> LoadYAML(const VoidCore::Assets::File &asset, ShaderResolver &&getShader, TextureResolver &&getTexture)
     {
         try
         {
@@ -39,7 +39,7 @@ public:
                                 ? Material::CreateUIPipeline(shader)
                                 : Material::CreateLitPipeline(shader);
 
-            auto mat = std::make_shared<Material>(shader, pipeline);
+            auto mat = new Material(shader, pipeline);
 
             if (auto textures = root["textures"])
             {

@@ -5,7 +5,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-#include "Graphics/Resources/Shader.hpp"
+#include "Assets/Shader.hpp"
 #include "Entity/GameObject.hpp"
 #include "Entity/Components/Base/Component.hpp"
 #include "Entity/Components/System/Transform.hpp"

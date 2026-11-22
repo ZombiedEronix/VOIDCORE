@@ -2,10 +2,10 @@
 #include <string>
 #include "Device/RHI.hpp"
 #include "Graphics/Resources/MaterialBuffer.hpp"
-
+#include "Entity/Object.hpp"
 std::string get_file_contents(const char *filename);
 
-class Shader
+class Shader : public Object
 {
 private:
     VoidCore::RHI::Ref<VoidCore::RHI::IShader> vs;

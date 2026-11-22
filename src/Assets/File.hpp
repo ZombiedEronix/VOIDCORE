@@ -2,10 +2,11 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include "Entity/Object.hpp"
 
 namespace VoidCore::Assets
 {
-    class File
+    class File : public Object
     {
     private:
         std::string path;

@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include "Device/RHI.hpp"
-#include "Graphics/Resources/Shader.hpp"
+#include "Assets/Shader.hpp"
 #include "Assets/Texture.h"
 #include "Core/Debug.h"
 #include "UI/Structures/UIVertex.hpp"
@@ -13,6 +13,8 @@
 
 class Material : public Object
 {
+    inline static std::vector<const Material *> dirtyMaterials;
+
 public:
     Material(const Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
         : shader(shader), pipeline(pipeline)
@@ -31,6 +33,16 @@ public:
             bd.memory = VoidCore::RHI::MemoryType::Dynamic;
             bd.debugName = "MaterialUniformBuffer";
             uniformBuffer = VoidCore::RHI::GetDevice().CreateBuffer(bd);
+        }
+    }
+
+    ~Material()
+    {
+        if (isDirty)
+        {
+            dirtyMaterials.erase(
+                std::remove(dirtyMaterials.begin(), dirtyMaterials.end(), this),
+                dirtyMaterials.end());
         }
     }
 
@@ -123,7 +135,8 @@ public:
         if (it != fields.end() && it->second.size >= sizeof(float))
         {
             std::memcpy(cpuBuffer.data() + it->second.offset, &value, sizeof(float));
-            isDirty = true;
+
+            MarkDirty();
         }
     }
 
@@ -138,7 +151,8 @@ public:
         {
             size_t copySize = std::min<size_t>(it->second.size, sizeof(glm::vec4));
             std::memcpy(cpuBuffer.data() + it->second.offset, &value, copySize);
-            isDirty = true;
+
+            MarkDirty();
         }
     }
 
@@ -147,7 +161,19 @@ public:
         SetVector(name, glm::vec4(color.r, color.g, color.b, color.a));
     }
 
-    void Upload(VoidCore::RHI::ICommandList *cmd)
+    static void UpdateAll(VoidCore::RHI::ICommandList *cmd)
+    {
+        if (!cmd || dirtyMaterials.empty())
+            return;
+
+        for (const Material *mat : dirtyMaterials)
+        {
+            mat->Upload(cmd);
+        }
+        dirtyMaterials.clear();
+    }
+
+    void Upload(VoidCore::RHI::ICommandList *cmd) const
     {
         if (uniformBuffer && !cpuBuffer.empty())
         {
@@ -167,7 +193,6 @@ public:
         if (!cpuBuffer.empty() && copy->cpuBuffer.size() == cpuBuffer.size())
         {
             copy->cpuBuffer = cpuBuffer;
-            copy->isDirty = true;
         }
 
         for (uint32_t slot = 0; slot < VoidCore::RHI::kMaxTextureSlots; ++slot)
@@ -210,6 +235,16 @@ public:
     VoidCore::RHI::IPipeline *GetPipeline() const { return pipeline.get(); }
 
 private:
+
+    void MarkDirty()
+    {
+        if (!isDirty)
+        {
+            dirtyMaterials.push_back(this);
+            isDirty = true;
+        }
+    }
+
     const Shader *shader = nullptr;
 
     Texture *assetTextures[VoidCore::RHI::kMaxTextureSlots] = {};
@@ -221,7 +256,7 @@ private:
     VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> uniformBuffer;
 
     std::vector<uint8_t> cpuBuffer;
-    mutable bool isDirty = true;
+    mutable bool isDirty = false;
 
     VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
 };
