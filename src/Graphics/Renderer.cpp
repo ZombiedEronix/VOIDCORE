@@ -3,7 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Assets/Mesh.h"
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 #include "Entity/Components/System/Camera.hpp"
 #include "Core/EngineTime.h"
 
@@ -74,7 +74,7 @@ void Renderer::BeginFrame(ICommandList *commandList)
     cmd = commandList;
 }
 
-void Renderer::Submit(Mesh *mesh, Material *mat, const glm::mat4 &model)
+void Renderer::Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model)
 {
     //opaque,transparent,masked???
     opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
@@ -172,7 +172,7 @@ void Renderer::DrawBatch(const std::vector<GeometryRenderCommand> &queue)
             i++;
 
         const uint32_t count = static_cast<uint32_t>(i - start);
-        Mesh *mesh = queue[start].mesh;
+        const Mesh *mesh = queue[start].mesh;
 
         if (!queue[start].material->Apply(cmd))
             continue;

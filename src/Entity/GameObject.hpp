@@ -14,7 +14,6 @@
 class GameObject : public Object
 {
 private:
-	bool isDestroying;
 public:
 	Transform *transform;
 	std::vector<Component *> components;
@@ -22,8 +21,8 @@ public:
 	GameObject();
 	~GameObject();
 	void Update();
-
-	bool IsDestroying();
+	
+	GameObject *Clone() const override;
 
 	template <typename T>
 	T *GetComponent() const;

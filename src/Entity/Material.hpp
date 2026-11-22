@@ -3,17 +3,18 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include "Device/RHI.hpp"
-#include "Shader.hpp"
+#include "Graphics/Resources/Shader.hpp"
 #include "Assets/Texture.h"
 #include "Core/Debug.h"
 #include "UI/Structures/UIVertex.hpp"
-#include "VertexLayouts.hpp"
+#include "Graphics/Resources/VertexLayouts.hpp"
+#include "Entity/Object.hpp"
 #include <cstring>
 
-class Material
+class Material : public Object
 {
 public:
-    Material(Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
+    Material(const Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
         : shader(shader), pipeline(pipeline)
     {
         if (!shader)
@@ -33,9 +34,9 @@ public:
         }
     }
 
-    Shader *GetShader() const { return shader; }
+    const Shader *GetShader() const { return shader; }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(Shader *shader)
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(const Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -70,7 +71,7 @@ public:
         return GetDevice().CreatePipeline(d);
     }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(Shader *shader)
+    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(const Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -158,8 +159,8 @@ public:
         }
     }
 
-    //ALARM
-    Material * Clone() const
+    // ALARM
+    Material *Clone() const override
     {
         auto copy = new Material(shader, pipeline);
 
@@ -185,7 +186,7 @@ public:
             return false;
 
         cmd->SetPipeline(pipeline.get());
-        
+
         if (uniformBuffer && !cpuBuffer.empty())
         {
             cmd->SetUniformBuffer(shader->GetMaterialLayout().binding, uniformBuffer.get());
@@ -209,7 +210,7 @@ public:
     VoidCore::RHI::IPipeline *GetPipeline() const { return pipeline.get(); }
 
 private:
-    Shader *shader = nullptr;
+    const Shader *shader = nullptr;
 
     Texture *assetTextures[VoidCore::RHI::kMaxTextureSlots] = {};
     VoidCore::RHI::ITexture *rhiTextures[VoidCore::RHI::kMaxTextureSlots] = {};

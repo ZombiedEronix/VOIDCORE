@@ -12,7 +12,7 @@
 #include "Structures/UIVertex.hpp"
 #include "Structures/Thickness.hpp"
 
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 
 struct UIBatch
 {

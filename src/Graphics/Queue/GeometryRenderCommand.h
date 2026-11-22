@@ -13,7 +13,7 @@ enum RenderMode
 struct GeometryRenderCommand
 {
     RenderMode mode = RenderMode::Opaque;
-    Mesh *mesh;
-    Material *material;
+    const Mesh *mesh;
+    const Material *material;
     glm::mat4 modelMatrix;
 };

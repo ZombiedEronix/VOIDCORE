@@ -2,7 +2,7 @@
 #include "Graphics/Renderer.hpp"
 #include "Assets/Texture.h"
 #include "Entity/Components/System/Transform.hpp"
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 #include "Assets/Vertex.h"
 #include "Assets/Mesh.h"
 
@@ -11,7 +11,7 @@
 class MeshRenderer : public Behaviour
 {
 public:
-	Mesh *mesh;
+	const Mesh *mesh;
 	Material *material;
 
 	MeshRenderer();

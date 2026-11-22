@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 #include "Assets/File.hpp"
 #include "Core/Debug.h"
 
@@ -28,7 +28,7 @@ public:
             std::string shaderPath = root["shader"].as<std::string>();
             std::string pipelineType = root["pipeline"] ? root["pipeline"].as<std::string>() : "Lit";
 
-            Shader *shader = getShader(shaderPath);
+            const Shader *shader = getShader(shaderPath);
             if (!shader)
             {
                 Debug::LogError("MaterialLoader: Failed to load shader -> " + shaderPath);
@@ -63,7 +63,7 @@ public:
 
                     if (!texPath.empty())
                     {
-                        auto tex = getTexture(texPath, srgb);
+                        std::shared_ptr<Texture> tex = getTexture(texPath, srgb);
                         if (tex)
                         {
                             mat->SetTexture(slot, tex.get());

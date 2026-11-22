@@ -124,7 +124,8 @@ public:
         }
         else if (name == "Material")
         {
-            material = ResourceManager::GetMaterial(value);
+            //Утечка.
+            material = ResourceManager::GetMaterial(value)->Clone();
         }
         else if (name == "Classes")
         {

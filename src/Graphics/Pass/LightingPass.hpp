@@ -13,7 +13,7 @@ namespace VoidCore::Rendering::Deferred
         VoidCore::RHI::Ref<VoidCore::RHI::ITexture> litTexture;
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> gBufferSampler;
         VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> lightingPipeline;
-        Shader *lightingShader = nullptr;
+        const Shader *lightingShader = nullptr;
         VoidCore::RHI::Ref<VoidCore::RHI::IBuffer>
         lightBuffer;
         void CreateLightingPipeline();

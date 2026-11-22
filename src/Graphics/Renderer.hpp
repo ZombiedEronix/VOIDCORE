@@ -104,7 +104,7 @@ public:
 	void SetCamera(Camera *camera);
 	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
 	Window *GetWindow() { return windowPtr; }
-	void Submit(Mesh *mesh, Material *mat, const glm::mat4 &model);
+	void Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model);
 
 	void SubmitLight(LightCommand &info);
 

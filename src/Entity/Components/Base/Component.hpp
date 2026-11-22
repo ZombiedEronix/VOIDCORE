@@ -3,7 +3,7 @@
 #include "Core/Debug.h"
 class GameObject;
 
-class Component : Object
+class Component : public Object
 {
 public:
     GameObject *gameObject = nullptr;

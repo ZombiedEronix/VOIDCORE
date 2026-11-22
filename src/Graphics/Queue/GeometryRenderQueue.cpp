@@ -3,7 +3,7 @@
 #include <tuple>
 
 #include "Graphics/Renderer.hpp"
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 #include "Assets/Mesh.h"
 
 void GeometryRenderQueue::AddCommand(const GeometryRenderCommand &command)

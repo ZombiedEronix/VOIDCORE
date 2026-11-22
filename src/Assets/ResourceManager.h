@@ -33,7 +33,7 @@ public:
 	/// @param basePath path to asset
 	/// @return loaded asset
 	template <typename T>
-	static std::shared_ptr<T> GetResource(const std::string &path)
+	static const std::shared_ptr<T> GetResource(const std::string &path)
 	{
 		if constexpr (std::is_same_v<T, Texture>)
 		{
@@ -57,7 +57,7 @@ public:
 	/// @brief Get's material from resources
 	/// @param basePath path to material
 	/// @return loaded material
-	static Material *GetMaterial(const std::string &path)
+	static const Material *GetMaterial(const std::string &path)
 	{
 		if (materials.find(path) == materials.end())
 		{
@@ -88,7 +88,7 @@ public:
 	/// @brief Get's texture from resources
 	/// @param basePath path to texture
 	/// @return loaded texture
-	static std::shared_ptr<Texture> GetTexture(const std::string &path, bool srgb = false)
+	static const std::shared_ptr<Texture> GetTexture(const std::string &path, bool srgb = false)
 	{
 		if (textures.find(path) == textures.end())
 		{
@@ -108,7 +108,7 @@ public:
 	/// @brief Get's file from resources
 	/// @param basePath path to file
 	/// @return loaded file
-	static std::shared_ptr<VoidCore::Assets::File> GetFile(const std::string &path, bool useCache = true)
+	static const std::shared_ptr<VoidCore::Assets::File> GetFile(const std::string &path, bool useCache = true)
 	{
 		if (useCache && files.find(path) != files.end())
 		{
@@ -145,7 +145,7 @@ public:
 	/// @brief Get's mesh from resources
 	/// @param basePath path to mesh
 	/// @return loaded mesh
-	static Mesh *GetMesh(const std::string &path)
+	static const Mesh *GetMesh(const std::string &path)
 	{
 		if (meshes.find(path) == meshes.end())
 		{
@@ -178,7 +178,7 @@ public:
 	/// @brief Get's font from resources (support .ttf only)
 	/// @param basePath path to font
 	/// @return loaded font
-	static Font *GetFont(const std::string &basePath, float px = 20)
+	static const Font *GetFont(const std::string &basePath, float px = 20)
 	{
 		if (fonts.find(basePath) == fonts.end())
 		{
@@ -199,8 +199,8 @@ public:
 
 	/// @brief Get's shader from resources
 	/// @param basePath path to shader
-	/// @return loaded shader 
-	static Shader *GetShader(const std::string &basePath)
+	/// @return loaded shader
+	static const Shader *GetShader(const std::string &basePath)
 	{
 		if (shaders.find(basePath) == shaders.end())
 		{
@@ -222,7 +222,8 @@ public:
 	/// @brief Due to the lack of an RHI contract and the absence of a sleep mechanism,
 	/// I couldn't come up with anything better than simply having the ResourceManager update the materials itself.
 	/// TODO: REWRITE !
-	static void UpdateMaterials(VoidCore::RHI::ICommandList *cmd)
+	
+	static const void UpdateMaterials(VoidCore::RHI::ICommandList *cmd)
 	{
 		if (!cmd)
 			return;

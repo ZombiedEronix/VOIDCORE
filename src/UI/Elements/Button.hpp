@@ -27,7 +27,8 @@ public:
         {
             textBlock = std::make_shared<TextBlock>();
             textBlock->IsHitTestVisible = false;
-            textBlock->material = ResourceManager::GetMaterial("materials/UI/Text.mat");
+            // Утечка.
+            textBlock->material = ResourceManager::GetMaterial("materials/UI/Text.mat")->Clone();
             textBlock->SetProperty("Font", "fonts/Default.ttf");
 
             textBlock->HorizontalAlignment = HAlign::Center;

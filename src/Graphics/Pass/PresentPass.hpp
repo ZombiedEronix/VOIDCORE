@@ -9,7 +9,7 @@ namespace VoidCore::Rendering::Deferred
     class PresentPass : public RenderPass
     {
     private:
-        Shader *shader = nullptr;
+        const Shader *shader = nullptr;
         void CreateScreenPipeline();
         VoidCore::RHI::Ref<VoidCore::RHI::ISampler> presentSampler;
         VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> screenPipeline;

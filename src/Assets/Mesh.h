@@ -40,6 +40,6 @@ public:
 		indexCount = static_cast<unsigned int>(indices.size());
 	}
 
-	int GetVertexCount() { return vertexCount; }
-	int GetIndexCount() { return indexCount; }
+	int GetVertexCount() const { return vertexCount; }
+	int GetIndexCount() const { return indexCount; }
 };

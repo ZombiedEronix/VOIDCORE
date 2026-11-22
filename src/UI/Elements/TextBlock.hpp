@@ -2,7 +2,7 @@
 #include <string>
 
 #include "UI/Elements/UIControl.hpp"
-#include "Graphics/Resources/Material.h"
+#include "Entity/Material.hpp"
 
 class TextBlock : public UIControl
 {
@@ -10,7 +10,7 @@ public:
     std::string Text;
     /// @brief Background is not working now :(
     Color Foreground = Color::White();
-    Font *font = nullptr;
+    const Font *font = nullptr;
 
     Material *material;
 
@@ -39,6 +39,7 @@ public:
         }
         else if (name == "Font")
         {
+            
             font = ResourceManager::GetFont(value);
             
             //I don't know how fix this situation.
