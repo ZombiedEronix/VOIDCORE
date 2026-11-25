@@ -1,5 +1,3 @@
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.h>
 #include "Core/Engine.h"
 #include "Core/Window.h"
 #include "Core/SceneManagement/SceneManager.hpp"
@@ -39,8 +37,8 @@ int main()
     camObj->name = "EditorCamera";
     camObj->transform->SetPosition({0.0f, 3.0f, 6.0f});
     camObj->transform->SetRotation({-25.0f, -90.0f, 0.0f});
-    camObj->AddComponent<Camera>();
     camObj->AddComponent<FlyCamera>();
+    camObj->AddComponent<Camera>();
     camObj->AddComponent<EditorController>()->cam = camObj;
 
     GameObject *testObj = new GameObject();

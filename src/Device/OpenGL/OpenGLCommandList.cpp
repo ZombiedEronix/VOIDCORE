@@ -193,6 +193,23 @@ namespace VoidCore::RHI::OpenGL
         glBindSampler(slot, s ? s->Handle() : 0);
     }
 
+    //Experimental
+    void GLCommandList::UpdateTexture(ITexture *texture, const void *data, uint32_t width, uint32_t height)
+    {
+        // assert(!inRenderPass && "UpdateTexture must be called outside a RenderPass!");
+        if (!texture || !data)
+            return;
+
+        auto *glTex = static_cast<GLTexture *>(texture);
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        GLenum glFormat = (glTex->GetDesc().format == Format::R8_UNORM) ? GL_RED : GL_RGBA;
+        glTextureSubImage2D(glTex->GetNativeHandle(), 0, 0, 0, width, height, glFormat, GL_UNSIGNED_BYTE, data);
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+
     void GLCommandList::FlushVertexState()
     {
         if (!m_pipeline)

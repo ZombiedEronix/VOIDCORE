@@ -64,6 +64,7 @@ namespace VoidCore::RHI
         // size = 0 → from offset to end of buffer
         virtual void SetUniformBuffer(uint32_t slot, IBuffer *buffer, uint64_t offset = 0, uint64_t size = 0) = 0;
         virtual void SetTexture(uint32_t slot, ITexture *texture, ISampler *sampler) = 0;
+        virtual void UpdateTexture(ITexture *texture, const void *data, uint32_t width, uint32_t height) = 0;
 
         // --- drawing ---
         virtual void Draw(uint32_t vertexCount, uint32_t instanceCount = 1,

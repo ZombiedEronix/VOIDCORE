@@ -1,5 +1,3 @@
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <filesystem>

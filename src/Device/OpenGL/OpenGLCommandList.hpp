@@ -30,6 +30,7 @@ namespace VoidCore::RHI::OpenGL
         void SetIndexBuffer(IBuffer *buffer, IndexType type, uint64_t offset) override;
         void SetUniformBuffer(uint32_t slot, IBuffer *buffer, uint64_t offset, uint64_t size) override;
         void SetTexture(uint32_t slot, ITexture *texture, ISampler *sampler) override;
+        void UpdateTexture(ITexture *texture, const void *data, uint32_t width, uint32_t height) override;
 
         void Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
         void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex,
