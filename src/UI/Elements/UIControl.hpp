@@ -62,7 +62,6 @@ public:
         /// TODO: I ended up changing my approach because I couldn't come up with a solution to the material leakage problem.
         if (material)
         {
-            delete material;
             material = nullptr;
         }
     }
