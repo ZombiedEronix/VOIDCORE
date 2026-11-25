@@ -4,7 +4,8 @@ void Input::NewFrame()
 {
     keysPressedThisFrame.clear();
     mouseButtonsPressedThisFrame.clear();
-    mouseDelta = glm::vec2(0.0f, 0.0f);
+    mouseDelta = glm::vec2(0);
+    mouseScroll = glm::vec2(0);
 }
 
 void Input::ProcessEvent(const SDL_Event &event)
@@ -22,6 +23,11 @@ void Input::ProcessEvent(const SDL_Event &event)
     {
         KeyCode key = static_cast<KeyCode>(event.key.scancode);
         keys[key] = false;
+    }
+    else if (event.type == SDL_EVENT_MOUSE_WHEEL)
+    {
+        mouseScroll.x += event.wheel.x;
+        mouseScroll.y += event.wheel.y;
     }
     else if (event.type == SDL_EVENT_MOUSE_MOTION)
     {

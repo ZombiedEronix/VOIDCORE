@@ -5,6 +5,16 @@ glm::mat4 Camera::GetViewMatrix() const
     return view;
 }
 
+glm::mat4 Camera::GetProjectionMatrix() const
+{
+    return projection;
+}
+
+glm::mat4 Camera::GetOrthoProjection() const
+{
+    return orthoProjection;
+}
+
 void Camera::Update()
 {
     if (!gameObject || !gameObject->transform)
@@ -47,13 +57,13 @@ void Camera::Update()
 
 bool Camera::IsPointInFrustum(const glm::vec3 &point)
 {
-    //mswnfpce todo: fix camera frustrum culling.
-    //   for (int i = 0; i < 6; ++i)
-    // {
-    //   if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
-    // {
-    //   return false;
-    // }
-    // }
+    // mswnfpce todo: fix camera frustrum culling.
+    //    for (int i = 0; i < 6; ++i)
+    //  {
+    //    if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
+    //  {
+    //    return false;
+    //  }
+    //  }
     return true;
 }

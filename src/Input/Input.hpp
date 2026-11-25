@@ -14,6 +14,7 @@ private:
     static inline std::unordered_map<KeyCode, bool> keysPressedThisFrame;
 
     static inline glm::vec2 mousePosition{0.0f, 0.0f};
+    inline static glm::vec2 mouseScroll{0.0f};
     static inline glm::vec2 mouseDelta{0.0f, 0.0f};
 
 public:
@@ -23,7 +24,8 @@ public:
 
     static bool IsKeyHeld(KeyCode key);
     static bool IsKeyPressed(KeyCode key);
-
+    
+    static glm::vec2 GetMouseScroll() { return mouseScroll; }
     static glm::vec2 GetMousePosition() { return mousePosition; }
     static glm::vec2 GetMouseDelta() { return mouseDelta; }
     static bool IsMouseButtonHeld(int button) { return mouseButtons[button]; } // 1 - Left, 3 - Right (SDL)

@@ -97,6 +97,7 @@ public:
 	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
 	VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
+	VoidCore::Rendering::IRenderPipeline* GetRenderPipeline() const { return renderPipeline; }
 	void UploadLightData();
 	Renderer(Window *window);
 	~Renderer();

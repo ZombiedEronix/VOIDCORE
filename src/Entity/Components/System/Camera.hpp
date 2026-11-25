@@ -20,13 +20,11 @@ class Camera : public Behaviour
 {
 private:
 	glm::vec4 planes[6];
-public:
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 orthoProjection = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
-
-	unsigned int cameraUBO;
+public:
 
 	float fov = 75;
 	float neardist = 0.01f;
@@ -35,6 +33,7 @@ public:
 	void Update() override;
 
 	glm::mat4 GetViewMatrix() const;
-
-	bool IsPointInFrustum(const glm::vec3& point);
+	glm::mat4 GetProjectionMatrix() const;
+	glm::mat4 GetOrthoProjection() const;
+	bool IsPointInFrustum(const glm::vec3 &point);
 };

@@ -43,8 +43,6 @@ target_compile_definitions(VOIDCORE PRIVATE
     STB_IMAGE_IMPLEMENTATION
 )
 
-add_subdirectory(Tools/VoidPacker)
-
 function(voidcore_build_assets TARGET_NAME GAME_ASSETS_DIR)
     set(ENGINE_ASSETS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Assets")
     set(PAK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/gamedata.vpak")
@@ -65,3 +63,6 @@ function(voidcore_build_assets TARGET_NAME GAME_ASSETS_DIR)
     add_custom_target(${TARGET_NAME}_Assets ALL DEPENDS "${PAK_OUTPUT}")
     add_dependencies(${TARGET_NAME} ${TARGET_NAME}_Assets)
 endfunction()
+
+add_subdirectory(Tools/VoidPacker)
+add_subdirectory(Tools/VEditor)
