@@ -9,14 +9,20 @@ private:
     bool m_IsDestroyed = false;
 
 public:
+    /// @brief Object name
     std::string name;
     virtual ~Object() = default;
+
+    /// @brief Marks the object as destroyed for safe destruction at the end of the frame
+    /// @param obj A pointer to the object being destroyed
     static void Destroy(Object *obj)
     {
         if (!obj || obj->IsDestroyed())
             return;
     }
 
+    /// @brief This method clones the object.
+    /// @return The cloned object
     virtual Object *Clone() const { return nullptr; }
 
     void Retain() const { ++m_RefCount; }

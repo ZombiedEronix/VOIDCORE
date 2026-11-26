@@ -17,6 +17,7 @@ void Scene::AddGameObject(GameObject *gameObject)
 	}
 }
 
+/// @brief This method updates all GameObject's in scene.
 void Scene::Update()
 {
 	ZoneScopedN("Update Scene");
@@ -24,10 +25,21 @@ void Scene::Update()
 	if (gameObjects.empty())
 		return;
 
-	for (auto &obj : gameObjects)
 	{
-		ZoneTransientN(___objectZone, obj->name.c_str(), true);
-		obj->Update();
+		ZoneScopedN("Objects Update()");
+		for (auto &obj : gameObjects)
+		{
+			ZoneTransientN(___objectZone, obj->name.c_str(), true);
+			obj->Update();
+		}
+	}
+	{
+		ZoneScopedN("Objects LateUpdate()");
+		for (auto &obj : gameObjects)
+		{
+			ZoneTransientN(___objectZone, obj->name.c_str(), true);
+			obj->LateUpdate();
+		}
 	}
 }
 

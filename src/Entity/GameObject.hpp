@@ -21,6 +21,7 @@ public:
 	GameObject();
 	~GameObject();
 	void Update();
+	void LateUpdate();
 	
 	GameObject *Clone() const override;
 

@@ -11,6 +11,7 @@ public:
     virtual ~Component() = default;
 
     virtual void Update() {}
+    virtual void LateUpdate() {}
     virtual void Awake() {}
     virtual void OnDestroy() {}
 };

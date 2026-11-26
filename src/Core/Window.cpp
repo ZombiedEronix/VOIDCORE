@@ -104,7 +104,6 @@ Cursor &Window::GetCursor()
 
 void Window::Update()
 {
-    Input::NewFrame();
 
     SDL_Event event;
     while (SDL_PollEvent(&event))

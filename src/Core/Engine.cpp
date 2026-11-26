@@ -6,6 +6,7 @@
 
 namespace VoidCore::Core
 {
+    /// @brief This method initializes the engine, and starts the game cycle.
     void Engine::Run()
     {
         PrintLogo();
@@ -17,16 +18,22 @@ namespace VoidCore::Core
         }
     }
 
+    /// @brief This method is a game loop
     void Engine::Update()
     {
         ZoneScopedN("Full Frame");
+        // Resetting all input values
+        Input::NewFrame();
         Time::Update();
-        SceneManager::Update();
 
+        SceneManager::Update();
+        // If the window is shown and created, then update the window and render.
         if (Window::IsShowed() == true && Window::IsCreated())
         {
+            // Updating and receiving input
             Window::Update();
 
+            // If an attempt is made to close the window, then shut down.
             if (Window::ShouldClose())
             {
                 Window::Close();
@@ -34,19 +41,26 @@ namespace VoidCore::Core
                 return;
             }
 
+            // Begin Frame
             auto *device = Window::GetRenderDevice();
             Renderer *renderer = Window::GetRenderer();
 
             renderer->BeginFrame(device->BeginFrame());
-            SceneManager::Render(*renderer);
 
+            // Collecting data for rendering
+            SceneManager::Render(*renderer);
             renderer->Flush();
-            GC::Collect();
+
+            //End
             device->EndFrame();
         }
+
+        // Garbage cleaning
+        GC::Collect();
         FrameMark;
     }
 
+    /// @brief This method depicts the logo of the game engine in the log outputs.
     void Engine::PrintLogo()
     {
         std::cout << R"(
@@ -64,6 +78,7 @@ namespace VoidCore::Core
                   << std::endl;
     }
 
+    /// @brief This method shuts down the engine and stops the cycle by unloading the scenes and clearing all resources.
     void Engine::ShutDown()
     {
         Debug::Log("Engine is shutting down.");

@@ -14,7 +14,8 @@ GameObject *GameObject::Clone() const
     GameObject *clone = new GameObject();
     clone->name = this->name + " (Clone)";
 
-    SceneManager::currentScene->AddGameObject(clone);
+
+    // SceneManager::currentScene->AddGameObject(clone);
 
     clone->transform->SetPosition(this->transform->GetPosition());
     clone->transform->SetRotation(this->transform->GetRotation());
@@ -51,6 +52,7 @@ GameObject *GameObject::Clone() const
     return clone;
 }
 
+
 GameObject::~GameObject() {
     for (auto& comp : components) {
         comp->OnDestroy();
@@ -58,7 +60,12 @@ GameObject::~GameObject() {
     }
 }
 
-void GameObject::Update() {
+/// @brief This method updates the components connected to the object.
+///
+/// TODO: In this method, all components are updated, without exception, even those that do not have an Update or LateUpdate() implementation.
+/// It may be worth trying to remove unnecessary dummy calls, since these calls cannot be cut out by the compiler due to the fact that these are virtual methods.
+void GameObject::Update()
+{
     ZoneScoped;
     for (auto& comp : components) {
         ZoneTransientN(___compZone, typeid(*comp).name(), true);
@@ -67,6 +74,26 @@ void GameObject::Update() {
             if (behaviour->IsEnabled())
             {
                 behaviour->Update();
+            }
+        }
+    }
+}
+
+/// @brief This method updates the components connected to the object after the Update() function.
+///
+/// TODO: In this method, all components are updated, without exception, even those that do not have an Update or LateUpdate() implementation.
+/// It may be worth trying to remove unnecessary dummy calls, since these calls cannot be cut out by the compiler due to the fact that these are virtual methods.
+void GameObject::LateUpdate()
+{
+    ZoneScoped;
+    for (auto &comp : components)
+    {
+        ZoneTransientN(___compZone, typeid(*comp).name(), true);
+        if (Behaviour *behaviour = dynamic_cast<Behaviour *>(comp))
+        {
+            if (behaviour->IsEnabled())
+            {
+                behaviour->LateUpdate();
             }
         }
     }
