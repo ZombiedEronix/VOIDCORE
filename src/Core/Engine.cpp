@@ -17,6 +17,8 @@ namespace VoidCore::Core
         }
     }
 
+    
+
     void Engine::Update()
     {
         ZoneScopedN("Full Frame");
@@ -24,9 +26,8 @@ namespace VoidCore::Core
         Input::NewFrame();
         Time::Update();
 
-        SceneManager::Update();
-        // If the window is shown and created, then update the window and render.
-        if (Window::IsShowed() == true && Window::IsCreated())
+        
+        if (Window::IsCreated())
         {
             // Updating and receiving input
             Window::Update();
@@ -38,7 +39,12 @@ namespace VoidCore::Core
                 ShutDown();
                 return;
             }
+        }
 
+        SceneManager::Update();
+
+        if (Window::IsShowed() && Window::IsCreated())
+        {
             // Begin Frame
             auto *device = Window::GetRenderDevice();
             Renderer *renderer = Window::GetRenderer();
