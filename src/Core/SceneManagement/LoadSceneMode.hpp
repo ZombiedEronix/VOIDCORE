@@ -1,7 +1,7 @@
 #pragma once
-
-enum LoadSceneMode
+/// @brief Specifies the mode used when loading a scene.
+enum class LoadSceneMode
 {
-    Single,
-    Additive,
+    Single,  ///< Unloads all currently loaded scenes before loading the new one.
+    Additive ///< Loads the new scene alongside the currently active scenes.
 };

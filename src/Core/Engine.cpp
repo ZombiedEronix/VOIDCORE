@@ -6,7 +6,6 @@
 
 namespace VoidCore::Core
 {
-    /// @brief This method initializes the engine, and starts the game cycle.
     void Engine::Run()
     {
         PrintLogo();
@@ -18,7 +17,6 @@ namespace VoidCore::Core
         }
     }
 
-    /// @brief This method is a game loop
     void Engine::Update()
     {
         ZoneScopedN("Full Frame");
@@ -60,7 +58,6 @@ namespace VoidCore::Core
         FrameMark;
     }
 
-    /// @brief This method depicts the logo of the game engine in the log outputs.
     void Engine::PrintLogo()
     {
         std::cout << R"(
@@ -78,7 +75,6 @@ namespace VoidCore::Core
                   << std::endl;
     }
 
-    /// @brief This method shuts down the engine and stops the cycle by unloading the scenes and clearing all resources.
     void Engine::ShutDown()
     {
         Debug::Log("Engine is shutting down.");

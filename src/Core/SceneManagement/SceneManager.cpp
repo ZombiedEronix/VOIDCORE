@@ -1,3 +1,4 @@
+#include <Tracy/tracy/Tracy.hpp>
 #include "SceneManager.hpp"
 
 void SceneManager::LoadScene(Scene *obj, LoadSceneMode loadMode = LoadSceneMode::Single)

@@ -1,24 +1,26 @@
 #pragma once
 
-#include <string>
-
-#include <memory>
 #include "Scene.hpp"
 
 #include "LoadSceneMode.hpp"
 
-#include <Tracy/tracy/Tracy.hpp>
-
 class SceneManager
 {
 public:
-	inline static Scene* currentScene = nullptr;
+	inline static Scene *currentScene = nullptr; ///< Currently active scene
 
+	/// @brief Loads a new scene using the specified load mode.
+	/// @param obj Pointer to the scene to load.
+	/// @param loadMode Mode determining how the scene is loaded.
 	static void LoadScene(Scene *obj, LoadSceneMode loadMode);
 
+	/// @brief Updates the active scene.
 	static void Update();
 
-	static void Render(Renderer& renderer);
+	/// @brief Renders the active scene.
+	/// @param renderer Reference to the active renderer.
+	static void Render(Renderer &renderer);
 
+	/// @brief Unloads the currently active scene and frees its resources.
 	static void UnloadScene();
 };

@@ -3,28 +3,29 @@
 
 class Time
 {
-private:
-	inline static float m_deltaTime = 0.0f;
-	inline static float m_time = 0.0f;
-	inline static float m_timeScale = 1.0f;
-	inline static float m_unscaledDeltaTime = 0.0f;
-	inline static float m_unscaledTime = 0.0f;
-
-	inline static float m_lastFrameTime = 0.0f;
-	inline static bool m_isFirstFrame = true;
-
 public:
-	inline static float GetDeltaTime() { return m_deltaTime; }
-	inline static float GetTime() { return m_time; }
-	inline static float GetUnscaledDeltaTime() { return m_unscaledDeltaTime; }
-	inline static float GetUnscaledTime() { return m_unscaledTime; }
+	/// @brief Returns the scaled frame time in seconds.
+	static double GetDeltaTime() { return m_deltaTime; }
 
-	inline static float GetTimeScale() { return m_timeScale; }
-	inline static void SetTimeScale(float scale) { m_timeScale = scale; }
+	/// @brief Returns the total scaled time since startup in seconds.
+	static double GetTime() { return m_time; }
 
+	/// @brief Returns the real (unscaled) frame time in seconds.
+	static double GetUnscaledDeltaTime() { return m_unscaledDeltaTime; }
+
+	/// @brief Returns the total real time since startup in seconds.
+	static double GetUnscaledTime() { return m_unscaledTime; }
+
+	/// @brief Returns the current time scale multiplier.
+	static double GetTimeScale() { return m_timeScale; }
+
+	/// @brief Sets the time scale multiplier (clamped to >= 0.0).
+	static void SetTimeScale(double scale) { m_timeScale = scale < 0.0 ? 0.0 : scale; }
+
+	/// @brief Updates all time counters in seconds.
 	static void Update()
 	{
-		float currentTime = static_cast<float>(SDL_GetTicks()) / 1000.0f;
+		double currentTime = static_cast<double>(SDL_GetTicksNS()) / 1'000'000'000.0;
 
 		if (m_isFirstFrame)
 		{
@@ -35,11 +36,21 @@ public:
 		m_unscaledDeltaTime = currentTime - m_lastFrameTime;
 		m_lastFrameTime = currentTime;
 
-		if (m_unscaledDeltaTime > 0.1f)
-			m_unscaledDeltaTime = 0.1f;
+		if (m_unscaledDeltaTime > 0.1)
+			m_unscaledDeltaTime = 0.1;
 
 		m_unscaledTime += m_unscaledDeltaTime;
 		m_deltaTime = m_unscaledDeltaTime * m_timeScale;
 		m_time += m_deltaTime;
 	}
+
+private:
+	inline static double m_deltaTime = 0.0;
+	inline static double m_time = 0.0;
+	inline static double m_timeScale = 1.0;
+	inline static double m_unscaledDeltaTime = 0.0;
+	inline static double m_unscaledTime = 0.0;
+
+	inline static double m_lastFrameTime = 0.0;
+	inline static bool m_isFirstFrame = true;
 };

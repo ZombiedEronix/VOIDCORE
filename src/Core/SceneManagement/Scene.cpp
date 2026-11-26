@@ -1,13 +1,9 @@
 #include "Scene.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
-
+#include <Tracy/tracy/Tracy.hpp>
 #include <algorithm>
 
 class GameObject;
-
-Scene::Scene()
-{
-}
 
 void Scene::AddGameObject(GameObject *gameObject)
 {
