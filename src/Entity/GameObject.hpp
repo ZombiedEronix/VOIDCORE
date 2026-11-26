@@ -11,46 +11,46 @@
 #include "Entity/Object.hpp"
 #include "GameObject.hpp"
 
-class GameObject : public Object
-{
-private:
-public:
-	Transform *transform;
-	std::vector<Component *> components;
+	class GameObject : public Object
+	{
+	private:
+	public:
+		Transform *transform;
+		std::vector<Component *> components;
 
-	GameObject();
-	~GameObject();
-	void Update();
-	void LateUpdate();
-	
-	GameObject *Clone() const override;
+		GameObject();
+		~GameObject();
+		void Update();
+		void LateUpdate();
+
+		GameObject *Clone() const override;
+
+		template <typename T>
+		T *GetComponent() const;
+		template <typename T, typename... Args>
+		T *AddComponent(Args &&...args);
+	};
+
+	template <typename T, typename... Args>
+	T *GameObject::AddComponent(Args &&...args)
+	{
+		auto comp = new T(std::forward<Args>(args)...);
+
+		comp->gameObject = this;
+		components.push_back(comp);
+		comp->Awake();
+		return comp;
+	}
 
 	template <typename T>
-	T *GetComponent() const;
-	template <typename T, typename... Args>
-	T *AddComponent(Args &&...args);
-};
-
-template <typename T, typename... Args>
-T *GameObject::AddComponent(Args &&...args)
-{
-	auto comp = new T(std::forward<Args>(args)...);
-
-	comp->gameObject = this;
-	components.push_back(comp);
-	comp->Awake();
-	return comp;
-}
-
-template <typename T>
-T *GameObject::GetComponent() const
-{
-	for (auto &comp : components)
+	T *GameObject::GetComponent() const
 	{
-		if (T *casted = dynamic_cast<T *>(comp))
+		for (auto &comp : components)
 		{
-			return casted;
+			if (T *casted = dynamic_cast<T *>(comp))
+			{
+				return casted;
+			}
 		}
+		return nullptr;
 	}
-	return nullptr;
-}

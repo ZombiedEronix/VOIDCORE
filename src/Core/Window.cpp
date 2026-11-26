@@ -1,278 +1,282 @@
 #include "Window.h"
+#include "Graphics/Renderer.hpp"
+#include <Core/Debug.h>
 
-bool Window::Create(VoidCore::RHI::GraphicsAPI api, int w, int h)
+namespace VoidCore
 {
-    width = w;
-    height = h;
-
-    shouldClose = false;
-    isFullScreen = false;
-    cursor = Cursor();
-    
-    if (!SDL_WasInit(SDL_INIT_VIDEO))
+    using namespace VoidCore::Rendering;
+    bool Window::Create(VoidCore::RHI::GraphicsAPI api, int w, int h)
     {
-        if (!SDL_Init(SDL_INIT_VIDEO))
+        width = w;
+        height = h;
+
+        shouldClose = false;
+        isFullScreen = false;
+        cursor = Cursor();
+
+        if (!SDL_WasInit(SDL_INIT_VIDEO))
         {
-            Debug::LogError("Failed to initialize SDL: ", SDL_GetError());
+            if (!SDL_Init(SDL_INIT_VIDEO))
+            {
+                Debug::LogError("Failed to initialize SDL: ", SDL_GetError());
+                return false;
+            }
+        }
+
+        windowPtr = SDL_CreateWindow(
+            "VoidCore Engine",
+            w,
+            h,
+            VoidCore::RHI::GetWindowFlags(api) | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+
+        if (!windowPtr)
+        {
+            Debug::LogError("Failed to create SDL window: ", SDL_GetError());
             return false;
         }
-    }
 
-    windowPtr = SDL_CreateWindow(
-        "VoidCore Engine",
-        w,
-        h,
-        VoidCore::RHI::GetWindowFlags(api) | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
-
-    if (!windowPtr)
-    {
-        Debug::LogError("Failed to create SDL window: ", SDL_GetError());
-        return false;
-    }
-
-    renderDevice = VoidCore::RHI::CreateRenderDevice(api);
-    if (!renderDevice)
-    {
-        Debug::LogError("Failed to create render device for ", VoidCore::RHI::ToString(api));
-        return false;
-    }
-    
-    VoidCore::RHI::DeviceDesc deviceDesc;
-    #ifdef NDEBUG
-    deviceDesc.enableValidation = false;
-    #else
-    deviceDesc.enableValidation = true;
-    #endif
-    deviceDesc.vsync = true;
-
-    if (!renderDevice->Initialize(windowPtr, deviceDesc))
-    {
-        Debug::LogError("Failed to initialize Render Device for window!");
-        return false;
-    }
-    VoidCore::RHI::SetDevice(renderDevice.get());
-    
-    renderer = new Renderer(nullptr);
-
-    Debug::Log("Showing Window");
-
-
-    isCreated = true;
-    return true;
-}
-
-float Window::GetWidth()
-{
-    return width;
-}
-
-float Window::GetHeight()
-{
-    return height;
-}
-
-bool Window::IsShowed()
-{
-    return isShowed;
-}
-
-bool Window::IsCreated()
-{
-    return isCreated;
-}
-
-void Window::Close()
-{
-    Debug::Log("Shutting down Renderer...");
-    if (renderDevice)
-        renderDevice->WaitIdle();
-    delete renderer;
-    renderer = nullptr;
-
-    VoidCore::RHI::SetDevice(nullptr);
-    renderDevice.reset();
-
-    SDL_DestroyWindow(windowPtr);
-    windowPtr = nullptr;
-    isCreated = false;
-}
-
-Cursor &Window::GetCursor()
-{
-    return cursor;
-}
-
-void Window::Update()
-{
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        Input::ProcessEvent(event);
-
-        if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+        renderDevice = VoidCore::RHI::CreateRenderDevice(api);
+        if (!renderDevice)
         {
-            shouldClose = true;
+            Debug::LogError("Failed to create render device for ", VoidCore::RHI::ToString(api));
+            return false;
         }
-        else if (event.type == SDL_EVENT_WINDOW_RESIZED)
+
+        VoidCore::RHI::DeviceDesc deviceDesc;
+#ifdef NDEBUG
+        deviceDesc.enableValidation = false;
+#else
+        deviceDesc.enableValidation = true;
+#endif
+        deviceDesc.vsync = true;
+
+        if (!renderDevice->Initialize(windowPtr, deviceDesc))
         {
-            pendingWidth = event.window.data1;
-            pendingHeight = event.window.data2;
-            isResizing = true;
+            Debug::LogError("Failed to initialize Render Device for window!");
+            return false;
         }
+        VoidCore::RHI::SetDevice(renderDevice.get());
+
+        renderer = new Renderer(nullptr);
+
+        Debug::Log("Showing Window");
+
+        isCreated = true;
+        return true;
     }
 
-    if (isResizing)
+    float Window::GetWidth()
     {
+        return width;
+    }
+
+    float Window::GetHeight()
+    {
+        return height;
+    }
+
+    bool Window::IsShowed()
+    {
+        return isShowed;
+    }
+
+    bool Window::IsCreated()
+    {
+        return isCreated;
+    }
+
+    void Window::Close()
+    {
+        Debug::Log("Shutting down Renderer...");
+        if (renderDevice)
+            renderDevice->WaitIdle();
+        delete renderer;
+        renderer = nullptr;
+
+        VoidCore::RHI::SetDevice(nullptr);
+        renderDevice.reset();
+
+        SDL_DestroyWindow(windowPtr);
+        windowPtr = nullptr;
+        isCreated = false;
+    }
+
+    Cursor &Window::GetCursor()
+    {
+        return cursor;
+    }
+
+    void Window::Update()
+    {
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            Input::ProcessEvent(event);
+
+            if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+            {
+                shouldClose = true;
+            }
+            else if (event.type == SDL_EVENT_WINDOW_RESIZED)
+            {
+                pendingWidth = event.window.data1;
+                pendingHeight = event.window.data2;
+                isResizing = true;
+            }
+        }
+
+        if (isResizing)
+        {
             width = pendingWidth;
             height = pendingHeight;
 
             OnResize.Call(width, height);
 
             isResizing = false;
+        }
     }
-}
 
-void Window::EndFrame()
-{
-    if (renderDevice)
-        renderDevice->EndFrame();
-}
-
-Renderer *Window::GetRenderer()
-{
-    return renderer;
-}
-
-void Window::SetResolution(int w, int h)
-{
-    Debug::Log("Setting video resolution to ", w, "x", h);
-
-    if (windowPtr != nullptr && !isFullScreen)
+    void Window::EndFrame()
     {
-        width = w;
-        height = h;
-        SDL_SetWindowSize(windowPtr, w, h);
+        if (renderDevice)
+            renderDevice->EndFrame();
     }
-}
 
-void Window::SetFullScreen(bool fullscreen)
-{
-    Debug::Log("Setting fullscreen mode: ", fullscreen ? "True" : "False");
-    isFullScreen = fullscreen;
-    SDL_SetWindowFullscreen(windowPtr, fullscreen);
-}
-
-void Window::SetResizable(bool enabled)
-{
-    SDL_SetWindowResizable(windowPtr, enabled);
-}
-
-void Window::SetBordered(bool enabled)
-{
-    SDL_SetWindowBordered(windowPtr, enabled);
-}
-
-void Window::SetTitle(const char *name)
-{
-    SDL_SetWindowTitle(windowPtr, name);
-}
-
-void Window::SetMaximumSize(int sizeX, int sizeY)
-{
-    SDL_SetWindowMaximumSize(windowPtr, sizeX, sizeY);
-}
-
-void Window::SetMinimumSize(int sizeX, int sizeY)
-{
-    SDL_SetWindowMinimumSize(windowPtr, sizeX, sizeY);
-}
-
-void Window::SetSize(int sizeX, int sizeY)
-{
-    SDL_SetWindowSize(windowPtr, sizeX, sizeY);
-}
-
-void Window::SetPosition(int sizeX, int sizeY)
-{
-    SDL_SetWindowPosition(windowPtr, sizeX, sizeY);
-}
-
-void Window::SetOpacity(float opacity)
-{
-    SDL_SetWindowOpacity(windowPtr, opacity);
-}
-
-void Window::SetAlwaysOnTop(bool enabled)
-{
-    SDL_SetWindowAlwaysOnTop(windowPtr, enabled);
-}
-
-void Window::Maximize()
-{
-    SDL_MaximizeWindow(windowPtr);
-}
-
-
-void Window::Hide()
-{
-    if(isShowed)
+    Renderer *Window::GetRenderer()
     {
-        isShowed = false;
-        SDL_HideWindow(windowPtr);
+        return renderer;
     }
-}
 
-void Window::Show()
-{
-    if(!isShowed)
+    void Window::SetResolution(int w, int h)
     {
-        isShowed = true;
-        SDL_ShowWindow(windowPtr);
+        Debug::Log("Setting video resolution to ", w, "x", h);
+
+        if (windowPtr != nullptr && !isFullScreen)
+        {
+            width = w;
+            height = h;
+            SDL_SetWindowSize(windowPtr, w, h);
+        }
     }
-}
 
-void Window::Minimize()
-{
-    SDL_MinimizeWindow(windowPtr);
-}
+    void Window::SetFullScreen(bool fullscreen)
+    {
+        Debug::Log("Setting fullscreen mode: ", fullscreen ? "True" : "False");
+        isFullScreen = fullscreen;
+        SDL_SetWindowFullscreen(windowPtr, fullscreen);
+    }
 
-void Window::Raise()
-{
-    SDL_RaiseWindow(windowPtr);
-}
+    void Window::SetResizable(bool enabled)
+    {
+        SDL_SetWindowResizable(windowPtr, enabled);
+    }
 
-void Window::Restore()
-{
-    SDL_RestoreWindow(windowPtr);
-}
+    void Window::SetBordered(bool enabled)
+    {
+        SDL_SetWindowBordered(windowPtr, enabled);
+    }
 
-void Window::SetVerticalSync(bool enabled)
-{
-    Debug::Log("Setting V-Sync to ", enabled ? "Enabled" : "Disabled");
-    if (renderDevice)
-        renderDevice->SetVerticalSync(enabled);
-}
+    void Window::SetTitle(const char *name)
+    {
+        SDL_SetWindowTitle(windowPtr, name);
+    }
 
-bool Window::ShouldClose()
-{
-    return shouldClose;
-}
+    void Window::SetMaximumSize(int sizeX, int sizeY)
+    {
+        SDL_SetWindowMaximumSize(windowPtr, sizeX, sizeY);
+    }
 
-float Window::GetAspectRatio()
-{
-    if (height == 0)
-        return 1.0f;
+    void Window::SetMinimumSize(int sizeX, int sizeY)
+    {
+        SDL_SetWindowMinimumSize(windowPtr, sizeX, sizeY);
+    }
 
-    return static_cast<float>(width) / static_cast<float>(height);
-}
+    void Window::SetSize(int sizeX, int sizeY)
+    {
+        SDL_SetWindowSize(windowPtr, sizeX, sizeY);
+    }
 
-SDL_Window *Window::GetNativeWindow()
-{
-    return windowPtr;
-}
+    void Window::SetPosition(int sizeX, int sizeY)
+    {
+        SDL_SetWindowPosition(windowPtr, sizeX, sizeY);
+    }
 
-VoidCore::RHI::IRenderDevice *Window::GetRenderDevice()
-{
-    return renderDevice.get();
+    void Window::SetOpacity(float opacity)
+    {
+        SDL_SetWindowOpacity(windowPtr, opacity);
+    }
+
+    void Window::SetAlwaysOnTop(bool enabled)
+    {
+        SDL_SetWindowAlwaysOnTop(windowPtr, enabled);
+    }
+
+    void Window::Maximize()
+    {
+        SDL_MaximizeWindow(windowPtr);
+    }
+
+    void Window::Hide()
+    {
+        if (isShowed)
+        {
+            isShowed = false;
+            SDL_HideWindow(windowPtr);
+        }
+    }
+
+    void Window::Show()
+    {
+        if (!isShowed)
+        {
+            isShowed = true;
+            SDL_ShowWindow(windowPtr);
+        }
+    }
+
+    void Window::Minimize()
+    {
+        SDL_MinimizeWindow(windowPtr);
+    }
+
+    void Window::Raise()
+    {
+        SDL_RaiseWindow(windowPtr);
+    }
+
+    void Window::Restore()
+    {
+        SDL_RestoreWindow(windowPtr);
+    }
+
+    void Window::SetVerticalSync(bool enabled)
+    {
+        Debug::Log("Setting V-Sync to ", enabled ? "Enabled" : "Disabled");
+        if (renderDevice)
+            renderDevice->SetVerticalSync(enabled);
+    }
+
+    bool Window::ShouldClose()
+    {
+        return shouldClose;
+    }
+
+    float Window::GetAspectRatio()
+    {
+        if (height == 0)
+            return 1.0f;
+
+        return static_cast<float>(width) / static_cast<float>(height);
+    }
+
+    SDL_Window *Window::GetNativeWindow()
+    {
+        return windowPtr;
+    }
+
+    VoidCore::RHI::IRenderDevice *Window::GetRenderDevice()
+    {
+        return renderDevice.get();
+    }
 }

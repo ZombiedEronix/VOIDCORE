@@ -2,7 +2,10 @@
 #include "Device/ICommandList.hpp"
 #include "RenderPassEvent.hpp"
 
-class Renderer;
+namespace VoidCore::Rendering
+{
+    class Renderer;
+}
 
 namespace VoidCore::Rendering
 {

@@ -4,6 +4,11 @@
 #include "Graphics/Renderer.hpp"
 #include "GizmoVertex.hpp"
 
+namespace VoidCore::Rendering
+{
+    class Renderer;
+}
+
 namespace VEditor::Rendering
 {
     class GizmoPass : public VoidCore::Rendering::RenderPass
@@ -19,6 +24,6 @@ namespace VEditor::Rendering
     public:
         GizmoPass();
         void OnResize(int width, int height) override {}
-        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
+        void Execute(VoidCore::RHI::ICommandList *cmd, VoidCore::Rendering::Renderer *renderer) override;
     };
 }

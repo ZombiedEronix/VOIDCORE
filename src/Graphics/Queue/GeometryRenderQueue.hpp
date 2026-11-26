@@ -2,7 +2,10 @@
 #include <vector>
 #include "GeometryRenderCommand.h"
 
-class Renderer;
+namespace VoidCore::Rendering
+{
+    class Renderer;
+}
 
 class GeometryRenderQueue
 {
@@ -19,7 +22,7 @@ public:
     
     void Sort();
 
-    void Execute(Renderer *renderer);
+    void Execute(VoidCore::Rendering::Renderer *renderer);
 
     void Clear();
 

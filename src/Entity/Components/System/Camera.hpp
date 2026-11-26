@@ -13,27 +13,28 @@
 
 #include "Entity/Components/Base/Behaviour.hpp"
 
-class Window;
 
-
-class Camera : public Behaviour
+namespace VoidCore
 {
-private:
-	glm::vec4 planes[6];
-	glm::mat4 cameraMatrix = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 orthoProjection = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-public:
+	class Camera : public Behaviour
+	{
+	private:
+		glm::vec4 planes[6];
+		glm::mat4 cameraMatrix = glm::mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		glm::mat4 orthoProjection = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
 
-	float fov = 75;
-	float neardist = 0.01f;
-	float fardist = 1000;
+	public:
+		float fov = 75;
+		float neardist = 0.01f;
+		float fardist = 1000;
 
-	void Update() override;
+		void Update() override;
 
-	glm::mat4 GetViewMatrix() const;
-	glm::mat4 GetProjectionMatrix() const;
-	glm::mat4 GetOrthoProjection() const;
-	bool IsPointInFrustum(const glm::vec3 &point);
-};
+		glm::mat4 GetViewMatrix() const;
+		glm::mat4 GetProjectionMatrix() const;
+		glm::mat4 GetOrthoProjection() const;
+		bool IsPointInFrustum(const glm::vec3 &point);
+	};
+}

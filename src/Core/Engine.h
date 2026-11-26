@@ -5,7 +5,6 @@
 #include "Core/SceneManagement/SceneManager.hpp"
 #include "Core/EngineTime.h"
 #include "Core/Debug.h"
-#include "Graphics/Renderer.hpp"
 #include "Device/RHI.hpp"
 
 namespace VoidCore::Core

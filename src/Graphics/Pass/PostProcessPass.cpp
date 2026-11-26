@@ -1,7 +1,11 @@
 #include "PostProcessPass.hpp"
+#include "Graphics/Renderer.hpp"
+
 
 namespace VoidCore::Rendering::Deferred
 {
+    using namespace VoidCore::Rendering;
+    
     PostProcessPass::PostProcessPass()
     {
         OnResize(Window::GetWidth(), Window::GetHeight());

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include "GarbageCollector/GC.hpp"
+
 class Object
 {
 private:

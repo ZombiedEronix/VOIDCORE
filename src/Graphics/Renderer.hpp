@@ -17,7 +17,6 @@
 
 #include "UI/UIContext.hpp"
 
-class Camera;
 class GeometryRenderQueue;
 class Mesh;
 class Material;
@@ -28,88 +27,94 @@ namespace VoidCore::Rendering
 	class UIPass;
 }
 
-
-class Window;
-
-class Renderer
+namespace VoidCore
 {
-private:
-	std::unordered_map<std::string, VoidCore::RHI::ITexture *> m_RenderTargets;
+	class Window;
+	class Camera;
+}
 
-	VoidCore::RHI::ICommandList *cmd = nullptr;
-	Window *windowPtr;
-	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
-	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
-	VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
-	size_t currentBufferCapacity = 1024;
-
-	Camera *currentCamera = nullptr;
-
-	VoidCore::Rendering::IRenderPipeline *renderPipeline;
-	UIContext uiContext;
-	GeometryRenderQueue *opaqueQueue;
-	std::vector<glm::mat4> instanceMatrices;
-
-	ShaderBlock block;
-	LightsBlock *lightBlock;
-
-	void CreateInstanceBuffer(size_t capacity);
-	void UploadFrameData();
-	void UploadInstances(const GeometryRenderQueue &queue);
-
-public:
-	void SetRenderTargetTexture(const std::string &name, VoidCore::RHI::ITexture *texture)
+namespace VoidCore::Rendering
+{
+	class Renderer
 	{
-		assert(texture != nullptr && "[Renderer] : Attempted to set a nullptr texture.");
+	private:
+		std::unordered_map<std::string, VoidCore::RHI::ITexture *> m_RenderTargets;
 
-		auto it = m_RenderTargets.find(name);
-		if (it != m_RenderTargets.end())
+		VoidCore::RHI::ICommandList *cmd = nullptr;
+		Window *windowPtr;
+		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
+		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
+		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
+		size_t currentBufferCapacity = 1024;
+
+		Camera *currentCamera = nullptr;
+
+		VoidCore::Rendering::IRenderPipeline *renderPipeline;
+		UIContext uiContext;
+		GeometryRenderQueue *opaqueQueue;
+		std::vector<glm::mat4> instanceMatrices;
+
+		ShaderBlock block;
+		LightsBlock *lightBlock;
+
+		void CreateInstanceBuffer(size_t capacity);
+		void UploadFrameData();
+		void UploadInstances(const GeometryRenderQueue &queue);
+
+	public:
+		void SetRenderTargetTexture(const std::string &name, VoidCore::RHI::ITexture *texture)
 		{
-			if (it->second != texture)
+			assert(texture != nullptr && "[Renderer] : Attempted to set a nullptr texture.");
+
+			auto it = m_RenderTargets.find(name);
+			if (it != m_RenderTargets.end())
 			{
-				Debug::LogError("[Renderer] : RenderTexture '" + name + "' is being overwritten by a different texture!");
-				assert(false && "[Renderer] : RenderTexture overwriting detected!");
+				if (it->second != texture)
+				{
+					Debug::LogError("[Renderer] : RenderTexture '" + name + "' is being overwritten by a different texture!");
+					assert(false && "[Renderer] : RenderTexture overwriting detected!");
+				}
+				return;
 			}
-			return;
+
+			m_RenderTargets[name] = texture;
 		}
 
-		m_RenderTargets[name] = texture;
-	}
-
-	VoidCore::RHI::ITexture *GetRenderTargetTexture(const std::string &name)
-	{
-		auto it = m_RenderTargets.find(name);
-		if (it != m_RenderTargets.end())
+		VoidCore::RHI::ITexture *GetRenderTargetTexture(const std::string &name)
 		{
-			return it->second;
+			auto it = m_RenderTargets.find(name);
+			if (it != m_RenderTargets.end())
+			{
+				return it->second;
+			}
+			Debug::LogError("[Renderer] : TargetTexture '" + name + "' is not found!");
+			assert(false && "TargetTexture not found!");
+
+			return nullptr;
 		}
-		Debug::LogError("[Renderer] : TargetTexture '" + name + "' is not found!");
-		assert(false && "TargetTexture not found!");
 
-		return nullptr;
-	}
+		void ClearRenderTargets() { m_RenderTargets.clear(); }
 
-	void ClearRenderTargets() { m_RenderTargets.clear(); }
+		GeometryRenderQueue *GetOpaqueQueue();
+		UIContext &GetUIContext() { return uiContext; }
+		VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
+		VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
+		VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
+		VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
+		VoidCore::Rendering::IRenderPipeline *GetRenderPipeline() const { return renderPipeline; }
+		void UploadLightData();
+		Renderer(Window *window);
+		~Renderer();
 
-	GeometryRenderQueue *GetOpaqueQueue();
-	UIContext &GetUIContext() { return uiContext; }
-	VoidCore::RHI::ICommandList *GetCommandList() const { return cmd; }
-	VoidCore::RHI::IBuffer *GetCameraBuffer() const { return cameraBuffer.get(); }
-	VoidCore::RHI::IBuffer *GetInstanceBuffer() const { return instanceBuffer.get(); }
-	VoidCore::RHI::IBuffer *GetLightBuffer() const { return lightBuffer.get(); }
-	VoidCore::Rendering::IRenderPipeline* GetRenderPipeline() const { return renderPipeline; }
-	void UploadLightData();
-	Renderer(Window *window);
-	~Renderer();
+		void SetCamera(Camera *camera);
+		void BeginFrame(VoidCore::RHI::ICommandList *commandList);
+		Window *GetWindow() { return windowPtr; }
+		void Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model);
 
-	void SetCamera(Camera *camera);
-	void BeginFrame(VoidCore::RHI::ICommandList *commandList);
-	Window *GetWindow() { return windowPtr; }
-	void Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model);
+		void SubmitLight(LightCommand &info);
 
-	void SubmitLight(LightCommand &info);
+		void Flush();
 
-	void Flush();
-
-	void DrawBatch(const std::vector<GeometryRenderCommand> &queue);
-};
+		void DrawBatch(const std::vector<GeometryRenderCommand> &queue);
+	};
+}

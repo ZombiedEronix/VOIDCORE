@@ -6,6 +6,8 @@
 #include "Entity/Material.hpp"
 #include "Assets/Mesh.h"
 
+using namespace VoidCore::Rendering;
+
 void GeometryRenderQueue::AddCommand(const GeometryRenderCommand &command)
 {
     m_Queue.push_back(command);

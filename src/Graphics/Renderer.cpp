@@ -14,174 +14,180 @@
 
 /// TEMPORARY SOLUTION
 #include "Assets/ResourceManager.h"
+#include "Core/Window.h"
+
 
 using namespace VoidCore::RHI;
 using namespace VoidCore::Rendering::Deferred;
+using namespace VoidCore;
 
-Renderer::Renderer(Window *window)
+namespace VoidCore::Rendering
 {
-    windowPtr = window;
-    block = ShaderBlock();
-
-    BufferDesc cb;
-    cb.size = sizeof(ShaderBlock);
-    cb.usage = BufferUsage::Uniform;
-    cb.memory = MemoryType::Dynamic;
-    cb.debugName = "FrameUBO";
-    cameraBuffer = GetDevice().CreateBuffer(cb);
-
-    renderPipeline = new DeferredRenderPipeline();
-
-    ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    BufferDesc lightB;
-    lightB.size = sizeof(LightsBlock);
-    lightB.usage = BufferUsage::Uniform;
-    lightB.memory = MemoryType::Dynamic;
-    lightB.debugName = "GlobalLightUBO";
-    lightBuffer = GetDevice().CreateBuffer(lightB);
-    ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    CreateInstanceBuffer(currentBufferCapacity);
-    opaqueQueue = new GeometryRenderQueue();
-    lightBlock = new LightsBlock();
-}
-
-void Renderer::CreateInstanceBuffer(size_t capacity)
-{
-    BufferDesc ib;
-    ib.size = capacity * sizeof(glm::mat4);
-    ib.usage = BufferUsage::Vertex;
-    ib.memory = MemoryType::Dynamic;
-    ib.debugName = "InstanceBuffer";
-    instanceBuffer = GetDevice().CreateBuffer(ib);
-    currentBufferCapacity = capacity;
-}
-
-Renderer::~Renderer()
-{
-    delete opaqueQueue;
-    delete lightBlock;
-    delete renderPipeline;
-}
-
-void Renderer::SetCamera(Camera *camera)
-{
-    currentCamera = camera;
-}
-
-void Renderer::BeginFrame(ICommandList *commandList)
-{
-    cmd = commandList;
-}
-
-void Renderer::Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model)
-{
-    //opaque,transparent,masked???
-    opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
-}
-
-void Renderer::UploadFrameData()
-{
-    if (currentCamera)
+    Renderer::Renderer(Window *window)
     {
-        block.U_Projection = currentCamera->GetProjectionMatrix();
-        block.U_View = currentCamera->GetViewMatrix();
-        block.U_InvProj = glm::inverse(currentCamera->GetProjectionMatrix());
-        block.U_InvView = glm::inverse(currentCamera->GetViewMatrix());
-        block.U_OrthoProjection = glm::mat4(currentCamera->GetOrthoProjection());
-    }
-    else
-    {
-        block.U_InvProj = glm::mat4(1);
-        block.U_InvView = glm::mat4(1);
-        block.U_OrthoProjection = glm::mat4(1);
-        block.U_View = glm::mat4(1);
-        block.U_Projection = glm::mat4(1);
+        windowPtr = window;
+        block = ShaderBlock();
+
+        BufferDesc cb;
+        cb.size = sizeof(ShaderBlock);
+        cb.usage = BufferUsage::Uniform;
+        cb.memory = MemoryType::Dynamic;
+        cb.debugName = "FrameUBO";
+        cameraBuffer = GetDevice().CreateBuffer(cb);
+
+        renderPipeline = new DeferredRenderPipeline();
+
+        ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        BufferDesc lightB;
+        lightB.size = sizeof(LightsBlock);
+        lightB.usage = BufferUsage::Uniform;
+        lightB.memory = MemoryType::Dynamic;
+        lightB.debugName = "GlobalLightUBO";
+        lightBuffer = GetDevice().CreateBuffer(lightB);
+        ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        CreateInstanceBuffer(currentBufferCapacity);
+        opaqueQueue = new GeometryRenderQueue();
+        lightBlock = new LightsBlock();
     }
 
-    block.U_OrthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
-
-    block.U_Time = Time::GetTime();
-    block.U_DeltaTime = Time::GetDeltaTime();
-    block.U_ScreenWidth = Window::GetWidth();
-    block.U_ScreenHeight = Window::GetHeight();
-    cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
-}
-
-void Renderer::UploadInstances(const GeometryRenderQueue &queue)
-{
-    instanceMatrices.clear();
-    instanceMatrices.reserve(queue.GetCount());
-    for (const GeometryRenderCommand &c : queue.GetData())
-        instanceMatrices.push_back(c.modelMatrix);
-
-    if (instanceMatrices.size() > currentBufferCapacity)
-        CreateInstanceBuffer(instanceMatrices.size() * 2);
-
-    if (!instanceMatrices.empty())
-        cmd->UpdateBuffer(instanceBuffer.get(), instanceMatrices.data(), instanceMatrices.size() * sizeof(glm::mat4));
-}
-
-GeometryRenderQueue *Renderer::GetOpaqueQueue()
-{
-    return opaqueQueue;
-}
-
-void Renderer::UploadLightData()
-{
-    cmd->UpdateBuffer(lightBuffer.get(), lightBlock, sizeof(LightsBlock));
-}
-
-void Renderer::SubmitLight(LightCommand &info)
-{
-    lightBlock->AddLight(info);
-}
-
-void Renderer::Flush()
-{
-    ZoneScoped;
-
-    /// TEMPORARY SOLUTION
-    
-    if (!cmd)
-    return;
-
-    Material::UpdateAll(cmd);
-    
-    UploadFrameData();
-    UploadInstances(*opaqueQueue);
-    UploadLightData();
-
-    if (renderPipeline)
+    void Renderer::CreateInstanceBuffer(size_t capacity)
     {
-        renderPipeline->Execute(this);
+        BufferDesc ib;
+        ib.size = capacity * sizeof(glm::mat4);
+        ib.usage = BufferUsage::Vertex;
+        ib.memory = MemoryType::Dynamic;
+        ib.debugName = "InstanceBuffer";
+        instanceBuffer = GetDevice().CreateBuffer(ib);
+        currentBufferCapacity = capacity;
     }
-    opaqueQueue->Clear();
-    lightBlock->Clear();
-    uiContext.Clear();
-    ClearRenderTargets();
-    cmd = nullptr;
-}
 
-void Renderer::DrawBatch(const std::vector<GeometryRenderCommand> &queue)
-{
-    ZoneScoped;
-
-    for (size_t i = 0; i < queue.size();)
+    Renderer::~Renderer()
     {
-        const size_t start = i;
-        while (i < queue.size() && queue[i].material == queue[start].material && queue[i].mesh == queue[start].mesh)
-            i++;
+        delete opaqueQueue;
+        delete lightBlock;
+        delete renderPipeline;
+    }
 
-        const uint32_t count = static_cast<uint32_t>(i - start);
-        const Mesh *mesh = queue[start].mesh;
+    void Renderer::SetCamera(Camera *camera)
+    {
+        currentCamera = camera;
+    }
 
-        if (!queue[start].material->Apply(cmd))
-            continue;
+    void Renderer::BeginFrame(ICommandList *commandList)
+    {
+        cmd = commandList;
+    }
 
-        cmd->SetVertexBuffer(0, mesh->vertexBuffer.get());
-        cmd->SetIndexBuffer(mesh->indexBuffer.get(), IndexType::UInt32);
+    void Renderer::Submit(const Mesh *mesh, const Material *mat, const glm::mat4 &model)
+    {
+        // opaque,transparent,masked???
+        opaqueQueue->AddCommand({RenderMode::Opaque, mesh, mat, model});
+    }
 
-        cmd->DrawIndexed(static_cast<uint32_t>(mesh->GetIndexCount()), count, 0, 0, static_cast<uint32_t>(start));
+    void Renderer::UploadFrameData()
+    {
+        if (currentCamera)
+        {
+            block.U_Projection = currentCamera->GetProjectionMatrix();
+            block.U_View = currentCamera->GetViewMatrix();
+            block.U_InvProj = glm::inverse(currentCamera->GetProjectionMatrix());
+            block.U_InvView = glm::inverse(currentCamera->GetViewMatrix());
+            block.U_OrthoProjection = glm::mat4(currentCamera->GetOrthoProjection());
+        }
+        else
+        {
+            block.U_InvProj = glm::mat4(1);
+            block.U_InvView = glm::mat4(1);
+            block.U_OrthoProjection = glm::mat4(1);
+            block.U_View = glm::mat4(1);
+            block.U_Projection = glm::mat4(1);
+        }
+
+        block.U_OrthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
+
+        block.U_Time = Time::GetTime();
+        block.U_DeltaTime = Time::GetDeltaTime();
+        block.U_ScreenWidth = Window::GetWidth();
+        block.U_ScreenHeight = Window::GetHeight();
+        cmd->UpdateBuffer(cameraBuffer.get(), &block, sizeof(ShaderBlock));
+    }
+
+    void Renderer::UploadInstances(const GeometryRenderQueue &queue)
+    {
+        instanceMatrices.clear();
+        instanceMatrices.reserve(queue.GetCount());
+        for (const GeometryRenderCommand &c : queue.GetData())
+            instanceMatrices.push_back(c.modelMatrix);
+
+        if (instanceMatrices.size() > currentBufferCapacity)
+            CreateInstanceBuffer(instanceMatrices.size() * 2);
+
+        if (!instanceMatrices.empty())
+            cmd->UpdateBuffer(instanceBuffer.get(), instanceMatrices.data(), instanceMatrices.size() * sizeof(glm::mat4));
+    }
+
+    GeometryRenderQueue *Renderer::GetOpaqueQueue()
+    {
+        return opaqueQueue;
+    }
+
+    void Renderer::UploadLightData()
+    {
+        cmd->UpdateBuffer(lightBuffer.get(), lightBlock, sizeof(LightsBlock));
+    }
+
+    void Renderer::SubmitLight(LightCommand &info)
+    {
+        lightBlock->AddLight(info);
+    }
+
+    void Renderer::Flush()
+    {
+        ZoneScoped;
+
+        /// TEMPORARY SOLUTION
+
+        if (!cmd)
+            return;
+
+        Material::UpdateAll(cmd);
+
+        UploadFrameData();
+        UploadInstances(*opaqueQueue);
+        UploadLightData();
+
+        if (renderPipeline)
+        {
+            renderPipeline->Execute(this);
+        }
+        opaqueQueue->Clear();
+        lightBlock->Clear();
+        uiContext.Clear();
+        ClearRenderTargets();
+        cmd = nullptr;
+    }
+
+    void Renderer::DrawBatch(const std::vector<GeometryRenderCommand> &queue)
+    {
+        ZoneScoped;
+
+        for (size_t i = 0; i < queue.size();)
+        {
+            const size_t start = i;
+            while (i < queue.size() && queue[i].material == queue[start].material && queue[i].mesh == queue[start].mesh)
+                i++;
+
+            const uint32_t count = static_cast<uint32_t>(i - start);
+            const Mesh *mesh = queue[start].mesh;
+
+            if (!queue[start].material->Apply(cmd))
+                continue;
+
+            cmd->SetVertexBuffer(0, mesh->vertexBuffer.get());
+            cmd->SetIndexBuffer(mesh->indexBuffer.get(), IndexType::UInt32);
+
+            cmd->DrawIndexed(static_cast<uint32_t>(mesh->GetIndexCount()), count, 0, 0, static_cast<uint32_t>(start));
+        }
     }
 }

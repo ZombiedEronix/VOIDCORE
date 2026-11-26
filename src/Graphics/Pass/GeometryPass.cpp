@@ -1,9 +1,12 @@
 #include "Graphics/Queue/GeometryRenderQueue.hpp"
 #include "GeometryPass.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Device/RHI.hpp"
 
 namespace VoidCore::Rendering::Deferred
 {
     using namespace VoidCore::RHI;
+    using namespace VoidCore::Rendering;
 
     void GeometryPass::OnResize(int width, int height)
     {

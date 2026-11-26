@@ -7,21 +7,29 @@
 
 #include "Entity/Components/System/UI/UICanvas.hpp"
 
-class Scene
+namespace VoidCore::Rendering
 {
-public:
-	std::string name = "Scene"; ///< Scene display name
-	std::vector<Ref<GameObject>> gameObjects;
-	std::vector<UICanvas *> canvases;
+	class Renderer;
+}
 
-	/// @brief Adds a game object to the scene.
-	/// @param gameObject Pointer to the game object to add.
-	void AddGameObject(GameObject *gameObject);
+namespace VoidCore::SceneManagement
+{
+	class Scene
+	{
+	public:
+		std::string name = "Scene"; ///< Scene display name
+		std::vector<Ref<GameObject>> gameObjects;
+		std::vector<UICanvas *> canvases;
 
-	/// @brief Updates all active game objects (runs Update, LateUpdate, and cleans up destroyed objects).
-	void Update();
+		/// @brief Adds a game object to the scene.
+		/// @param gameObject Pointer to the game object to add.
+		void AddGameObject(GameObject *gameObject);
 
-	/// @brief Collects render data from all visible objects and UI canvases.
-	/// @param renderer Reference to the active renderer.
-	void Render(Renderer &renderer);
-};
+		/// @brief Updates all active game objects (runs Update, LateUpdate, and cleans up destroyed objects).
+		void Update();
+
+		/// @brief Collects render data from all visible objects and UI canvases.
+		/// @param renderer Reference to the active renderer.
+		void Render(Rendering::Renderer &renderer);
+	};
+}

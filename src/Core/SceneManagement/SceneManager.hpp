@@ -4,23 +4,31 @@
 
 #include "LoadSceneMode.hpp"
 
-class SceneManager
+namespace VoidCore::Rendering
 {
-public:
-	inline static Scene *currentScene = nullptr; ///< Currently active scene
+	class Renderer;
+}
 
-	/// @brief Loads a new scene using the specified load mode.
-	/// @param obj Pointer to the scene to load.
-	/// @param loadMode Mode determining how the scene is loaded.
-	static void LoadScene(Scene *obj, LoadSceneMode loadMode);
+namespace VoidCore::SceneManagement
+{
+	class SceneManager
+	{
+	public:
+		inline static Scene *currentScene = nullptr; ///< Currently active scene
 
-	/// @brief Updates the active scene.
-	static void Update();
+		/// @brief Loads a new scene using the specified load mode.
+		/// @param obj Pointer to the scene to load.
+		/// @param loadMode Mode determining how the scene is loaded.
+		static void LoadScene(Scene *obj, LoadSceneMode loadMode);
 
-	/// @brief Renders the active scene.
-	/// @param renderer Reference to the active renderer.
-	static void Render(Renderer &renderer);
+		/// @brief Updates the active scene.
+		static void Update();
 
-	/// @brief Unloads the currently active scene and frees its resources.
-	static void UnloadScene();
-};
+		/// @brief Renders the active scene.
+		/// @param renderer Reference to the active renderer.
+		static void Render(Rendering::Renderer &renderer);
+
+		/// @brief Unloads the currently active scene and frees its resources.
+		static void UnloadScene();
+	};
+}

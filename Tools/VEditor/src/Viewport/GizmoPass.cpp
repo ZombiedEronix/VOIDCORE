@@ -4,10 +4,13 @@
 #include <algorithm>
 #include <cstddef>
 #include "Gizmo.hpp"
+#include "Graphics/Renderer.hpp"
+
+
 namespace VEditor::Rendering
 {
     using namespace VoidCore::RHI;
-
+    using namespace VoidCore::Rendering;
     GizmoPass::GizmoPass()
     {
         executionEvent = VoidCore::Rendering::RenderPassEvent::AfterPostProcessing;

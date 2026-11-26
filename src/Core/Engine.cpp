@@ -1,11 +1,15 @@
 #include "Engine.h"
 #include "Device/RHI.hpp"
+#include "Graphics/Renderer.hpp"
 #include "Assets/ResourceManager.h"
 #include <Tracy/tracy/Tracy.hpp>
 #include "GarbageCollector/GC.hpp"
+#include "Graphics/Renderer.hpp"
 
 namespace VoidCore::Core
 {
+    using namespace VoidCore::SceneManagement;
+    using namespace VoidCore::Rendering;
     void Engine::Run()
     {
         PrintLogo();
@@ -16,8 +20,6 @@ namespace VoidCore::Core
             Update();
         }
     }
-
-    
 
     void Engine::Update()
     {

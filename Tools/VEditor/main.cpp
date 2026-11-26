@@ -1,6 +1,8 @@
 #include "Core/Engine.h"
 #include "Core/Window.h"
 #include "Core/SceneManagement/SceneManager.hpp"
+#include "Core/SceneManagement/Scene.hpp"
+
 #include "Assets/ResourceManager.h"
 #include "Entity/GameObject.hpp"
 #include "Entity/Components/System/Camera.hpp"
@@ -14,6 +16,9 @@
 #include "Graphics/Pass/RenderPassEvent.hpp"
 #include "Scripts/FlyCamera.hpp"
 #include "Scripts/EditorController.hpp"
+
+using namespace VoidCore;
+using namespace VoidCore::SceneManagement;
 
 int main()
 {

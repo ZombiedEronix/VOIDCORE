@@ -1,69 +1,72 @@
 #include "Camera.hpp"
 
-glm::mat4 Camera::GetViewMatrix() const
+namespace VoidCore
 {
-    return view;
-}
-
-glm::mat4 Camera::GetProjectionMatrix() const
-{
-    return projection;
-}
-
-glm::mat4 Camera::GetOrthoProjection() const
-{
-    return orthoProjection;
-}
-
-void Camera::Update()
-{
-    if (!gameObject || !gameObject->transform)
-        return;
-
-    glm::vec3 pos = gameObject->transform->GetPosition();
-    glm::vec3 rot = gameObject->transform->GetRotation();
-
-    float pitch = glm::radians(rot.x);
-    float yaw = glm::radians(rot.y);
-
-    glm::vec3 forward;
-    forward.x = cos(yaw) * cos(pitch);
-    forward.y = sin(pitch);
-    forward.z = sin(yaw) * cos(pitch);
-    forward = glm::normalize(forward);
-
-    view = glm::lookAt(pos, pos + forward, glm::vec3(0, 1, 0));
-
-    float aspect = Window::GetAspectRatio();
-    projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);
-    orthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
-    cameraMatrix = projection * view;
-
-    glm::mat4 m = glm::transpose(cameraMatrix);
-
-    planes[0] = m[3] - m[0]; // Left
-    planes[1] = m[3] + m[0]; // Right
-    planes[2] = m[3] - m[1]; // Bottom
-    planes[3] = m[3] + m[1]; // Top
-    planes[4] = m[3] - m[2]; // Far  (z <= w)
-    planes[5] = m[2];        // Near (z >= 0)
-
-    for (int i = 0; i < 6; ++i)
+    glm::mat4 Camera::GetViewMatrix() const
     {
-        float length = glm::length(glm::vec3(planes[i]));
-        planes[i] /= length;
+        return view;
     }
-}
 
-bool Camera::IsPointInFrustum(const glm::vec3 &point)
-{
-    // mswnfpce todo: fix camera frustrum culling.
-    //    for (int i = 0; i < 6; ++i)
-    //  {
-    //    if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
-    //  {
-    //    return false;
-    //  }
-    //  }
-    return true;
+    glm::mat4 Camera::GetProjectionMatrix() const
+    {
+        return projection;
+    }
+
+    glm::mat4 Camera::GetOrthoProjection() const
+    {
+        return orthoProjection;
+    }
+
+    void Camera::Update()
+    {
+        if (!gameObject || !gameObject->transform)
+            return;
+
+        glm::vec3 pos = gameObject->transform->GetPosition();
+        glm::vec3 rot = gameObject->transform->GetRotation();
+
+        float pitch = glm::radians(rot.x);
+        float yaw = glm::radians(rot.y);
+
+        glm::vec3 forward;
+        forward.x = cos(yaw) * cos(pitch);
+        forward.y = sin(pitch);
+        forward.z = sin(yaw) * cos(pitch);
+        forward = glm::normalize(forward);
+
+        view = glm::lookAt(pos, pos + forward, glm::vec3(0, 1, 0));
+
+        float aspect = Window::GetAspectRatio();
+        projection = glm::perspective(glm::radians(fov), aspect, neardist, fardist);
+        orthoProjection = glm::ortho(0.0f, Window::GetWidth(), Window::GetHeight(), 0.0f, -1.0f, 1.0f);
+        cameraMatrix = projection * view;
+
+        glm::mat4 m = glm::transpose(cameraMatrix);
+
+        planes[0] = m[3] - m[0]; // Left
+        planes[1] = m[3] + m[0]; // Right
+        planes[2] = m[3] - m[1]; // Bottom
+        planes[3] = m[3] + m[1]; // Top
+        planes[4] = m[3] - m[2]; // Far  (z <= w)
+        planes[5] = m[2];        // Near (z >= 0)
+
+        for (int i = 0; i < 6; ++i)
+        {
+            float length = glm::length(glm::vec3(planes[i]));
+            planes[i] /= length;
+        }
+    }
+
+    bool Camera::IsPointInFrustum(const glm::vec3 &point)
+    {
+        // mswnfpce todo: fix camera frustrum culling.
+        //    for (int i = 0; i < 6; ++i)
+        //  {
+        //    if (planes[i].x * point.x + planes[i].y * point.y + planes[i].z * point.z + planes[i].w < -17)
+        //  {
+        //    return false;
+        //  }
+        //  }
+        return true;
+    }
 }

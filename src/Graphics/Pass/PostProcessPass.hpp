@@ -4,11 +4,13 @@
 #include "Device/ITexture.hpp"
 #include "Device/ICommandList.hpp"
 
-
 #include <vector>
 #include <memory>
 
-#include "Graphics/Renderer.hpp"
+namespace VoidCore::Rendering
+{
+    class Renderer;
+}
 
 namespace VoidCore::Rendering::Deferred
 {

@@ -1,8 +1,16 @@
 #pragma once
-#include "Graphics/Renderer.hpp"
 
-#include "Device/RHI.hpp"
 #include "RenderPass.hpp"
+
+namespace VoidCore::RHI
+{
+    class ICommandList;
+}
+
+namespace VoidCore::Rendering
+{
+    class Renderer;
+}
 
 namespace VoidCore::Rendering::Deferred
 {
@@ -17,6 +25,6 @@ namespace VoidCore::Rendering::Deferred
         GeometryPass();
         
         void OnResize(int width, int height) override;
-        void Execute(VoidCore::RHI::ICommandList *cmd, Renderer *renderer) override;
+        void Execute(RHI::ICommandList *cmd, Rendering::Renderer *renderer) override;
     };
 }

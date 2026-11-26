@@ -1,99 +1,110 @@
 #include "Scene.hpp"
 #include "Entity/Components/System/Lighting/Light.hpp"
 #include <Tracy/tracy/Tracy.hpp>
+#include "Graphics/Renderer.hpp"
 #include <algorithm>
 
 class GameObject;
 
-void Scene::AddGameObject(GameObject *gameObject)
+using namespace VoidCore::Rendering;
+
+namespace VoidCore
 {
-	if (gameObject != nullptr)
-	{
-		gameObjects.push_back(gameObject);
-	}
+	class Camera;
 }
 
-/// @brief This method updates all GameObject's in scene.
-void Scene::Update()
+namespace VoidCore::SceneManagement
 {
-	ZoneScopedN("Update Scene");
-
-	if (gameObjects.empty())
-		return;
-
+	void Scene::AddGameObject(GameObject *gameObject)
 	{
-		ZoneScopedN("Objects Update()");
-		for (auto &obj : gameObjects)
+		if (gameObject != nullptr)
 		{
-			ZoneTransientN(___objectZone, obj->name.c_str(), true);
-			obj->Update();
-		}
-	}
-	{
-		ZoneScopedN("Objects LateUpdate()");
-		for (auto &obj : gameObjects)
-		{
-			ZoneTransientN(___objectZone, obj->name.c_str(), true);
-			obj->LateUpdate();
-		}
-	}
-}
-
-void Scene::Render(Renderer &renderer)
-{
-	ZoneScoped;
-
-	Camera *activeCamera = nullptr;
-	for (GameObject *obj : gameObjects)
-	{
-		auto cam = obj->GetComponent<Camera>();
-		if (cam)
-		{
-			activeCamera = cam;
-			break;
-		}
-	}
-	if (activeCamera)
-	{
-		renderer.SetCamera(activeCamera);
-	}
-
-	for (GameObject *obj : gameObjects)
-	{
-		auto light = obj->GetComponent<Light>();
-		if (light)
-		{
-			renderer.SubmitLight(light->info);
+			gameObjects.push_back(gameObject);
 		}
 	}
 
-	for (GameObject *obj : gameObjects)
+	/// @brief This method updates all GameObject's in scene.
+	void Scene::Update()
 	{
-		if (activeCamera == nullptr)
-			continue;
+		ZoneScopedN("Update Scene");
 
-		if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+		if (gameObjects.empty())
+			return;
+
 		{
-			continue;
+			ZoneScopedN("Objects Update()");
+			for (auto &obj : gameObjects)
+			{
+				ZoneTransientN(___objectZone, obj->name.c_str(), true);
+				obj->Update();
+			}
 		}
-		MeshRenderer *mr = obj->GetComponent<MeshRenderer>();
-		if (!mr || !mr->mesh || !mr->material)
-			continue;
-
-		renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
+		{
+			ZoneScopedN("Objects LateUpdate()");
+			for (auto &obj : gameObjects)
+			{
+				ZoneTransientN(___objectZone, obj->name.c_str(), true);
+				obj->LateUpdate();
+			}
+		}
 	}
 
-	for (GameObject *obj : gameObjects)
+	void Scene::Render(Renderer &renderer)
 	{
-		if (auto *canvas = obj->GetComponent<UICanvas>())
-			canvases.push_back(canvas);
+		ZoneScoped;
+
+		Camera *activeCamera = nullptr;
+		for (GameObject *obj : gameObjects)
+		{
+			auto cam = obj->GetComponent<Camera>();
+			if (cam)
+			{
+				activeCamera = cam;
+				break;
+			}
+		}
+		if (activeCamera)
+		{
+			renderer.SetCamera(activeCamera);
+		}
+
+		for (GameObject *obj : gameObjects)
+		{
+			auto light = obj->GetComponent<Light>();
+			if (light)
+			{
+				renderer.SubmitLight(light->info);
+			}
+		}
+
+		for (GameObject *obj : gameObjects)
+		{
+			if (activeCamera == nullptr)
+				continue;
+
+			if (!activeCamera->IsPointInFrustum(obj->transform->GetPosition()))
+			{
+				continue;
+			}
+			MeshRenderer *mr = obj->GetComponent<MeshRenderer>();
+			if (!mr || !mr->mesh || !mr->material)
+				continue;
+
+			renderer.Submit(mr->mesh, mr->material, obj->transform->WorldMatrix());
+		}
+
+		for (GameObject *obj : gameObjects)
+		{
+			if (auto *canvas = obj->GetComponent<UICanvas>())
+				canvases.push_back(canvas);
+		}
+
+		std::stable_sort(canvases.begin(), canvases.end(),
+						 [](const UICanvas *a, const UICanvas *b)
+						 { return a->sortingOrder < b->sortingOrder; });
+
+		for (UICanvas *canvas : canvases)
+			canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
+		canvases.clear();
 	}
-
-	std::stable_sort(canvases.begin(), canvases.end(),
-					 [](const UICanvas *a, const UICanvas *b)
-					 { return a->sortingOrder < b->sortingOrder; });
-
-	for (UICanvas *canvas : canvases)
-		canvas->Render(renderer.GetUIContext(), Window::GetWidth(), Window::GetHeight());
-	canvases.clear();
 }

@@ -2,26 +2,32 @@
 
 #include "MeshRenderer.hpp"
 #include "Entity/GameObject.hpp"
+#include "Graphics/Renderer.hpp"
 
-MeshRenderer::MeshRenderer() {}
-
-glm::mat4 MeshRenderer::Matrix() const
+using namespace VoidCore::Rendering;
+namespace VoidCore
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, gameObject->transform->GetPosition());
-	model = glm::rotate(model, glm::radians(gameObject->transform->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, gameObject->transform->GetScale());
-	return model;
-}
+	MeshRenderer::MeshRenderer() {}
 
-void MeshRenderer::SetMesh(Ref<Mesh> meshPtr)
-{
-	mesh = meshPtr;
-}
+	glm::mat4 MeshRenderer::Matrix() const
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, gameObject->transform->GetPosition());
+		model = glm::rotate(model, glm::radians(gameObject->transform->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, gameObject->transform->GetScale());
+		return model;
+	}
 
-void MeshRenderer::Render(Renderer& renderer) {
-	if (material && mesh) {
-		renderer.Submit(mesh, material, this->gameObject->transform->WorldMatrix());
+	void MeshRenderer::SetMesh(Ref<Mesh> meshPtr)
+	{
+		mesh = meshPtr;
+	}
+
+	void MeshRenderer::Render(Renderer &renderer)
+	{
+		if (material && mesh)
+		{
+			renderer.Submit(mesh, material, this->gameObject->transform->WorldMatrix());
+		}
 	}
 }
-

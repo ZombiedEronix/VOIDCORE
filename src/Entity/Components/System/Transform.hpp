@@ -9,40 +9,39 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-
 #include "Entity/Components/Base/Component.hpp"
 
-class Transform : public Component
-{
-protected:
-    Transform* parent = nullptr;
-    std::vector<Transform*> children;
-    mutable glm::mat4 cachedWorldMatrix{ 1.0f };
-    mutable bool isDirty = true;
+    class Transform : public Component
+    {
+    protected:
+        Transform *parent = nullptr;
+        std::vector<Transform *> children;
+        mutable glm::mat4 cachedWorldMatrix{1.0f};
+        mutable bool isDirty = true;
 
-    glm::vec3 Position{ 0.0f };
-    glm::vec3 Rotation{ 0.0f };
-    glm::vec3 Scale{ 1.0f };
+        glm::vec3 Position{0.0f};
+        glm::vec3 Rotation{0.0f};
+        glm::vec3 Scale{1.0f};
 
-public:
-    Transform();
+    public:
+        Transform();
 
-    glm::vec3 GetForward() const;
-    glm::vec3 GetRight() const;
-    glm::vec3 GetUp() const;
-    
-    void SetPosition(const glm::vec3& pos);
-    void SetRotation(const glm::vec3& rot);
-    void SetScale(const glm::vec3& scl);
-    void SetParent(Transform* prnt);
-    void SetDirty();
+        glm::vec3 GetForward() const;
+        glm::vec3 GetRight() const;
+        glm::vec3 GetUp() const;
 
-    const Transform* GetParent();
-    const std::vector<Transform*>& GetChildren();
-    const glm::vec3& GetPosition();
-    const glm::vec3& GetRotation();
-    const glm::vec3& GetScale();
+        void SetPosition(const glm::vec3 &pos);
+        void SetRotation(const glm::vec3 &rot);
+        void SetScale(const glm::vec3 &scl);
+        void SetParent(Transform *prnt);
+        void SetDirty();
 
-    glm::mat4 WorldMatrix() const;
-    glm::mat4 LocalMatrix() const;
-};
+        const Transform *GetParent();
+        const std::vector<Transform *> &GetChildren();
+        const glm::vec3 &GetPosition();
+        const glm::vec3 &GetRotation();
+        const glm::vec3 &GetScale();
+
+        glm::mat4 WorldMatrix() const;
+        glm::mat4 LocalMatrix() const;
+    };

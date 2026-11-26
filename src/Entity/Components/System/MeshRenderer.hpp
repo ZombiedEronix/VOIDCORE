@@ -6,14 +6,22 @@
 #include "Assets/Mesh.h"
 #include "GarbageCollector/Ref.hpp"
 
-class MeshRenderer : public Behaviour
+namespace VoidCore::Rendering
 {
-public:
-	Ref<const Mesh> mesh;
-	Ref<Material> material;
+	class Renderer;
+}
 
-	MeshRenderer();
-	glm::mat4 Matrix() const;
-	void SetMesh(Ref<Mesh> meshPtr);
-	void Render(Renderer &renderer);
-};
+namespace VoidCore
+{
+	class MeshRenderer : public Behaviour
+	{
+	public:
+		Ref<const Mesh> mesh;
+		Ref<Material> material;
+
+		MeshRenderer();
+		glm::mat4 Matrix() const;
+		void SetMesh(Ref<Mesh> meshPtr);
+		void Render(Rendering::Renderer &renderer);
+	};
+}

@@ -3,15 +3,15 @@
 #include "Core/Debug.h"
 class GameObject;
 
-class Component : public Object
-{
-public:
-    GameObject *gameObject = nullptr;
+    class Component : public Object
+    {
+    public:
+        GameObject *gameObject = nullptr;
 
-    virtual ~Component() = default;
+        virtual ~Component() = default;
 
-    virtual void Update() {}
-    virtual void LateUpdate() {}
-    virtual void Awake() {}
-    virtual void OnDestroy() {}
-};
+        virtual void Update() {}
+        virtual void LateUpdate() {}
+        virtual void Awake() {}
+        virtual void OnDestroy() {}
+    };

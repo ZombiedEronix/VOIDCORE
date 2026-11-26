@@ -1,50 +1,54 @@
 #include <Tracy/tracy/Tracy.hpp>
 #include "SceneManager.hpp"
 
-void SceneManager::LoadScene(Scene *obj, LoadSceneMode loadMode = LoadSceneMode::Single)
+namespace VoidCore::SceneManagement
 {
-	ZoneScopedN("Load Scene");
-	Debug::Log("Loading Scene : ", obj->name);
-
-	if(loadMode == LoadSceneMode::Additive)
+	using namespace VoidCore::Rendering;
+	void SceneManager::LoadScene(Scene *obj, LoadSceneMode loadMode = LoadSceneMode::Single)
 	{
-		Debug::LogError("Loading scene in additing mode is not implemented");
-		return;
+		ZoneScopedN("Load Scene");
+		Debug::Log("Loading Scene : ", obj->name);
+
+		if (loadMode == LoadSceneMode::Additive)
+		{
+			Debug::LogError("Loading scene in additing mode is not implemented");
+			return;
+		}
+
+		if (currentScene != nullptr)
+		{
+			UnloadScene();
+		}
+
+		currentScene = obj;
 	}
 
-	if (currentScene != nullptr)
+	void SceneManager::Update()
 	{
-		UnloadScene();
+		ZoneScopedN("SceneManager Update Scene");
+		if (currentScene != nullptr)
+		{
+			currentScene->Update();
+		}
 	}
-	
-	currentScene = obj;
-}
 
-void SceneManager::Update()
-{
-	ZoneScopedN("SceneManager Update Scene");
-	if (currentScene != nullptr)
+	void SceneManager::Render(Renderer &renderer)
 	{
-		currentScene->Update();
+		ZoneScopedN("SceneManager Render Scene");
+		if (currentScene != nullptr)
+		{
+			currentScene->Render(renderer);
+		}
 	}
-}
 
-void SceneManager::Render(Renderer& renderer)
-{
-	ZoneScopedN("SceneManager Render Scene");
-	if (currentScene != nullptr)
+	void SceneManager::UnloadScene()
 	{
-		currentScene->Render(renderer);
-	}
-}
-
-void SceneManager::UnloadScene()
-{
-	ZoneScopedN("SceneManager Unload Scene");
-	if (currentScene != nullptr)
-	{
-		Debug::Log("Unloading Scene : ", currentScene->name);
-		delete currentScene;
-		currentScene = nullptr;
+		ZoneScopedN("SceneManager Unload Scene");
+		if (currentScene != nullptr)
+		{
+			Debug::Log("Unloading Scene : ", currentScene->name);
+			delete currentScene;
+			currentScene = nullptr;
+		}
 	}
 }
