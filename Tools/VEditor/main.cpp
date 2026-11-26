@@ -17,6 +17,9 @@
 #include "Scripts/FlyCamera.hpp"
 #include "Scripts/EditorController.hpp"
 
+#include "Animation/Components/Animator.hpp"
+#include "Animation/AnimationClip.hpp"
+#include "Animation/AnimationCurve.hpp"
 using namespace VoidCore;
 using namespace VoidCore::SceneManagement;
 
@@ -46,12 +49,37 @@ int main()
     camObj->AddComponent<Camera>();
     camObj->AddComponent<EditorController>()->cam = camObj;
 
+
+    Ref<Mesh> mesh = ResourceManager::GetMesh("models/Cube.obj");
+    Ref<Material> mat = ResourceManager::GetMaterial("materials/Lit.mat");
+    Ref<GameObject> animatedObj = new GameObject();
+    MeshRenderer * meshr = animatedObj->AddComponent<MeshRenderer>();
+    Animator* animator = animatedObj->AddComponent<Animator>();
+
+    AnimationClip *clip = new AnimationClip();
+    clip->duration = 2.0f;
+    clip->isLooping = true;
+
+    clip->AddCurve<glm::vec3>("Pos", {{0.0f, {0.0f, 0.0f, 0.0f}, EaseType::EaseInOut},
+                                      {1.0f, {0.0f, 2.0f, 0.0f}, EaseType::EaseInOut},
+                                      {2.0f, {0.0f, 0.0f, 0.0f}, EaseType::Linear}});
+
+    animator->Bind<glm::vec3>("Pos", [obj = animatedObj.Get()](const glm::vec3 &p)
+                              { obj->transform->SetPosition(p); });
+
+    meshr->material = mat;
+    meshr->SetMesh(mesh);
+
     GameObject *testObj = new GameObject();
     testObj->name = "TestObject";
     editorScene->AddGameObject(camObj);
+    editorScene->AddGameObject(animatedObj);
+
 
     SceneManager::LoadScene(editorScene, LoadSceneMode::Single);
     Window::Show();
+
+    animator->Play(clip);
 
     VoidCore::Core::Engine::Run();
     return 0;

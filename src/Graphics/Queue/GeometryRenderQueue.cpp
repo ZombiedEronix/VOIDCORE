@@ -35,7 +35,9 @@ void GeometryRenderQueue::Sort()
 void GeometryRenderQueue::Execute(Renderer *renderer)
 {
     if (m_Queue.empty())
+    {
         return;
+    }
         renderer->DrawBatch(m_Queue);
 }
 

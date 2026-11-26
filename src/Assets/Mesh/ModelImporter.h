@@ -15,7 +15,7 @@ class ModelImporter
 public:
 	static bool Load(const std::string &path, std::vector<Vertex> &outVertices, std::vector<unsigned int> &outIndices)
 	{
-		Debug::Log("Loading Model :", path);
+		Debug::Log("Loading Model : ", path);
 
 		std::ifstream file(path, std::ios::binary);
 		if (!file.is_open())
