@@ -10,7 +10,7 @@
 namespace VoidCore::RHI
 {
     template <typename T>
-    using Ref = std::shared_ptr<T>;
+    using VRef = std::shared_ptr<T>;
 
     enum class GraphicsAPI : uint8_t
     {

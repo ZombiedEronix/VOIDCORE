@@ -21,11 +21,11 @@ namespace VoidCore::Rendering
     private:
         void EnsureBuffers(size_t vertexCount, size_t indexCount);
         
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> uiTexture;
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> uiTexture;
 
-        VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler;
-        VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> vertexBuffer;
-        VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> indexBuffer;
+        VoidCore::RHI::VRef<VoidCore::RHI::ISampler> sampler;
+        VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> vertexBuffer;
+        VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> indexBuffer;
         size_t vertexCapacity = 0;
         size_t indexCapacity = 0;
     };

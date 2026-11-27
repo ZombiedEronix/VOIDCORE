@@ -1,10 +1,10 @@
-#include "Assets/Texture.h"
+#include "Texture.hpp"
 #include <stb/stb_image.h>
 #include "Core/Debug.h"
 
 using namespace VoidCore::RHI;
 
-static Ref<ISampler> s_defaultSampler;
+static VRef<ISampler> s_defaultSampler;
 
 static ISampler *DefaultSampler()
 {

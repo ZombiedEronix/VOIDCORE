@@ -4,107 +4,37 @@
 #include <string>
 #include <vector>
 
-#include "Assets/Texture.h"
-#include "Assets/Mesh.h"
+#include "Assets/Texture.hpp"
+#include "Assets/Mesh.hpp"
 #include "Assets/Shader.hpp"
-#include "Assets/Mesh/ModelImporter.h"
 #include "File.hpp"
 #include "Assets/VPAK/VPAKReading.hpp"
 #include "MaterialLoader.hpp"
-#include "GarbageCollector/Ref.hpp"
+#include "Core/GarbageCollector/Ref.hpp"
+#include "Assets/AssetRegistry.hpp"
 
 class ResourceManager
 {
-private:
-	inline static std::map<std::string, Ref<Texture>> textures;
-	inline static std::map<std::string, Ref<Mesh>> meshes;
-	inline static std::map<std::string, Ref<Shader>> shaders;
-	inline static std::map<std::string, Ref<Material>> materials;
-	inline static std::map<std::string, Ref<Font>> fonts;
-	inline static std::map<std::string, Ref<VoidCore::Assets::File>> files;
-	inline static VoidCore::VPAK::AssetPakReader pakReader;
-
 public:
 	static bool MountPak(const std::string &pakPath)
 	{
 		return pakReader.Mount(pakPath);
 	}
 
-	/// @brief Universal method for loading resources
-	/// @param basePath path to asset
-	/// @return loaded asset
-	template <typename T>
-	static const std::shared_ptr<T> GetResource(const std::string &path)
-	{
-		if constexpr (std::is_same_v<T, Texture>)
-		{
-			return std::static_pointer_cast<T>(GetTexture(path, false));
-		}
-		if constexpr (std::is_same_v<T, Mesh>)
-		{
-			return std::static_pointer_cast<T>(GetMesh(path));
-		}
-		if constexpr (std::is_same_v<T, Font>)
-		{
-			return std::static_pointer_cast<T>(GetFont(path));
-		}
-		if constexpr (std::is_same_v<T, VoidCore::Assets::File>)
-		{
-			return std::static_pointer_cast<T>(GetFile(path));
-		}
-		return nullptr;
-	}
-
 	/// @brief Get's material from resources
 	/// @param basePath path to material
 	/// @return loaded material
-	static const Ref<Material> GetMaterial(const std::string &path)
-	{
-		if (materials.find(path) == materials.end())
-		{
-			auto fileAsset = GetFile(path, false);
-			if (!fileAsset || fileAsset->IsEmpty())
-			{
-				Debug::LogError("ResourceManager: Material file not found -> " + path);
-				return nullptr;
-			}
+	static const Ref<Material> GetMaterial(const std::string &path) { return Load<Material>(path); }
 
-			auto mat = MaterialLoader::LoadYAML(
-				*fileAsset,
-				[](const std::string &shaderPath)
-				{ return GetShader(shaderPath); },
-				[](const std::string &texPath, bool srgb)
-				{ return GetTexture(texPath, srgb); });
+	/// @brief Get's shader from resources
+	/// @param basePath path to shader
+	/// @return loaded shader
+	static const Ref<Shader> GetShader(const std::string &basePath) { return Load<Shader>(basePath + ".vcsp"); }
 
-			if (!mat)
-			{
-				return nullptr;
-			}
-
-			materials[path] = mat;
-		}
-		return materials[path];
-	}
-
-	/// @brief Get's texture from resources
-	/// @param basePath path to texture
-	/// @return loaded texture
-	static const Ref<Texture> GetTexture(const std::string &path, bool srgb = false)
-	{
-		if (textures.find(path) == textures.end())
-		{
-			std::vector<uint8_t> buffer;
-			if (pakReader.ReadFile(path, buffer))
-			{
-				textures[path] = new Texture(buffer.data(), buffer.size(), path.c_str(), srgb);
-			}
-			else
-			{
-				textures[path] = new Texture(path.c_str(), srgb);
-			}
-		}
-		return textures[path];
-	}
+	/// @brief Get's mesh from resources
+	/// @param basePath path to mesh
+	/// @return loaded mesh
+	static const Ref<Mesh> GetMesh(const std::string &path) { return Load<Mesh>(path); }
 
 	/// @brief Get's file from resources
 	/// @param basePath path to file
@@ -117,14 +47,11 @@ public:
 		}
 
 		std::vector<uint8_t> buffer;
-
 		if (!pakReader.ReadFile(path, buffer))
 		{
 			std::ifstream diskFile(path, std::ios::binary | std::ios::ate);
 			if (!diskFile.is_open())
-			{
 				return nullptr;
-			}
 
 			std::streamsize size = diskFile.tellg();
 			if (size > 0)
@@ -137,43 +64,43 @@ public:
 
 		Ref<VoidCore::Assets::File> asset = new VoidCore::Assets::File(path, std::move(buffer));
 		if (useCache)
-		{
 			files[path] = asset;
-		}
+
 		return asset;
 	}
 
-	/// @brief Get's mesh from resources
-	/// @param basePath path to mesh
-	/// @return loaded mesh
-	static const Ref<Mesh> GetMesh(const std::string &path)
+	/// @brief Universal method for loading resources
+	/// @param basePath path to asset
+	/// @return loaded asset
+	template <typename T>
+	static Ref<T> Load(const std::string &path)
 	{
-		if (meshes.find(path) == meshes.end())
+		static_assert(std::is_base_of_v<Object, T>, "T must derive from Object");
+
+		auto it = cache.find(path);
+		if (it != cache.end())
 		{
-			std::vector<Vertex> vertices;
-			std::vector<unsigned int> indices;
-			std::vector<uint8_t> buffer;
-
-			if (pakReader.ReadFile(path, buffer))
-			{
-				ModelImporter::LoadFromMemory(path, buffer, vertices, indices);
-			}
-			else
-			{
-				// ADD LOGGING
-				ModelImporter::Load(path, vertices, indices);
-			}
-
-			if (!vertices.empty() && !indices.empty())
-			{
-				meshes[path] = new Mesh(vertices, indices);
-			}
-			else
-			{
-				return nullptr;
-			}
+			return static_cast<T *>(it->second.Get());
 		}
-		return meshes[path];
+
+		auto fileAsset = GetFile(path, false);
+		if (!fileAsset || fileAsset->IsEmpty())
+		{
+			Debug::LogError("ResourceManager: File not found -> " + path);
+			return nullptr;
+		}
+
+		Ref<T> asset = AssetRegistry::Load<T>(*fileAsset);
+		if (asset)
+		{
+			cache[path] = asset.Get();
+		}
+		else
+		{
+			Debug::LogError("ResourceManager: No loader registered for -> " + path);
+		}
+
+		return asset;
 	}
 
 	/// @brief Get's font from resources (support .ttf only)
@@ -181,50 +108,50 @@ public:
 	/// @return loaded font
 	static const Ref<Font> GetFont(const std::string &basePath, float px = 20)
 	{
-		if (fonts.find(basePath) == fonts.end())
+		std::string key = basePath + "_" + std::to_string(static_cast<int>(px));
+		if (fonts.find(key) == fonts.end())
 		{
-			std::vector<uint8_t> buffer;
-
-			if (pakReader.ReadFile(basePath, buffer))
-			{
-				fonts[basePath] = new Font(buffer, px);
-			}
+			auto file = GetFile(basePath, false);
+			if (file && !file->IsEmpty())
+				fonts[key] = new Font(file->GetBytes(), px);
 			else
-			{
 				Debug::LogWarning("Font : ", basePath.c_str(), " is not found");
-			}
 		}
-		return fonts[basePath];
+		return fonts[key];
 	}
 
-	/// @brief Get's shader from resources
-	/// @param basePath path to shader
-	/// @return loaded shader
-	static const Ref<Shader> GetShader(const std::string &basePath)
+	/// @brief Get's texture from resources
+	/// @param basePath path to texture
+	/// @return loaded texture
+	static const Ref<Texture> GetTexture(const std::string &path, bool srgb = false)
 	{
-		if (shaders.find(basePath) == shaders.end())
+		std::string key = path + (srgb ? "_srgb" : "_lin");
+		if (textures.find(key) == textures.end())
 		{
-			std::string path = basePath + ".vcsp";
-			std::vector<uint8_t> buffer;
-
-			if (pakReader.ReadFile(path, buffer))
-			{
-				shaders[basePath] = new Shader(buffer.data(), buffer.size(), path.c_str());
-			}
+			auto file = GetFile(path, false);
+			if (file && !file->IsEmpty())
+				textures[key] = new Texture(file->GetData(), file->GetSize(), path.c_str(), srgb);
 			else
-			{
-				Debug::LogWarning("Shader : ", path.c_str(), " is not found");
-			}
+				textures[key] = new Texture(path.c_str(), srgb);
 		}
-		return shaders[basePath];
+		return textures[key];
 	}
 
 	/// @brief Clean resources
 	static void Clear()
 	{
+		cache.clear();
 		textures.clear();
-		meshes.clear();
-		shaders.clear();
+		fonts.clear();
+		files.clear();
 		Texture::ReleaseSharedResources();
 	}
+
+private:
+	inline static std::map<std::string, Ref<Object>> cache;
+
+	inline static std::map<std::string, Ref<Texture>> textures;
+	inline static std::map<std::string, Ref<Font>> fonts;
+	inline static std::map<std::string, Ref<VoidCore::Assets::File>> files;
+	inline static VoidCore::VPAK::AssetPakReader pakReader;
 };

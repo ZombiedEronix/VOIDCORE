@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include "GarbageCollector/GC.hpp"
+#include "Core/GarbageCollector/GC.hpp"
 
 class Object
 {

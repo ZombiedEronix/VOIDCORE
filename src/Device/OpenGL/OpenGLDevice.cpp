@@ -94,7 +94,7 @@ namespace VoidCore::RHI::OpenGL
     }
 
     // ---------------------------------------------- Resources ---
-    Ref<IBuffer> OpenGLDevice::CreateBuffer(const BufferDesc &desc)
+    VRef<IBuffer> OpenGLDevice::CreateBuffer(const BufferDesc &desc)
     {
         if (desc.size == 0)
         {
@@ -109,7 +109,7 @@ namespace VoidCore::RHI::OpenGL
         return std::make_shared<GLBuffer>(desc);
     }
 
-    Ref<ITexture> OpenGLDevice::CreateTexture(const TextureDesc &desc)
+    VRef<ITexture> OpenGLDevice::CreateTexture(const TextureDesc &desc)
     {
         if (ToGL(desc.format).internalFormat == 0)
         {
@@ -119,12 +119,12 @@ namespace VoidCore::RHI::OpenGL
         return std::make_shared<GLTexture>(desc);
     }
 
-    Ref<ISampler> OpenGLDevice::CreateSampler(const SamplerDesc &desc)
+    VRef<ISampler> OpenGLDevice::CreateSampler(const SamplerDesc &desc)
     {
         return std::make_shared<GLSampler>(desc);
     }
 
-    Ref<IShader> OpenGLDevice::CreateShader(const ShaderDesc &desc)
+    VRef<IShader> OpenGLDevice::CreateShader(const ShaderDesc &desc)
     {
         if ((desc.format != ShaderFormat::GLSL && desc.format != ShaderFormat::SPIRV) || !desc.code || desc.codeSize == 0)
         {
@@ -134,7 +134,7 @@ namespace VoidCore::RHI::OpenGL
         auto shader = std::make_shared<GLShader>(desc);
         return shader->IsValid() ? shader : nullptr;
     }
-    Ref<IPipeline> OpenGLDevice::CreatePipeline(const GraphicsPipelineDesc &desc)
+    VRef<IPipeline> OpenGLDevice::CreatePipeline(const GraphicsPipelineDesc &desc)
     {
         auto pipeline = std::make_shared<GLPipeline>(desc);
         return pipeline->IsValid() ? pipeline : nullptr;

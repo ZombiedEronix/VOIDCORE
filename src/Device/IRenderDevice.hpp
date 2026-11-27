@@ -42,11 +42,11 @@ namespace VoidCore::RHI
 
         // ---- Resource factory (instead of RenderFactory with switches) ----
         // If there is an error, they return nullptr and write the reason to the log.
-        virtual Ref<IBuffer> CreateBuffer(const BufferDesc &desc) = 0;
-        virtual Ref<ITexture> CreateTexture(const TextureDesc &desc) = 0;
-        virtual Ref<ISampler> CreateSampler(const SamplerDesc &desc) = 0;
-        virtual Ref<IShader> CreateShader(const ShaderDesc &desc) = 0;
-        virtual Ref<IPipeline> CreatePipeline(const GraphicsPipelineDesc &desc) = 0;
+        virtual VRef<IBuffer> CreateBuffer(const BufferDesc &desc) = 0;
+        virtual VRef<ITexture> CreateTexture(const TextureDesc &desc) = 0;
+        virtual VRef<ISampler> CreateSampler(const SamplerDesc &desc) = 0;
+        virtual VRef<IShader> CreateShader(const ShaderDesc &desc) = 0;
+        virtual VRef<IPipeline> CreatePipeline(const GraphicsPipelineDesc &desc) = 0;
 
         // ---- Cadre ----
         // BeginFrame: waits/takes a free frame, returns the main command list.

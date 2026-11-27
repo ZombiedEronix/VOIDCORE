@@ -4,7 +4,7 @@
 #include "OBJImporter.hpp"
 #include "Core/Debug.h"
 
-bool OBJImporter::LoadOBJStream(std::istream &file, const std::string &path, std::vector<Vertex> &outVertices, std::vector<unsigned int> &outIndices)
+bool OBJImporter::LoadOBJStream(std::istream &bytes, std::vector<Vertex> &outVertices, std::vector<unsigned int> &outIndices)
 {
     std::vector<glm::vec3> temp_positions;
     std::vector<glm::vec2> temp_texCoords;
@@ -15,7 +15,7 @@ bool OBJImporter::LoadOBJStream(std::istream &file, const std::string &path, std
 
     std::string line;
 
-    while (std::getline(file, line))
+    while (std::getline(bytes, line))
     {
         std::stringstream ss(line);
         std::string prefix;
@@ -106,6 +106,6 @@ bool OBJImporter::LoadOBJStream(std::istream &file, const std::string &path, std
         }
     }
 
-    Debug::Log("Loaded model : " + path + " with " + std::to_string(outVertices.size()) + " vertices and " + std::to_string(outIndices.size()) + " indices.");
+    // Debug::Log("Loaded model : " + + " with " + std::to_string(outVertices.size()) + " vertices and " + std::to_string(outIndices.size()) + " indices.");
     return true;
 }

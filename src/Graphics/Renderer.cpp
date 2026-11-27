@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Assets/Mesh.h"
+#include "Assets/Mesh.hpp"
 #include "Entity/Material.hpp"
 #include "Entity/Components/System/Camera.hpp"
 #include "Core/EngineTime.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <cstring>
-#include "Assets/VCSP/Header.hpp"
+#include "Assets/VCSP/VCSP.hpp"
 namespace VoidPacker::SPIRV
 {
     class Builder

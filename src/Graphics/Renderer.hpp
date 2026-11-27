@@ -42,9 +42,9 @@ namespace VoidCore::Rendering
 
 		VoidCore::RHI::ICommandList *cmd = nullptr;
 		Window *windowPtr;
-		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> cameraBuffer;
-		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> instanceBuffer;
-		VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> lightBuffer;
+		VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> cameraBuffer;
+		VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> instanceBuffer;
+		VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> lightBuffer;
 		size_t currentBufferCapacity = 1024;
 
 		Camera *currentCamera = nullptr;

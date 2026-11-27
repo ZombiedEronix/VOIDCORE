@@ -14,11 +14,11 @@ public:
 
 	VoidCore::RHI::ITexture *GetRHI() const { return texture.get(); }
 	VoidCore::RHI::ISampler *GetSampler() const;
-	void SetSampler(VoidCore::RHI::Ref<VoidCore::RHI::ISampler> s) { sampler = std::move(s); }
+	void SetSampler(VoidCore::RHI::VRef<VoidCore::RHI::ISampler> s) { sampler = std::move(s); }
 
 	static void ReleaseSharedResources();
 
 private:
-	VoidCore::RHI::Ref<VoidCore::RHI::ITexture> texture;
-	VoidCore::RHI::Ref<VoidCore::RHI::ISampler> sampler; // nullptr → common by default
+	VoidCore::RHI::VRef<VoidCore::RHI::ITexture> texture;
+	VoidCore::RHI::VRef<VoidCore::RHI::ISampler> sampler; // nullptr → common by default
 };

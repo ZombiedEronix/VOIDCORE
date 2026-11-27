@@ -19,7 +19,7 @@ namespace VoidCore::Rendering::Deferred
     private:
         std::vector<std::unique_ptr<PostProcessEffect>> m_Effects;
 
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> m_PingPongRT[2];
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> m_PingPongRT[2];
         int m_CurrentTargetIdx = 0;
 
 

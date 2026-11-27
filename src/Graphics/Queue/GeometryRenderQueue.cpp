@@ -4,7 +4,7 @@
 
 #include "Graphics/Renderer.hpp"
 #include "Entity/Material.hpp"
-#include "Assets/Mesh.h"
+#include "Assets/Mesh.hpp"
 
 using namespace VoidCore::Rendering;
 

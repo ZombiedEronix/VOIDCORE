@@ -8,8 +8,8 @@ std::string get_file_contents(const char *filename);
 class Shader : public Object
 {
 private:
-    VoidCore::RHI::Ref<VoidCore::RHI::IShader> vs;
-    VoidCore::RHI::Ref<VoidCore::RHI::IShader> fs;
+    VoidCore::RHI::VRef<VoidCore::RHI::IShader> vs;
+    VoidCore::RHI::VRef<VoidCore::RHI::IShader> fs;
     MaterialBuffer materialLayout;
 
 public:

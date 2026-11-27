@@ -17,9 +17,9 @@ namespace VoidCore::Rendering::Deferred
     class GeometryPass : public RenderPass
     {
         private:
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gAlbedoTexture;
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gDepthTexture;
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> gNormalTexture;
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> gAlbedoTexture;
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> gDepthTexture;
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> gNormalTexture;
         
         public:
         GeometryPass();

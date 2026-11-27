@@ -4,7 +4,7 @@
 
 #include "Shader.hpp"
 #include "Core/Debug.h"
-#include "Assets/VCSP/Header.hpp"
+#include "Assets/VCSP/VCSP.hpp"
 #include <cstring>
 
 using namespace VoidCore::RHI;
@@ -86,3 +86,4 @@ Shader::Shader(const void *data, size_t byteSize, const char *debugName)
     ReflectShaderStage(fsCode, header->fsSize, materialLayout);
     ReflectShaderStage(vsCode, header->vsSize, materialLayout);
 }
+

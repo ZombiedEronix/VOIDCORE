@@ -11,8 +11,8 @@ namespace VoidCore::Rendering::Deferred
     private:
         const Shader *shader = nullptr;
         void CreateScreenPipeline();
-        VoidCore::RHI::Ref<VoidCore::RHI::ISampler> presentSampler;
-        VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> screenPipeline;
+        VoidCore::RHI::VRef<VoidCore::RHI::ISampler> presentSampler;
+        VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> screenPipeline;
 
     public:
         PresentPass();

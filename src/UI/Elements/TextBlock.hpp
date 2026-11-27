@@ -3,7 +3,7 @@
 
 #include "UI/Elements/UIControl.hpp"
 #include "Entity/Material.hpp"
-#include "GarbageCollector/Ref.hpp"
+#include "Core/GarbageCollector/Ref.hpp"
 
 class TextBlock : public UIControl
 {

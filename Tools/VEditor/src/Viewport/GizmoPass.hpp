@@ -14,8 +14,8 @@ namespace VEditor::Rendering
     class GizmoPass : public VoidCore::Rendering::RenderPass
     {
     private:
-        VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> linePipeline;
-        VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> vertexBuffer;
+        VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> linePipeline;
+        VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> vertexBuffer;
         size_t vertexCapacity = 0;
 
         void EnsureBuffer(size_t count);

@@ -3,8 +3,8 @@
 #include "Entity/Components/System/Transform.hpp"
 #include "Entity/Material.hpp"
 #include "Assets/Vertex.h"
-#include "Assets/Mesh.h"
-#include "GarbageCollector/Ref.hpp"
+#include "Assets/Mesh.hpp"
+#include "Core/GarbageCollector/Ref.hpp"
 
 namespace VoidCore::Rendering
 {

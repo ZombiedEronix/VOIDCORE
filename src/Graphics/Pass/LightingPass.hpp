@@ -10,11 +10,11 @@ namespace VoidCore::Rendering::Deferred
     class LightingPass : public RenderPass
     {
     private:
-        VoidCore::RHI::Ref<VoidCore::RHI::ITexture> litTexture;
-        VoidCore::RHI::Ref<VoidCore::RHI::ISampler> gBufferSampler;
-        VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> lightingPipeline;
+        VoidCore::RHI::VRef<VoidCore::RHI::ITexture> litTexture;
+        VoidCore::RHI::VRef<VoidCore::RHI::ISampler> gBufferSampler;
+        VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> lightingPipeline;
         const Shader *lightingShader = nullptr;
-        VoidCore::RHI::Ref<VoidCore::RHI::IBuffer>
+        VoidCore::RHI::VRef<VoidCore::RHI::IBuffer>
         lightBuffer;
         void CreateLightingPipeline();
         public:

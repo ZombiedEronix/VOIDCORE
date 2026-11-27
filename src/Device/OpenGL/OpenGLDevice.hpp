@@ -23,11 +23,11 @@ namespace VoidCore::RHI::OpenGL
         GraphicsAPI GetAPI() const override { return GraphicsAPI::OpenGL; }
         const DeviceCaps &GetCaps() const override { return m_caps; }
 
-        Ref<IBuffer> CreateBuffer(const BufferDesc &desc) override;
-        Ref<ITexture> CreateTexture(const TextureDesc &desc) override;
-        Ref<ISampler> CreateSampler(const SamplerDesc &desc) override;
-        Ref<IShader> CreateShader(const ShaderDesc &desc) override;
-        Ref<IPipeline> CreatePipeline(const GraphicsPipelineDesc &desc) override;
+        VRef<IBuffer> CreateBuffer(const BufferDesc &desc) override;
+        VRef<ITexture> CreateTexture(const TextureDesc &desc) override;
+        VRef<ISampler> CreateSampler(const SamplerDesc &desc) override;
+        VRef<IShader> CreateShader(const ShaderDesc &desc) override;
+        VRef<IPipeline> CreatePipeline(const GraphicsPipelineDesc &desc) override;
 
         ICommandList *BeginFrame() override;
         void EndFrame() override;

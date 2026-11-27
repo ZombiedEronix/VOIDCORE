@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include "Device/RHI.hpp"
 #include "Assets/Shader.hpp"
-#include "Assets/Texture.h"
+#include "Assets/Texture.hpp"
 #include "Core/Debug.h"
 #include "UI/Structures/UIVertex.hpp"
 #include "Graphics/Resources/VertexLayouts.hpp"
@@ -16,7 +16,7 @@ class Material : public Object
     inline static std::vector<const Material *> dirtyMaterials;
 
 public:
-    Material(const Shader *shader, VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline)
+    Material(const Shader *shader, VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> pipeline)
         : shader(shader), pipeline(pipeline)
     {
         if (!shader)
@@ -48,7 +48,7 @@ public:
 
     const Shader *GetShader() const { return shader; }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateUIPipeline(const Shader *shader)
+    static VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> CreateUIPipeline(const Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -83,7 +83,7 @@ public:
         return GetDevice().CreatePipeline(d);
     }
 
-    static VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> CreateLitPipeline(const Shader *shader)
+    static VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> CreateLitPipeline(const Shader *shader)
     {
         using namespace VoidCore::RHI;
         GraphicsPipelineDesc d;
@@ -253,10 +253,10 @@ private:
 
     std::unordered_map<std::string, float> floatParams;
     std::unordered_map<std::string, glm::vec4> vectorParams;
-    VoidCore::RHI::Ref<VoidCore::RHI::IBuffer> uniformBuffer;
+    VoidCore::RHI::VRef<VoidCore::RHI::IBuffer> uniformBuffer;
 
     std::vector<uint8_t> cpuBuffer;
     mutable bool isDirty = false;
 
-    VoidCore::RHI::Ref<VoidCore::RHI::IPipeline> pipeline;
+    VoidCore::RHI::VRef<VoidCore::RHI::IPipeline> pipeline;
 };
